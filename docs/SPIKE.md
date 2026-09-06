@@ -95,16 +95,16 @@ npx tsx /path/to/fusecap/src/cli.ts fixtures
 
 | Gate | Status in CI | Status live (Gage) |
 |------|----------------|--------------------|
-| T1 time fuse | see `tests/spike-exit-gate.test.ts` | |
-| T2 hook block | automated | |
-| T3 exact loop | automated | |
-| T4 dangerous command | automated | |
-| T5 terminate | automated + E2 force-kill | |
-| Git checkpoint preserves dirty work | automated E7 | H2 |
-| Raw receipt + digest + no invented USD | automated E8 | H1 + H2 |
+| T1 time fuse | PASS (`npm test`) | |
+| T2 hook block | PASS | |
+| T3 exact loop | PASS | |
+| T4 dangerous command | PASS | |
+| T5 terminate | PASS (plus E2 force-kill of SIGTERM-ignoring children) | |
+| Git checkpoint preserves dirty work | PASS (E7) | H2 |
+| Raw receipt + digest + no invented USD | PASS (E8 + exit-gate healthy stub) | H1 + H2 |
 | H1 healthy clean session | n/a (needs Claude Code) | |
 | H2 healthy dirty session | n/a (needs Claude Code) | |
-| Fail visibly if hooks bypassed | handshake timeout → `hooks_bypassed` / failed health | |
+| Fail visibly if hooks bypassed | PASS (handshake timeout → `hooks_bypassed` / failed health) | |
 | Capability matrix updated | this file + `fusecap status` | |
 | Demo recorded | not in this environment | |
 

@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Clock } from "../clock.js";
 import { systemClock } from "../clock.js";
@@ -76,6 +76,10 @@ export async function supervise(options: SupervisorOptions): Promise<SupervisorR
     detached: true,
     stdio: ["ignore", "pipe", "pipe"],
   });
+  const stderrLog = createWriteStream(join(options.runDir, "child.stderr.log"));
+  const stdoutLog = createWriteStream(join(options.runDir, "child.stdout.log"));
+  child.stderr?.pipe(stderrLog);
+  child.stdout?.pipe(stdoutLog);
   const pid = child.pid;
   if (!pid) {
     return {

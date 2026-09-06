@@ -187,6 +187,7 @@ export async function runSupervised(options: RunOptions): Promise<{
     claudeVersion = detectClaudeVersion(`${probe.stdout}\n${probe.stderr}`);
   }
 
+  journal.syncFromDisk();
   let exitReason = result.exit_reason;
   const trip = journal.findByType("fuse.tripped").at(-1);
   if (trip && (exitReason === "completed" || exitReason === "unknown")) {

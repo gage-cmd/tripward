@@ -20,6 +20,7 @@ export function readRun(runDirectory: string): RunRecord {
 }
 
 export function writePolicy(runDirectory: string, policy: EffectivePolicy): void {
+  mkdirSync(runDirectory, { recursive: true });
   writeFileSync(join(runDirectory, "policy.frozen.json"), `${JSON.stringify(policy, null, 2)}\n`, {
     mode: 0o600,
   });

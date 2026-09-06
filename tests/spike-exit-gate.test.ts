@@ -48,10 +48,8 @@ describe("72h spike exit gate — five synthetic trips", () => {
 
   it("T2 hook block denies a matched tool before execution", async () => {
     const { result, receipt } = await synthetic("hook-block");
-    expect(["hook_block", "completed"]).toContain(result.exit_reason);
-    expect(receipt.timeline.length).toBeGreaterThan(0);
-    const text = JSON.stringify(receipt);
-    expect(text).toMatch(/TOOL_DENIED|NotebookEdit|deny/);
+    expect(result.exit_reason).toBe("hook_block");
+    expect(JSON.stringify(receipt)).toMatch(/TOOL_DENIED|NotebookEdit/);
   });
 
   it("T3 exact loop trips on repeated identical tool+args", async () => {
@@ -62,8 +60,8 @@ describe("72h spike exit gate — five synthetic trips", () => {
 
   it("T4 dangerous command is blocked before execution", async () => {
     const { result, receipt } = await synthetic("dangerous");
-    expect(["dangerous_command", "completed"]).toContain(result.exit_reason);
-    expect(JSON.stringify(receipt)).toMatch(/DANGEROUS_COMMAND|rm -rf/);
+    expect(result.exit_reason).toBe("dangerous_command");
+    expect(JSON.stringify(receipt)).toMatch(/DANGEROUS_COMMAND/);
   });
 
   it("T5 terminate performs graceful then force kill of the supervised tree", async () => {

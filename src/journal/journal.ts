@@ -41,6 +41,29 @@ export class Journal {
     return new Journal(join(runDirectory, JOURNAL_FILENAME), clock);
   }
 
+  /** Reload complete lines written by this or another process. */
+  syncFromDisk(): void {
+    this.events = [];
+    this.keys = new Map();
+    this.nextSequence = 1;
+    if (!existsSync(this.filePath)) return;
+    const raw = readFileSync(this.filePath, "utf8");
+    for (const line of raw.split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        const parsed = JSON.parse(line) as JournalEvent;
+        if (!parsed.sequence || !parsed.event_id || !parsed.digest) {
+          continue;
+        }
+        this.events.push(parsed);
+        this.keys.set(parsed.idempotency_key, parsed);
+        this.nextSequence = Math.max(this.nextSequence, parsed.sequence + 1);
+      } catch {
+        // leave a partial trailing line for crash reopen
+      }
+    }
+  }
+
   reopen(): { truncated_partial: boolean; last_sequence: number } {
     this.events = [];
     this.keys = new Map();
@@ -97,6 +120,7 @@ export class Journal {
   }
 
   append(input: AppendInput): AppendResult {
+    this.syncFromDisk();
     const body = {
       type: input.type,
       payload: input.payload ?? {},
@@ -132,10 +156,12 @@ export class Journal {
   }
 
   list(): JournalEvent[] {
+    this.syncFromDisk();
     return [...this.events];
   }
 
   findByType(type: string): JournalEvent[] {
+    this.syncFromDisk();
     return this.events.filter((event) => event.type === type);
   }
 
