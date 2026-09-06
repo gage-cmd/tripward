@@ -33,6 +33,13 @@ export function composeRestoreConfirmCommand(
   return `tripward restore --confirm --digest ${preview.preview_digest} --paths ${paths.join(",")} ${preview.run_id}`;
 }
 
+/** Selected apply commands must carry a non-empty `--paths a,b` flag. */
+export function composedCommandPathsFlag(command: string | null): string | null {
+  if (!command) return null;
+  const match = command.match(/--paths\s+(\S+)/);
+  return match?.[1] ?? null;
+}
+
 export function recoveryPathCounts(preview: RecoveryPreview): {
   total: number;
   selectable: number;

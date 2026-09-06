@@ -50,23 +50,25 @@ h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #6E6E73; letter-
 .counts li { margin: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #F5F5F7; }
 .digest-row { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #D2D2D7; }
 .digest-row span { width: 104px; flex: 0 0 104px; color: #6E6E73; font-size: 13px; }
-.digest-row code, td code, #restore-cmd {
+.digest-row code, td code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
   word-break: break-all;
 }
-.cmd-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-.cmd-row input {
+.cmd-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; }
+#restore-cmd {
   flex: 1;
+  margin: 0;
   box-sizing: border-box;
-  border: 0;
   border-radius: 12px;
   background: #F5F5F7;
   color: #1D1D1F;
-  font: inherit;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
   padding: 8px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .copy-link {
   border: 0;
@@ -185,7 +187,12 @@ td { border-top: 1px solid #D2D2D7; }
       navigator.clipboard.writeText(text);
     } else {
       var cmd = document.getElementById("restore-cmd");
-      if (cmd && cmd.value) { cmd.focus(); cmd.select(); }
+      if (cmd && window.getSelection && cmd.textContent) {
+        var range = document.createRange();
+        range.selectNodeContents(cmd);
+        var sel = window.getSelection();
+        if (sel) { sel.removeAllRanges(); sel.addRange(range); }
+      }
     }
     target.textContent = "Copied";
     setTimeout(function () { target.textContent = "Copy"; }, 1500);

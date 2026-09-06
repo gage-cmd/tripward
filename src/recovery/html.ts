@@ -4,6 +4,7 @@ import { receiptHtmlPath, escapeHtml, formatLocalTime } from "../receipt/html.js
 import type { RecoveryPreview, RecoveryPreviewPath } from "../types.js";
 import {
   composeRestoreConfirmCommand,
+  composedCommandPathsFlag,
   defaultSelectedRecoveryPaths,
   isSelectableRecoveryPath,
   recoveryPathCounts,
@@ -127,9 +128,14 @@ export function renderRecoveryHtml(
     <p class="secondary">${escapeHtml(RECOVERY_PAGE_HINT)}</p>
     <p id="empty-selection" class="secondary"${command ? " hidden" : ""}>${escapeHtml(EMPTY_SELECTION_HINT)}</p>
     <div class="cmd-row" id="cmd-row"${command ? "" : " hidden"}>
-      <input id="restore-cmd" type="text" readonly value="${escapeHtml(command ?? "")}" data-digest="${escapeHtml(preview.preview_digest)}" data-run="${escapeHtml(preview.run_id)}" aria-label="Apply restore command">
+      <pre id="restore-cmd" data-digest="${escapeHtml(preview.preview_digest)}" data-run="${escapeHtml(preview.run_id)}" aria-label="Apply restore command">${escapeHtml(command ?? "")}</pre>
       <button type="button" class="copy-link" id="apply-copy"${command ? ` data-copy="${escapeHtml(command)}"` : " disabled"}>Copy</button>
     </div>
+    <p id="paths-flag" class="secondary"${command ? "" : " hidden"}>${
+      command && composedCommandPathsFlag(command)
+        ? escapeHtml(`--paths ${composedCommandPathsFlag(command)}`)
+        : ""
+    }</p>
   </section>`;
   const composeScript = failClosed
     ? ""
@@ -162,18 +168,23 @@ export function renderRecoveryHtml(
     var runId = field.getAttribute("data-run") || "";
     var paths = selectedPaths();
     var next = compose(digest, runId, paths);
-    field.value = next;
+    if (field.tagName === "PRE" || field.tagName === "CODE") field.textContent = next;
+    else field.value = next;
+    var flag = document.getElementById("paths-flag");
     if (copy) {
-      if (next) {
+      if (next && paths.length) {
         copy.setAttribute("data-copy", next);
         copy.disabled = false;
+        if (flag) flag.textContent = "--paths " + paths.join(",");
       } else {
         copy.removeAttribute("data-copy");
         copy.disabled = true;
+        if (flag) flag.textContent = "";
       }
     }
     setHidden(empty, Boolean(next));
     setHidden(row, !next);
+    setHidden(flag, !next);
   }
   document.addEventListener("change", function (event) {
     var target = event.target;
@@ -203,7 +214,12 @@ ${composeScript}
       navigator.clipboard.writeText(text);
     } else {
       var cmd = document.getElementById("restore-cmd");
-      if (cmd && cmd.value) { cmd.focus(); cmd.select(); }
+      if (cmd && window.getSelection && cmd.textContent) {
+        var range = document.createRange();
+        range.selectNodeContents(cmd);
+        var sel = window.getSelection();
+        if (sel) { sel.removeAllRanges(); sel.addRange(range); }
+      }
     }
     target.textContent = "Copied";
     setTimeout(function () { target.textContent = "Copy"; }, 1500);
@@ -263,23 +279,25 @@ h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #6E6E73; letter-
 .counts li { margin: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #F5F5F7; }
 .digest-row { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #D2D2D7; }
 .digest-row span { width: 104px; flex: 0 0 104px; color: #6E6E73; font-size: 13px; }
-.digest-row code, td code, #restore-cmd {
+.digest-row code, td code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
   word-break: break-all;
 }
-.cmd-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-.cmd-row input {
+.cmd-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; }
+#restore-cmd {
   flex: 1;
+  margin: 0;
   box-sizing: border-box;
-  border: 0;
   border-radius: 12px;
   background: #F5F5F7;
   color: #1D1D1F;
-  font: inherit;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
   padding: 8px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .copy-link {
   border: 0;
