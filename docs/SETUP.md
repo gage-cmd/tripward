@@ -13,7 +13,7 @@ Commands below use `npx tsx` against the clone. After `npm run build`, the CLI i
 ## 1. Clone
 
 ```bash
-git clone https://github.com/gage-cmd/fusecap.git tripward
+git clone https://github.com/gage-cmd/tripward.git
 cd tripward
 git checkout main
 npm install
@@ -75,9 +75,9 @@ If you share evidence, send `tripward receipt --redact` JSON — not `.env`, tra
 
 | Situation | Where |
 |-----------|--------|
-| How-to, false stop, checkout | [Help](https://github.com/gage-cmd/fusecap/issues/new?template=help.yml) |
-| Doctor FAIL / Claude Code version break | [Compatibility](https://github.com/gage-cmd/fusecap/issues/new?template=compatibility.yml) |
-| Preexisting work may be at risk | Stop. `tripward restore --preview`. Then [lost-work](https://github.com/gage-cmd/fusecap/issues/new?template=lost-work.yml). Do **not** `git reset --hard`. |
+| How-to, false stop, checkout | [Help](https://github.com/gage-cmd/tripward/issues/new?template=help.yml) |
+| Doctor FAIL / Claude Code version break | [Compatibility](https://github.com/gage-cmd/tripward/issues/new?template=compatibility.yml) |
+| Preexisting work may be at risk | Stop. `tripward restore --preview`. Then [lost-work](https://github.com/gage-cmd/tripward/issues/new?template=lost-work.yml). Do **not** `git reset --hard`. |
 | Vulnerability in Tripward | `SECURITY.md` — not a public issue |
 
 Checkout and fulfillment wiring (Gage): `docs/FOUNDING_PRO.md`. Paid-beta terms: `docs/BETA.md`. Privacy: `docs/PRIVACY.md`.

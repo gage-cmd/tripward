@@ -6,7 +6,8 @@ import { ensureHome, pathsFor } from "../paths.js";
 import { compilePolicy } from "../policy/compiler.js";
 import { getPreset } from "../policy/presets.js";
 import type { PolicyDocument } from "../types.js";
-import { FUSECAP_VERSION } from "../version.js";
+import { isTripwardHookCommand } from "../brand.js";
+import { TRIPWARD_VERSION } from "../version.js";
 import {
   backupExistingFile,
   findEntry,
@@ -116,8 +117,8 @@ function mergeClaudeSettings(
   };
 }
 
-/** Drop FuseCap-owned hook commands; leave every other key untouched. */
-export function stripFuseCapHooks(existing: Record<string, unknown>): Record<string, unknown> {
+/** Drop Tripward-owned hook commands (including leftover FuseCap commands); leave every other key untouched. */
+export function stripTripwardHooks(existing: Record<string, unknown>): Record<string, unknown> {
   const hooks = existing.hooks;
   if (!hooks || typeof hooks !== "object" || Array.isArray(hooks)) {
     return { ...existing };
@@ -136,7 +137,7 @@ export function stripFuseCapHooks(existing: Record<string, unknown>): Record<str
         const filtered = inner.filter((hook) => {
           if (!hook || typeof hook !== "object") return true;
           const command = String((hook as { command?: unknown }).command ?? "");
-          return !command.includes("fusecap") && !command.includes("cli.ts hook") && !command.includes("cli.js hook");
+          return !isTripwardHookCommand(command);
         });
         if (filtered.length === 0) return null;
         return { ...record, hooks: filtered };
@@ -231,7 +232,7 @@ export function applyInstall(
   writeRestrictedFile(settingsLocal, `${JSON.stringify(merged, null, 2)}\n`, FILE_MODE);
   if (existed) {
     // Put back the pre-write mode (preserve). This is not broadening vs the
-    // file the user already had; FuseCap-owned files stay 0600/0700.
+    // file the user already had; Tripward-owned files stay 0600/0700.
     chmodSync(settingsLocal, previousMode);
   }
 
@@ -250,7 +251,7 @@ export function applyInstall(
   const prior = readInstallState(home);
   const state: InstallState = {
     schema_version: "1.0",
-    version: FUSECAP_VERSION,
+    version: TRIPWARD_VERSION,
     cwd,
     home,
     hook_command: hookCommand,
@@ -297,7 +298,7 @@ export function uninstall(cwd: string, home: string, previewOnly: boolean): Inst
     restorePlan = {
       op: "write",
       path: settingsLocal,
-      detail: "no verified backup — strip Tripward (fusecap) hooks only; leave other settings",
+      detail: "no verified backup — strip Tripward hooks only; leave other settings",
     };
   } else {
     restorePlan = { op: "skip", path: settingsLocal, detail: "no settings file and no backup" };
@@ -314,12 +315,12 @@ export function uninstall(cwd: string, home: string, previewOnly: boolean): Inst
         detail: `refused restore: ${result.detail}`,
       };
       if (existsSync(settingsLocal)) {
-        const stripped = stripFuseCapHooks(readJson(settingsLocal));
+        const stripped = stripTripwardHooks(readJson(settingsLocal));
         writeRestrictedFile(settingsLocal, `${JSON.stringify(stripped, null, 2)}\n`, FILE_MODE);
         actions.push({
           op: "write",
           path: settingsLocal,
-          detail: "stripped Tripward (fusecap) hooks after refused restore (original backup left untouched)",
+          detail: "stripped Tripward hooks after refused restore (original backup left untouched)",
         });
       }
     } else {
@@ -331,8 +332,14 @@ export function uninstall(cwd: string, home: string, previewOnly: boolean): Inst
     }
   } else if (existsSync(settingsLocal)) {
     const raw = readFileSync(settingsLocal, "utf8");
-    if (raw.includes("fusecap") || raw.includes("FUSECAP") || raw.includes("cli.ts hook") || raw.includes("cli.js hook")) {
-      const stripped = stripFuseCapHooks(readJson(settingsLocal));
+    if (
+      raw.includes("tripward") ||
+      raw.includes("fusecap") ||
+      raw.includes("FUSECAP") ||
+      raw.includes("cli.ts hook") ||
+      raw.includes("cli.js hook")
+    ) {
+      const stripped = stripTripwardHooks(readJson(settingsLocal));
       const leftoverKeys = Object.keys(stripped).filter((key) => key !== "hooks" || stripped.hooks);
       if (leftoverKeys.length === 0) {
         rmSync(settingsLocal);
@@ -346,7 +353,7 @@ export function uninstall(cwd: string, home: string, previewOnly: boolean): Inst
         actions[actions.length - 1] = {
           op: "write",
           path: settingsLocal,
-          detail: "stripped Tripward (fusecap) hooks; other settings preserved",
+          detail: "stripped Tripward hooks; other settings preserved",
         };
       }
     }
@@ -358,6 +365,9 @@ export function uninstall(cwd: string, home: string, previewOnly: boolean): Inst
   }
   return { actions, hook_command: "", already_installed: false, default_mode: "shadow" };
 }
+
+/** @deprecated Use stripTripwardHooks. Same function; leftover name from the FuseCap working title. */
+export const stripFuseCapHooks = stripTripwardHooks;
 
 export function listedBackups(home: string): BackupEntry[] {
   return loadManifest(pathsFor(home).backups).entries;

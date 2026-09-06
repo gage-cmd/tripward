@@ -1,4 +1,4 @@
-# Security (Tripward / fusecap)
+# Security (Tripward)
 
 **Phase:** Days 8–14 paid beta, PR4.  
 **Law:** `docs/FUSECAP_OPS_BRAIN.txt` Ch 20 (threat model) and Ch 31 (security issue path + response target).  
@@ -23,7 +23,7 @@ Public issue trackers are public.
 
 Pick the first path that exists:
 
-1. **GitHub private vulnerability reporting** — [Open a private advisory](https://github.com/gage-cmd/fusecap/security/advisories/new) if the repository has that setting enabled. If the page says it is not enabled, skip to 2.
+1. **GitHub private vulnerability reporting** — [Open a private advisory](https://github.com/gage-cmd/tripward/security/advisories/new) if the repository has that setting enabled. If the page says it is not enabled, skip to 2.
 2. **`SUPPORT_EMAIL`** — **unset.** Gage: put a mailbox here when one exists. Same paste block as below.
 3. **Channel request only** — Open a **public** issue titled `[security] request private channel` with **zero** technical detail. Wait for a private thread. Do not attach the report “so we can start.”
 

@@ -16,7 +16,8 @@ import { writeActive, writePolicy, writeRun } from "../session.js";
 import { newRunId } from "../ids.js";
 import { buildClaudeLaunchSpec, type LaunchStdioMode } from "./launch.js";
 import type { EffectivePolicy, ExitReason, PolicyDocument, ProtectionHealth, RunRecord, SignalClass } from "../types.js";
-import { FUSECAP_VERSION } from "../version.js";
+import { childCompatEnv } from "../brand.js";
+import { TRIPWARD_VERSION } from "../version.js";
 
 export interface RunOptions {
   cwd: string;
@@ -81,7 +82,7 @@ export async function runSupervised(options: RunOptions): Promise<{
   const dir = runDir(home, runId);
   mkdirSync(dir, { recursive: true });
   const journal = Journal.open(dir);
-  journal.append({ run_id: runId, type: "run.preflight_started", payload: { cwd: options.cwd, version: FUSECAP_VERSION } });
+  journal.append({ run_id: runId, type: "run.preflight_started", payload: { cwd: options.cwd, version: TRIPWARD_VERSION } });
 
   const health_reasons: string[] = [];
   let health: ProtectionHealth = "protected";
@@ -182,14 +183,14 @@ export async function runSupervised(options: RunOptions): Promise<{
 
   const childEnv: NodeJS.ProcessEnv = {
     ...process.env,
-    FUSECAP_HOME: home,
-    FUSECAP_RUN_DIR: dir,
-    FUSECAP_RUN_ID: runId,
+    ...childCompatEnv({
+      home,
+      runDir: dir,
+      runId,
+      stub: useStub,
+      stubScenario: options.stubScenario,
+    }),
   };
-  if (useStub) {
-    childEnv.FUSECAP_STUB = "1";
-    childEnv.FUSECAP_STUB_SCENARIO = options.stubScenario ?? "healthy";
-  }
 
   const result = await supervise({
     command,

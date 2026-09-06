@@ -32,7 +32,7 @@ This is the UX spec for Days 8–14 PR1. Engineering implements this file. Coder
 
 ## CLI honesty
 
-`package.json` `bin` must expose both `tripward` and `fusecap` to the same CLI entry so the HTML command is invocable. User-facing HTML and beta docs brand Tripward. Internal package name may stay `fusecap`.
+`package.json` `bin` must expose `tripward` as the CLI entry so the HTML command is invocable. A leftover `fusecap` bin may exist for existing installs only. User-facing HTML and buyer docs brand Tripward and clone `gage-cmd/tripward` only.
 
 ## Acceptance checklist
 
@@ -46,7 +46,7 @@ This is the UX spec for Days 8–14 PR1. Engineering implements this file. Coder
 - [ ] Timeline lists sealed events (sequence, time, type, summary).
 - [ ] Limitations list is present and includes the no-invented-USD limitation.
 - [ ] Digest shows integrity content digest and policy digest.
-- [ ] HTML contains no `fusecap` / `FuseCap` / `FuseCap` wordmarks.
+- [ ] HTML contains no `fusecap` / `FuseCap` wordmarks.
 - [ ] Tokens: `#F5F5F7`, white cards, `12px` radius, `#1D1D1F`, `#6E6E73`, `#0071E3` used only for links, `-apple-system`, `max-width: 720px`, 8px grid, one column.
 - [ ] Footer may cite https://tripward.dev as text. No other public domain.
 - [ ] `tripward restore --preview <run_id>` is a working CLI invocation (boolean `--preview` must not swallow the run id).

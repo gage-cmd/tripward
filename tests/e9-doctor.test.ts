@@ -8,7 +8,7 @@ import { gitInit, tempDir } from "./helpers.js";
 describe("E9 installer/doctor", () => {
   it("previews install without writing, then applies hooks + policy", () => {
     const cwd = gitInit(tempDir("inst-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     const preview = planInstall(cwd, home);
     expect(preview.actions.length).toBeGreaterThan(0);
     expect(existsSync(join(cwd, ".claude", "settings.local.json"))).toBe(false);
@@ -21,7 +21,7 @@ describe("E9 installer/doctor", () => {
 
   it("doctor exercises hook, journal, git, and terminate", async () => {
     const cwd = gitInit(tempDir("doc-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     applyInstall(cwd, home, false);
     const report = await runDoctor(cwd, home);
     expect(report.components.find((c) => c.name === "journal")?.ok).toBe(true);

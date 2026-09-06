@@ -6,7 +6,7 @@ This is a short disclosure, not legal advice.
 
 ## What stays on your machine
 
-Journals, sealed receipts, Git checkpoints, and policy under `.fusecap/`. Private local `receipt.html` / `recovery.html` are for you. They do not phone home.
+Journals, sealed receipts, Git checkpoints, and policy under `.tripward/`. If a leftover `.fusecap/` directory is already on disk, Tripward still reads it. Private local `receipt.html` / `recovery.html` are for you. They do not phone home.
 
 ## What we collect
 

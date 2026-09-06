@@ -18,7 +18,8 @@ import { handleHook, readActive } from "./session.js";
 import { formatReplayReport, replayHistory } from "./replay/replay.js";
 import { emitReceipt } from "./commands/receipt.js";
 import { formatFoundingProStatus, foundingProStatus } from "./commands/founding-pro.js";
-import { FUSECAP_VERSION } from "./version.js";
+import { CLI_NAME } from "./brand.js";
+import { TRIPWARD_VERSION } from "./version.js";
 
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
@@ -28,15 +29,20 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
+function invokedAsLegacyAlias(): boolean {
+  const base = (process.argv[1] ?? "").split(/[/\\]/).pop() ?? "";
+  return base === "fusecap" || base === "fusecap.js";
+}
+
 function invokedName(): string {
-  const base = (process.argv[1] ?? "tripward").split(/[/\\]/).pop() ?? "tripward";
-  return base === "fusecap" || base === "fusecap.js" ? "fusecap" : "tripward";
+  return CLI_NAME;
 }
 
 function usage(): string {
   const bin = invokedName();
-  return `Tripward ${FUSECAP_VERSION} — local circuit breaker for Claude Code (paid beta)
-CLI: tripward (alias: fusecap) · https://tripward.dev
+  return `Tripward ${TRIPWARD_VERSION} — local circuit breaker for Claude Code (paid beta)
+CLI: tripward · https://tripward.dev
+Clone: https://github.com/gage-cmd/tripward.git
 
 Usage:
   ${bin} init [--preview] [--cwd DIR] [--home DIR] [--preset NAME] [--mode shadow|enforce]
@@ -75,6 +81,9 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv);
   const cwd = resolve(flag(args.flags, "cwd") ?? process.cwd());
   const home = resolveHome(flag(args.flags, "home"), cwd);
+  if (invokedAsLegacyAlias() && args.command !== "hook") {
+    console.error("tripward: `fusecap` is a temporary bin alias for existing installs. Use `tripward`. Clone: https://github.com/gage-cmd/tripward.git");
+  }
 
   switch (args.command) {
     case "help":
@@ -84,7 +93,7 @@ async function main(): Promise<void> {
       return;
     case "version":
     case "--version":
-      console.log(FUSECAP_VERSION);
+      console.log(TRIPWARD_VERSION);
       return;
     case "init": {
       const preview = bool(args.flags, "preview");
@@ -97,7 +106,7 @@ async function main(): Promise<void> {
         console.log(`  ${action.op} ${action.path} — ${action.detail}`);
       }
       console.log(`hook command: ${plan.hook_command || "(n/a)"}`);
-      console.log(`default mode: ${plan.default_mode}  (flip with fusecap protect --mode enforce)`);
+      console.log(`default mode: ${plan.default_mode}  (flip with tripward protect --mode enforce)`);
       return;
     }
     case "uninstall": {
@@ -120,7 +129,7 @@ async function main(): Promise<void> {
     }
     case "policy": {
       if (args.rest[0] !== "explain") {
-        throw new Error("usage: fusecap policy explain [--preset NAME|--policy FILE] [--mode shadow|enforce]");
+        throw new Error("usage: tripward policy explain [--preset NAME|--policy FILE] [--mode shadow|enforce]");
       }
       const mode = parseMode(args.flags);
       let raw: unknown = flag(args.flags, "policy")
@@ -133,7 +142,7 @@ async function main(): Promise<void> {
     case "demo-trip": {
       const kind = (flag(args.flags, "kind") ?? args.rest[0] ?? "dangerous") as DemoTripKind;
       if (!DEMO_TRIP_KINDS.includes(kind)) {
-        throw new Error(`usage: fusecap demo-trip [--kind ${DEMO_TRIP_KINDS.join("|")}]`);
+        throw new Error(`usage: tripward demo-trip [--kind ${DEMO_TRIP_KINDS.join("|")}]`);
       }
       console.error(DEMO_TRIP_BANNER);
       const result = await runDemoTrip({
@@ -191,7 +200,7 @@ async function main(): Promise<void> {
     }
     case "status": {
       const active = readActive(home);
-      console.log(JSON.stringify({ version: FUSECAP_VERSION, home, active, coverage: adapterCoverage(null) }, null, 2));
+      console.log(JSON.stringify({ version: TRIPWARD_VERSION, home, active, coverage: adapterCoverage(null) }, null, 2));
       return;
     }
     case "receipt": {

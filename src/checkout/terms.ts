@@ -33,7 +33,7 @@ export const PRIVACY_LOCAL_FIRST =
   "Tripward is local-first. Deterministic protection does not require an account or cloud sync.";
 
 export const PRIVACY_COLLECT = [
-  "On your machine: journals, sealed receipts, checkpoints, and policy under .fusecap/.",
+  "On your machine: journals, sealed receipts, checkpoints, and policy under .tripward/ (leftover .fusecap/ is still read).",
   "If you pay: Stripe sees the email and payment method you type on their Payment Link. We do not store card numbers in this repo or in local receipts.",
   "If you join the waitlist on tripward.dev: the email you submit.",
 ];

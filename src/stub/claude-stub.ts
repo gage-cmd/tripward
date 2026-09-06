@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { ENV, LEGACY_ENV, envValue } from "../brand.js";
 import { handleHook } from "../session.js";
 import {
   postToolUseFixture,
@@ -20,7 +21,7 @@ export type StubScenario =
   | "stubborn";
 
 function scenario(): StubScenario {
-  const value = (process.env.FUSECAP_STUB_SCENARIO ?? "healthy") as StubScenario;
+  const value = (envValue(process.env, ENV.STUB_SCENARIO, LEGACY_ENV.STUB_SCENARIO) ?? "healthy") as StubScenario;
   return value;
 }
 
@@ -44,7 +45,7 @@ export async function runClaudeStub(): Promise<void> {
     return;
   }
   if (mode === "time") {
-    await sleep(Number(process.env.FUSECAP_STUB_SLEEP_MS ?? "400"));
+    await sleep(Number(envValue(process.env, ENV.STUB_SLEEP_MS, LEGACY_ENV.STUB_SLEEP_MS) ?? "400"));
     handleHook(JSON.stringify(preToolUseBashFixture));
     handleHook(JSON.stringify(sessionEndFixture));
     return;
@@ -81,7 +82,7 @@ export async function runClaudeStub(): Promise<void> {
 }
 
 const invokedDirectly =
-  process.env.FUSECAP_STUB === "1" || process.argv.some((arg) => arg.includes("claude-stub"));
+  envValue(process.env, ENV.STUB, LEGACY_ENV.STUB) === "1" || process.argv.some((arg) => arg.includes("claude-stub"));
 if (invokedDirectly) {
   runClaudeStub().catch((error) => {
     console.error(error);

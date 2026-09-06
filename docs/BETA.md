@@ -39,8 +39,6 @@ tripward restore --preview --html --open        # same, then open when a helper 
 tripward restore --confirm --digest <preview_digest> --paths a,b <run_id>
 ```
 
-`fusecap` remains a working bin alias of the same CLI.
-
 The recovery page never applies. Checkboxes only rewrite the displayed command. Uncertain / `!safe` rows are not selectable. `one_click_disabled` defaults to none checked. `!preexisting_work_intact` fail-closes (rose strip, no compose). Digest mismatch still aborts apply.
 
 ## Landed: PR3

@@ -1,4 +1,6 @@
-export { FUSECAP_VERSION } from "./version.js";
+export { TRIPWARD_VERSION, FUSECAP_VERSION } from "./version.js";
+export { PRODUCT_NAME, CLI_NAME, HOME_DIRNAME } from "./brand.js";
+export { resolveHome } from "./paths.js";
 export { compilePolicy, explainPolicy } from "./policy/compiler.js";
 export { getPreset } from "./policy/presets.js";
 export { evaluateTool } from "./policy/evaluator.js";

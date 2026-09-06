@@ -17,7 +17,8 @@ import { newRunId } from "../ids.js";
 import { ensureHome, runDir } from "../paths.js";
 import { handleHook, writeActive, writePolicy, writeRun } from "../session.js";
 import type { EffectivePolicy, ExitReason, ProtectionHealth, RunRecord } from "../types.js";
-import { FUSECAP_VERSION } from "../version.js";
+import { ENV, LEGACY_ENV } from "../brand.js";
+import { TRIPWARD_VERSION } from "../version.js";
 
 export const DEMO_TRIP_KINDS = ["dangerous", "exact-loop", "hook-block"] as const;
 export type DemoTripKind = (typeof DEMO_TRIP_KINDS)[number];
@@ -78,7 +79,7 @@ export async function runDemoTrip(options: DemoTripOptions): Promise<{
   journal.append({
     run_id: runId,
     type: "run.preflight_started",
-    payload: { cwd: options.cwd, version: FUSECAP_VERSION, demo_trip: true, kind },
+    payload: { cwd: options.cwd, version: TRIPWARD_VERSION, demo_trip: true, kind },
   });
 
   const health_reasons = [
@@ -109,7 +110,7 @@ export async function runDemoTrip(options: DemoTripOptions): Promise<{
     health,
     health_reasons,
     claude_available: false,
-    launched_command: ["fusecap", "demo-trip", "--kind", kind],
+    launched_command: ["tripward", "demo-trip", "--kind", kind],
     signal_class: "operator-injected-demo",
   };
   writeRun(dir, record);
@@ -138,13 +139,17 @@ export async function runDemoTrip(options: DemoTripOptions): Promise<{
     payload: { health, signal_class: "operator-injected-demo", kind },
   });
 
-  const previous = process.env.FUSECAP_RUN_DIR;
-  process.env.FUSECAP_RUN_DIR = dir;
+  const previousCurrent = process.env[ENV.RUN_DIR];
+  const previousLegacy = process.env[LEGACY_ENV.RUN_DIR];
+  process.env[ENV.RUN_DIR] = dir;
+  process.env[LEGACY_ENV.RUN_DIR] = dir;
   try {
     injectKind(kind);
   } finally {
-    if (previous === undefined) delete process.env.FUSECAP_RUN_DIR;
-    else process.env.FUSECAP_RUN_DIR = previous;
+    if (previousCurrent === undefined) delete process.env[ENV.RUN_DIR];
+    else process.env[ENV.RUN_DIR] = previousCurrent;
+    if (previousLegacy === undefined) delete process.env[LEGACY_ENV.RUN_DIR];
+    else process.env[LEGACY_ENV.RUN_DIR] = previousLegacy;
   }
 
   journal.syncFromDisk();
@@ -172,7 +177,7 @@ export async function runDemoTrip(options: DemoTripOptions): Promise<{
     checkpoint,
     claude_version: null,
     signal_class: "operator-injected-demo",
-    launched_binary: "fusecap-demo-trip",
+    launched_binary: "tripward-demo-trip",
   });
   const artifacts = writeReceipt(dir, receipt);
   journal.append({

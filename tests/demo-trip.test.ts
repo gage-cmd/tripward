@@ -6,10 +6,10 @@ import { redactReceipt } from "../src/receipt/redact.js";
 import { gitInit, tempDir } from "./helpers.js";
 import type { ReceiptDocument } from "../src/types.js";
 
-describe("fusecap demo-trip (operator-injected, not live Claude, not stub CI)", () => {
+describe("tripward demo-trip (operator-injected, not live Claude, not stub CI)", () => {
   it("trips dangerous git reset --hard via the real handleHook path and labels the receipt", async () => {
     const cwd = gitInit(tempDir("demo-dang-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     const result = await runDemoTrip({ cwd, home, kind: "dangerous", preset: "spike" });
     expect(result.signal_class).toBe("operator-injected-demo");
     expect(result.exit_reason).toBe("dangerous_command");
@@ -29,7 +29,7 @@ describe("fusecap demo-trip (operator-injected, not live Claude, not stub CI)", 
 
   it("trips exact-loop and hook-block kinds the same labeled way", async () => {
     const cwd = gitInit(tempDir("demo-loop-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     const loop = await runDemoTrip({ cwd, home, kind: "exact-loop", preset: "spike" });
     expect(loop.exit_reason).toBe("exact_loop");
     expect(loop.signal_class).toBe("operator-injected-demo");

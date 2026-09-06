@@ -6,6 +6,7 @@ import { evaluateTool } from "./policy/evaluator.js";
 import type { ClaudeHookInput } from "./adapter/hooks.js";
 import { hookResponseFor } from "./adapter/hooks.js";
 import { markHandshake, requestStop } from "./supervisor/supervisor.js";
+import { ENV, LEGACY_ENV, envValue } from "./brand.js";
 import type { EffectivePolicy, ExitReason, ProtectionHealth, RunRecord } from "./types.js";
 
 export const RUN_META = "run.json";
@@ -43,12 +44,14 @@ export function readActive(home: string): { run_id: string; run_dir: string } | 
 }
 
 export function resolveRunDir(env = process.env): string {
-  if (env.FUSECAP_RUN_DIR) return env.FUSECAP_RUN_DIR;
-  if (env.FUSECAP_HOME) {
-    const active = readActive(env.FUSECAP_HOME);
+  const runDir = envValue(env, ENV.RUN_DIR, LEGACY_ENV.RUN_DIR);
+  if (runDir) return runDir;
+  const home = envValue(env, ENV.HOME, LEGACY_ENV.HOME);
+  if (home) {
+    const active = readActive(home);
     if (active) return active.run_dir;
   }
-  throw new Error("No active Tripward run (FUSECAP_RUN_DIR unset). Hooks fail visibly.");
+  throw new Error("No active Tripward run (TRIPWARD_RUN_DIR unset). Hooks fail visibly.");
 }
 
 function reasonToExit(reason: string): ExitReason {

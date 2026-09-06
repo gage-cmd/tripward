@@ -58,7 +58,7 @@ export function explainPolicy(policy: EffectivePolicy): string {
     "",
     "",
     policy.mode === "shadow"
-      ? "Shadow mode: behavioral detectors and non-safety policy rules log detector.signaled / policy.signaled and warn; they do not interrupt. Flip to enforce: set policy.mode=enforce (fusecap protect --mode enforce) or use --preset spike."
+      ? "Shadow mode: behavioral detectors and non-safety policy rules log detector.signaled / policy.signaled and warn; they do not interrupt. Flip to enforce: set policy.mode=enforce (tripward protect --mode enforce) or use --preset spike."
       : "Enforce mode: matched rules interrupt as configured. Safety hard stops (dangerous command, missing journal/hooks/checkpoint) always interrupt.",
     "Claims contract: allow/warn/ask/deny/terminate are labeled distinctly.",
     "Usage dollars: unavailable for Claude Code subscription traffic.",

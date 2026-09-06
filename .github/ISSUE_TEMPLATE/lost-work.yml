@@ -47,7 +47,7 @@ body:
     id: run_id
     attributes:
       label: run_id
-      description: From `tripward status` or `.fusecap/runs/<run_id>/`.
+      description: From `tripward status` or `.tripward/runs/<run_id>/`.
     validations:
       required: true
 

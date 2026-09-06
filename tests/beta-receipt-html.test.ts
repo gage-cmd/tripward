@@ -95,7 +95,7 @@ describe("PR1 Apple-bar receipt HTML", () => {
 
   it("writes HTML next to a sealed receipt via the CLI helper", () => {
     const receipt = loadFixture();
-    const tmpHome = join("/tmp", `fusecap-html-${Date.now()}`);
+    const tmpHome = join("/tmp", `tripward-html-${Date.now()}`);
     const runDir = join(tmpHome, "runs", receipt.run_id);
     mkdirSync(runDir, { recursive: true });
     writeFileSync(join(runDir, "receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`);
@@ -110,7 +110,7 @@ describe("PR1 Apple-bar receipt HTML", () => {
 
   it("does not print JSON when only --html is set, and still supports --redact", () => {
     const receipt = loadFixture();
-    const tmpHome = join("/tmp", `fusecap-html-redact-${Date.now()}`);
+    const tmpHome = join("/tmp", `tripward-html-redact-${Date.now()}`);
     const runDir = join(tmpHome, "runs", receipt.run_id);
     mkdirSync(runDir, { recursive: true });
     writeFileSync(join(runDir, "receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`);
@@ -123,10 +123,12 @@ describe("PR1 Apple-bar receipt HTML", () => {
 });
 
 describe("tripward CLI honesty", () => {
-  it("exposes a tripward bin alias beside fusecap", () => {
+  it("exposes tripward as the public CLI and fusecap only as a leftover-install alias", () => {
     const pkg = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8")) as {
-      bin: { tripward: string; fusecap: string };
+      name: string;
+      bin: { tripward: string; fusecap?: string };
     };
+    expect(pkg.name).toBe("tripward");
     expect(pkg.bin.tripward).toBe("./dist/cli.js");
     expect(pkg.bin.fusecap).toBe("./dist/cli.js");
   });

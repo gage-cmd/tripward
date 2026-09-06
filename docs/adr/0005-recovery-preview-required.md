@@ -2,7 +2,7 @@
 
 Context: Chapter 12 forbids broad reset, silent stash/commit, and deleting untracked files without an itemized preview. FR-010 requires preview + confirmation.
 
-Decision: Checkpoint writes Git objects via `git hash-object -w` and a manifest; the worktree and index are not modified. `fusecap restore` defaults to preview. Apply requires `--confirm --digest <preview_digest> --paths …`. Dirty-at-start files that change again are `uncertain` and disable one-click restore.
+Decision: Checkpoint writes Git objects via `git hash-object -w` and a manifest; the worktree and index are not modified. `tripward restore` defaults to preview. Apply requires `--confirm --digest <preview_digest> --paths …`. Dirty-at-start files that change again are `uncertain` and disable one-click restore.
 
 Alternatives: Isolated worktree for every run (Ch 12 preference for unattended high-risk). Deferred — compatibility across dirty repos is still an open question (Ch 33).
 

@@ -2,7 +2,7 @@
 
 **Phase:** Days 8–14 paid beta, PR4.  
 **Law:** `docs/FUSECAP_OPS_BRAIN.txt` Ch 31 (support + service objectives).  
-**Product:** https://tripward.dev · repo https://github.com/gage-cmd/fusecap  
+**Product:** https://tripward.dev · repo https://github.com/gage-cmd/tripward  
 **This file does not invent paying-customer counts, staffed SLAs, or a support mailbox Gage has not set.**
 
 How to get help while Tripward is a one-operator paid beta. Channels, what to paste, what never to paste, severity, and the three operator paths the ops brain requires: **lost-work emergency**, **compatibility**, **security**.
@@ -14,22 +14,22 @@ GitHub issue forms live in `.github/ISSUE_TEMPLATE/`. The same fields are below 
 | Channel | Use for | How |
 |---------|---------|-----|
 | This file | First stop. Severity + what to include. | You are here. |
-| Lost-work issue form | Preexisting work may be at risk. | [Lost-work emergency](https://github.com/gage-cmd/fusecap/issues/new?template=lost-work.yml) — or paste the markdown template below. |
-| Compatibility issue form | Claude Code version break, doctor FAIL, unsupported hooks. | [Compatibility](https://github.com/gage-cmd/fusecap/issues/new?template=compatibility.yml) — or paste the markdown template below. |
-| General help form | How-to, false stop, Founding Pro checkout stub. | [Help](https://github.com/gage-cmd/fusecap/issues/new?template=help.yml) |
+| Lost-work issue form | Preexisting work may be at risk. | [Lost-work emergency](https://github.com/gage-cmd/tripward/issues/new?template=lost-work.yml) — or paste the markdown template below. |
+| Compatibility issue form | Claude Code version break, doctor FAIL, unsupported hooks. | [Compatibility](https://github.com/gage-cmd/tripward/issues/new?template=compatibility.yml) — or paste the markdown template below. |
+| General help form | How-to, false stop, Founding Pro checkout stub. | [Help](https://github.com/gage-cmd/tripward/issues/new?template=help.yml) |
 | Security | Vulnerability in Tripward itself. **Not a public issue.** | `SECURITY.md` |
 | Email | Same as the matching template, if a mailbox exists. | `SUPPORT_EMAIL` — **unset.** Gage: replace this cell when a mailbox exists. |
 
 There is no support team, no 24/7 desk, and no invented `support@` / `security@` address in this repository. Until `SUPPORT_EMAIL` is set, non-security reports go to GitHub issues. Security stays private — see `SECURITY.md`.
 
-`fusecap` is a bin alias of the same CLI. Commands below use `tripward`.
+Commands below use `tripward`.
 
 ## What to include
 
 Send only what is needed to reproduce a local tool:
 
 1. **`tripward doctor` text** (or `--json`). The `OVERALL` line plus every `FAIL` row. Doctor is the preflight.
-2. **`run_id`** if a session existed (`.fusecap/runs/<run_id>/`, or `tripward status`).
+2. **`run_id`** if a session existed (`.tripward/runs/<run_id>/`, or `tripward status`).
 3. **`tripward receipt --redact` JSON** if a receipt sealed. That drop is host path + repository fingerprint.
 4. Tripward version (doctor header), Claude Code version (`claude --version`), OS.
 5. One sentence: what you expected vs what happened.
@@ -102,8 +102,6 @@ Tripward’s recovery law is ADR 0005 / Ch 12: preview is required; apply is dig
 
    If the digest mismatches, refresh `--preview` and stop. Do not invent a digest. Do not apply when `preexisting_work_intact` is false, or when the row you care about is `uncertain` / `manual_review`.
 6. Contact **Critical**. Use the lost-work form or, if set, `SUPPORT_EMAIL`. Include the paste block below.
-
-`fusecap restore` is the same command.
 
 ### Lost-work paste (usable without GitHub)
 
