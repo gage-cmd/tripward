@@ -1,0 +1,2108 @@
+              MASTER PRD • ARCHITECTURE • SAFETY • BUILD SYSTEM
+
+
+
+
+              FuseCap
+              The Local Circuit Breaker
+              for Coding Agents
+
+              A decision-grade product and engineering brain for validating, building, securing,
+              testing, launching, and operating the working-codename product.
+
+
+
+
+          PROTECT                                        DETECT                                          RECOVER
+
+          Deterministic limits                           Behavioral risk                                 Receipt + Git restore
+
+
+
+
+ Status: working codename; paid demand unproven; Claude Code first; Cursor explicitly deferred until an enforceability spike passes. This document defines
+ what may be claimed, built, tested, and shipped.
+
+
+
+
+ VERSION 1.0 • SEPTEMBER 2026 • SOURCE OF TRUTH
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                                1
+ CHAPTER 00
+
+ How to use this brain
+ Use it to preserve intent, constraints, interfaces, and evidence across every build session.
+
+
+ Operating rule
+ When implementation conflicts with this document, preserve the user promise, safety invariants, data boundaries, and current validation
+ phase. Record any deliberate divergence in an architecture decision record. Do not silently expand scope or strengthen a marketing
+ claim.
+
+           CHAPTERS      SYSTEM                     PURPOSE
+
+           01–05         Product strategy           Thesis, demand status, customer, jobs, positioning and principles.
+
+           06–11         PRD                        Journeys, requirements, controls, receipts, recovery and entitlements.
+
+           12–19         Engineering                Architecture, lifecycle, policy model, detection, data, APIs, adapters and CLI.
+
+           20–24         Trust and quality          Threat model, privacy, failure handling, testing and release engineering.
+
+           25–29         Execution                  Roadmap, backlog, analytics, paid validation and content engine.
+
+           30–39         Operations and context     Support, economics, risks, decisions, AI prompt, implementation contracts and sources.
+
+
+
+            Phase boundary
+
+            The current authorization is to prove reliable Claude Code controls and validate paid demand. It is not
+            authorization to build Cursor support, a universal LLM proxy, enterprise SSO, a remote-control application, or an
+            autonomous security product.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                2
+ CHAPTER 01
+
+ Executive product brief
+ A local safety envelope for unattended and high-autonomy coding-agent sessions.
+
+
+ One-sentence promise
+      A local circuit breaker for coding agents: it stops runaway sessions,
+      protects the repository, and produces a receipt explaining exactly what
+      happened.
+           FIELD                    DECISION
+
+           Problem                  Agents can repeat failing actions, churn files, expand work, invoke dangerous commands, consume quotas, and
+                                    spend observable API dollars while the user is absent.
+
+           Initial buyer            Solo developer or tiny team using Claude Code frequently, especially unattended, with meaningful code or API
+                                    exposure.
+
+           Initial surface          Claude Code launched with a project or user policy; local runtime and local evidence store.
+
+           Core loop                Configure policy → checkpoint → observe → allow/warn/block/terminate → inspect receipt → restore or resume.
+
+           Paid value               Behavioral detection, durable history, notifications, multiple/concurrent runs, CI, and shared team policy.
+
+           Not the promise          Not a universal hard-dollar cap, not a new model, not a compliance certificate, and not a replacement for native
+                                    sandboxing.
+
+           Business status          Problem demand is credible; recurring willingness to pay is not proven. Build only enough to ask for money.
+
+
+
+ North-star outcome
+ A developer becomes comfortable starting a bounded agent run and walking away because the limits are explicit, the enforcement is
+ local, and the recovery path is reversible.
+
+ Product equation
+            TRUST = enforceable limits + honest uncertainty + reversible recovery + evidence
+
+            A control that cannot be enforced must be labeled advisory. A cost that cannot be observed must not be
+            presented as actual spend. A restore operation that can lose preexisting work must not ship.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                          3
+ CHAPTER 02
+
+ Demand thesis and evidence status
+ Separate evidence that a problem exists from evidence that a recurring product will be purchased.
+
+
+           CLAIM                         STATUS                  EVIDENCE INTERPRETATION
+
+           Problem existence             Supported               Runaway usage, repeated-agent behavior, quota exhaustion and destructive actions are
+                                                                 repeatedly discussed; platforms themselves ship controls.
+
+           Technical feasibility         Partially supported     Claude Code exposes blocking tool hooks and native sandbox settings. Process-level
+                                                                 termination and Git snapshots are feasible. Behavioral accuracy is unproven.
+
+           Competitive validation        Supported               AgentBudget, AgentGuard and NeatProxy Guardrail target adjacent or nearly identical
+                                                                 problems.
+
+           Individual willingness to     Unproven                Competitors publish prices, but public pricing is not evidence of revenue, retention, or
+           pay                                                   conversion.
+
+           Team willingness to pay       Plausible               Teams have policy, audit and shared-cost jobs, but the initial team buyer and
+                                                                 procurement path require interviews and paid pilots.
+
+           $50K MRR path                 Possible, not           Requires team mix and strong retention; a solo smoke-alarm subscription is insufficient
+                                         forecast                evidence.
+
+
+
+ Decision
+            GO to paid validation; NO-GO to a broad build
+
+            The first milestone is not feature completion. It is five technical controls that work, five live installations, three real
+            protected runs, one legitimate trip, and three paying strangers within fourteen days.
+
+
+ Strongest initial segments
+           SEGMENT                          WHY IT PAYS                                                                  HYPOTHESIS
+
+           API/BYOK power user              High financial pain; observable requests; already spends heavily.            $10–$20/user/month
+
+           Small engineering team           Governance, repository risk, cost allocation and policy consistency.         $99–$499/workspace/month
+
+           Subscription-only solo user      Quota/time/repository pain but weaker direct-dollar exposure.                $5–$15/month unless recovery is
+                                                                                                                         exceptional
+
+           Occasional vibe coder            Low run frequency and high installation friction.                            Poor initial target
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                               4
+ CHAPTER 03
+
+ Customer definition and jobs
+ Design for people who delegate meaningful work and need boundaries while absent.
+
+
+           PRIORITY         PERSONA                             QUALIFYING SIGNAL
+
+           Primary          Agent power user                    Runs Claude Code daily; uses auto-approval or long tasks; has experienced loops or
+                                                                quota exhaustion.
+
+           Secondary        Technical founder                   Runs agents against a valuable repository; fears regressions, credential exposure and
+                                                                destructive commands.
+
+           Expansion        Engineering manager                 Needs organization-wide policy, incident history, adoption visibility and evidence.
+
+           Exclude          Curious light user                  Runs short supervised sessions and has little incremental risk or recurring need.
+
+
+
+ Jobs to be done
+           MOMENT                 JOB                                                          PRODUCT RESPONSE
+
+           Before leaving         Bound this run so it cannot continue indefinitely.           Explicit session envelope and checkpoint.
+
+           During a run           Stop actions outside my risk tolerance.                      Deterministic allow/warn/ask/deny/terminate policy.
+
+           When progress          Recognize repetition without killing productive iteration.   Shadow-mode behavioral detectors with evidence.
+           stalls
+
+           After a trip           Tell me exactly what happened.                               Local, timestamped, redacted forensic receipt.
+
+           After damage           Restore only agent-created changes safely.                   Reviewable checkpoint comparison and explicit recovery.
+
+           Across a team          Make every run conform to a shared minimum.                  Signed/versioned policy and central metadata view later.
+
+
+
+ Activation event
+ The user protects one real session and receives a trustworthy clean receipt or a legitimate trip. A waitlist signup, installation, or
+ historical scan alone is not activation.
+
+ Retention event
+ The user begins a fifth protected run within fourteen days, or a team policy protects a second developer. The product must become the
+ default path, not a utility users remember only after an incident.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                             5
+ CHAPTER 04
+
+ Positioning and competitive boundary
+ Win on safe unattended coding and recovery—not generic spend metering.
+
+
+           ELEMENT                            POSITION
+
+           Category                           Local runtime safety for coding agents
+
+           Primary benefit                    Run agents with explicit boundaries and reversible recovery
+
+           Functional differentiator          Git-aware progress, behavioral tripwires and incident reconstruction
+
+           Emotional benefit                  Confidence to step away without blindly trusting the agent
+
+           Proof                              A real run, a clear trip, an intact repository and a reproducible receipt
+
+
+
+ Competitive map
+           ALTERNATIVE                 JOB                                 STRENGTH                          FUSECAP BOUNDARY
+
+           Native Claude controls      Permissions and OS-level            Platform-native and               Does not constitute cross-run behavioral
+                                       sandboxing                          improving                         recovery or independent evidence.
+
+           AgentBudget                 SDK/API dollar enforcement          Open source and provider          Primarily code integration; not the full
+                                                                           coverage                          coding-agent recovery workflow.
+
+           AgentGuard                  Budget/capability control and       Very close positioning            Do not assume differentiation; test Git-aware
+                                       receipts                                                              recovery and progress analysis.
+
+           NeatProxy Guardrail         Local proxy, budgets,               Near-direct competitor            Compete only with a visibly superior job, not
+                                       dashboard, $15/$99 tiers                                              copied surface features.
+
+           Observability tools         After-the-fact tracing and cost     Rich analytics                    FuseCap acts at the local run boundary and
+                                       analysis                                                              prioritizes intervention/recovery.
+
+
+
+            Required differentiation proof
+
+            At least three target users must prefer FuseCap's Git-aware receipt/recovery or behavioral progress detection
+            over existing free protection. Otherwise, reposition or stop.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                                6
+ CHAPTER 05
+
+ Product principles and non-goals
+ Use these rules to resolve design and engineering tradeoffs.
+
+
+           PRINCIPLE                          ENGINEERING CONSEQUENCE
+
+           Local first                        Raw prompts, code, tool arguments and secrets remain on the machine unless the user explicitly opts into a
+                                              later service.
+
+           Deterministic before intelligent   Hard stops begin with rules whose behavior can be tested. Learned judgment begins in shadow mode.
+
+           Evidence before verdict            Every warning or trip points to the exact events and policy version that produced it.
+
+           Reversible by construction         Preserve preexisting work; never make automatic destructive recovery decisions.
+
+           Fail visibly                       If a required hook, daemon, sandbox or checkpoint is unavailable, show that protection is degraded before
+                                              the run.
+
+           No fake precision                  Costs are actual only when provider usage is observable; otherwise label list-price estimate or unavailable.
+
+           Minimum privilege                  Request only the filesystem, network and provider access required for the configured policy.
+
+           Progressive enforcement            New behavioral rules observe first, warn second and block only after demonstrated reliability.
+
+           Platform complement                Use native sandboxing and permissions; do not weaken or pretend to replace them.
+
+
+
+ Explicit non-goals for v1
+ • Cursor parity.
+
+ • Universal LLM gateway or credential vault.
+
+ • Remote command execution from a phone.
+
+ • Enterprise identity, SSO, SCIM or compliance claims.
+
+ • Automatic AI-written remediation of repository damage.
+
+ • Guaranteed detection of every loop or harmful action.
+
+ • Replacement for Git, backups, Claude Code permissions or native sandboxing.
+
+ • Storing full prompts, completions, file contents or secrets in a hosted service.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                                7
+ CHAPTER 06
+
+ PRD overview
+ The initial product is a small trusted loop: protect, detect, explain, recover, repeat.
+
+
+           FIELD                      V1 DECISION
+
+           Objective                  Prove that developers will repeatedly route real Claude Code runs through a local safety envelope and pay for
+                                      behavioral intelligence/history.
+
+           User promise               Set boundaries once; receive visible protection on every eligible run; preserve existing work; know why
+                                      intervention occurred.
+
+           Platform                   macOS first; Linux next. Claude Code first. Git repository required for recovery features.
+
+           Interface                  CLI-first with local HTML receipt/dashboard. No cloud account required for free local use.
+
+           Persistence                Local SQLite or append-only event store; optional encrypted sync is a later paid capability.
+
+           Distribution               Signed binary/package plus Claude Code plugin/hooks; reversible installer and diagnostic command.
+
+           Success window             Technical spike in 72 hours; paid validation in 14 days; retained-use proof within 45 days.
+
+
+
+ Primary workflow
+           #       STAGE            SYSTEM BEHAVIOR
+
+           1       Install          Verify prerequisites and show exactly what configuration will change.
+
+           2       Protect          Select a preset or create project policy; run in shadow mode initially.
+
+           3       Preflight        Check Git state, hook registration, policy validity, sandbox posture and storage health.
+
+           4       Checkpoint       Record repository HEAD, index, working tree state and FuseCap-owned recovery reference.
+
+           5       Run              Launch or attach to supported Claude Code session; ingest hook lifecycle events.
+
+           6       Decide           Evaluate deterministic policies before actions and behavioral detectors after observations.
+
+           7       Trip             Warn, ask, block a tool, or terminate according to policy and capability.
+
+           8       Receipt          Seal a local record containing scope, events, trigger, affected files and confidence.
+
+           9       Recover          Show diff; restore only selected agent-created changes after explicit approval.
+
+           10      Resume           Start a new/resumed session with a deliberate policy adjustment and linked receipt.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                         8
+ CHAPTER 07
+
+ Requirements and release criteria
+ Every requirement has a verification boundary and priority.
+
+
+           ID         PRI   CAPABILITY              ACCEPTANCE BOUNDARY
+
+           FR-001     P0    Install/uninstall       Modify only documented configuration; preserve permissions; reversible without manual
+                                                    repair.
+
+           FR-002     P0    Preflight               Refuse protected mode when mandatory components are absent or policy is invalid.
+
+           FR-003     P0    Session identity        Assign a stable local run ID and link lifecycle events to it.
+
+           FR-004     P0    Time fuse               Terminate or block at configured elapsed-time boundary within defined tolerance.
+
+           FR-005     P0    Tool policy             Allow, warn, ask or deny matched Claude Code tool calls before execution.
+
+           FR-006     P0    Exact loop              Identify normalized repeated calls and apply configured threshold.
+
+           FR-007     P0    Dangerous commands      Block high-confidence destructive patterns without executing them.
+
+           FR-008     P0    Checkpoint              Capture pre-run Git state without losing dirty-tree or staged work.
+
+           FR-009     P0    Receipt                 Persist trigger, timeline, policy, evidence, affected files and limitations locally.
+
+           FR-010     P0    Recovery                Preview and selectively restore FuseCap-attributed changes with confirmation.
+
+           FR-011     P1    Subagent fuse           Count observable subagent starts and enforce configured ceiling.
+
+           FR-012     P1    File churn              Measure repeated edits to the same files/regions; shadow or warn initially.
+
+           FR-013     P1    Sequence loop           Detect repeated normalized event sequences; shadow first.
+
+           FR-014     P1    No progress             Use test/diff/error signals to flag stagnation; never hard-stop by default.
+
+           FR-015     P1    Notifications           Local desktop and optional webhook/Slack alert without sensitive payload.
+
+           FR-016     P1    History                 Filter runs, trips and clean receipts by repository and policy version.
+
+           FR-017     P2    Dollar fuse             Enforce only for supported observable API/BYOK pathways with cost-confidence label.
+
+           FR-018     P2    Team policy             Distribute signed policy, enforce minimums locally and sync redacted metadata.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                               9
+ CHAPTER 08
+
+ Control taxonomy and claims contract
+ Product copy must state what is guaranteed, advisory, or unavailable.
+
+
+           CONTROL               CLAIM CLASS                    ENFORCEMENT                LIMITATION
+
+           Wall-clock            Guaranteed when launched by    Process supervisor         Elapsed boundary may allow one in-flight action
+                                 FuseCap                                                   to finish unless force-kill selected.
+
+           Tool allow/deny       Guaranteed for matched         PreToolUse hook            Does not govern effects outside the supported
+                                 hook-visible tools                                        tool surface.
+
+           Exact repetition      Guaranteed for observed        Local policy engine        Normalization rules are versioned and shown.
+                                 normalized events
+
+           Destructive command   Guaranteed only for matched    Hook plus native sandbox   Not a comprehensive shell-security engine.
+                                 patterns
+
+           Subagent count        Guaranteed when lifecycle      SubagentStart hook         Unsupported pathways are reported as
+                                 events are emitted                                        unobserved.
+
+           File mutation limit   Measured from Git/filesystem   Watcher + hook events      External processes may require reconciliation.
+                                 observations
+
+           Sequence/file churn   Best-effort                    Behavioral detector        Shadow/warn by default until accuracy target is
+                                                                                           met.
+
+           No-progress           Best-effort                    Evidence aggregation       Cannot know user intent perfectly; never
+                                                                                           hard-stop by default in v1.
+
+           Network allowlist     Delegated guarantee            Claude native OS sandbox   FuseCap validates posture; it does not claim
+                                                                settings                   independent isolation.
+
+           Dollar cap            Observable-only                API/SDK request boundary   Unavailable for opaque subscription inference;
+                                                                                           estimate must be labeled.
+
+
+
+ Copy rules
+ • Say stopped, blocked, warned or observed—do not blur them.
+
+ • Say estimated cost only when price-table math is used.
+
+ • Say protected scope, not protected machine.
+
+ • Say restore selected run changes, not rollback everything.
+
+ • Say behavioral risk detected, not AI proved the agent was stuck.
+
+ • Display degraded protection before the run, inside the receipt and in any shared artifact.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                10
+ CHAPTER 09
+
+ Policies and presets
+ A policy is a versioned contract between the user and the runtime.
+
+
+           GROUP                   FIELDS
+
+           identity                policy_id, name, version, schema_version, created_at, source
+
+           scope                   repository root, branch rules, allowed working directories, session modes
+
+           runtime                 max elapsed, idle threshold, graceful-stop timeout, force-kill behavior
+
+           tools                   allow, deny, ask, maximum total, maximum per tool, argument matchers
+
+           agents                  maximum starts, concurrency ceiling, permitted agent types
+
+           filesystem              protected paths, allowed writes, mutation count, changed lines, generated-file exclusions
+
+           commands                deny patterns, ask patterns, normalized command rules, shell parsing mode
+
+           network                 required native sandbox, allowed domains, denied domains, posture checks
+
+           behavior                exact repeat, sequence repeat, churn, test stagnation and confidence thresholds
+
+           spend                   provider, model rates, observable budget, reservation mode, confidence label
+
+           actions                 observe, warn, ask, block tool, graceful stop, terminate process
+
+           privacy                 event detail, hashing, retention, receipt redaction, optional sync
+
+
+
+ Default presets
+           PRESET                 DEFAULT INTENT
+
+           Observe                No blocking except known catastrophic commands; collect seven days of local evidence.
+
+           Standard               90 minutes, 150 tools, exact repeat 5, subagents 8, protected secrets, ask on risky commands.
+
+           Overnight              60 minutes, 100 tools, subagents 4, strict sandbox required, block risky network/commands, checkpoint mandatory.
+
+           CI                     30 minutes, noninteractive, explicit tool allowlist, no workspace escape, machine-readable receipt.
+
+
+
+            Policy precedence
+
+            Organization minimums > repository policy > user policy > session overrides. A lower scope may tighten but may
+            not weaken a mandatory higher-scope rule. V1 implements repository and session scopes only.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                        11
+ CHAPTER 10
+
+ Trip lifecycle and user experience
+ Intervention must be understandable in seconds and recoverable without panic.
+
+
+           STATE                        MEANING
+
+           ARMING                       Validate policy, runtime, Git state and hooks.
+
+           SHADOW                       Observe behavioral rules without blocking.
+
+           PROTECTED                    Mandatory components healthy; active enforcement.
+
+           DEGRADED                     One or more controls unavailable; show exact missing coverage.
+
+           WARNED                       Risk threshold met; session continues and receipt records warning.
+
+           AWAITING_APPROVAL            Pending action blocked until local user response or timeout.
+
+           TOOL_BLOCKED                 One tool action denied; model may adjust and continue.
+
+           STOPPING                     Graceful stop requested; wait bounded interval.
+
+           TERMINATED                   Supervisor ended process; preserve events and checkpoint.
+
+           COMPLETED                    Normal session end with clean or warned receipt.
+
+           RECOVERY_REVIEW              User comparing pre-run and current state.
+
+           RESTORED                     Selected run-attributed changes reversed and recovery receipt created.
+
+
+
+ Trip screen must show
+ • The exact policy and threshold that fired.
+
+ • Whether the pending action executed.
+
+ • The last meaningful progress signal.
+
+ • A compact repeated sequence or relevant command/file evidence.
+
+ • Repository state and whether preexisting changes are safe.
+
+ • Options: inspect, continue once, change policy and resume, end, or review recovery.
+
+ • Cost as actual/estimate/unavailable with source and confidence.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                    12
+ CHAPTER 11
+
+ Receipt specification
+ The receipt is the user-facing evidence object and the long-term learning substrate.
+
+
+           SECTION                 REQUIRED CONTENT
+
+           Identity                receipt_id, run_id, repository fingerprint, branch, host label, timestamps
+
+           Environment             FuseCap version, adapter version, Claude Code version, OS, protection health
+
+           Policy                  policy ID/version/digest, preset, overrides and enforcement modes
+
+           Outcome                 completed, warned, blocked, terminated, crashed or user-canceled
+
+           Trigger                 rule, threshold, observed value, confidence, action and whether action executed
+
+           Timeline                ordered redacted events with monotonic and wall-clock time
+
+           Repository              pre-run references, dirty-state manifest, files touched, diff statistics, final status
+
+           Progress                test changes, error fingerprints, event novelty, churn and no-progress window
+
+           Usage                   requests/tokens/cost only when observable; price source, estimate date and confidence
+
+           Recovery                available actions, user decision, selected paths, result and recovery receipt link
+
+           Integrity               schema version, content digest and optional local signature
+
+           Privacy                 redaction level, excluded fields, retention and share export status
+
+
+
+ Shareable receipt
+ Sharing is opt-in and produces a separate redacted artifact. Default sharing excludes repository name/path, command arguments,
+ filenames, user identity, prompts, completions, diffs, environment variables and provider identifiers. The share artifact may show policy
+ class, counts, duration, trigger category and a human-approved narrative.
+
+ Receipt example
+ RUN fc_01J... | TERMINATED | policy overnight@1.2
+ Trigger: exact sequence repeated 6 times in 11m 42s
+ Observed: test → read → edit → test; 3 files touched; no new passing tests
+ Pending action: blocked before execution
+ Usage: unavailable for subscription inference
+ Repository: checkpoint intact; 18 agent-attributed changes available for review
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                13
+ CHAPTER 12
+
+ Git checkpoint and recovery design
+ Preserve the user's starting state and make every recovery operation explicit.
+
+
+ Preflight algorithm
+           #     STEP                    REQUIREMENT
+
+           1     Verify repository       Resolve canonical root; reject ambiguous nested repositories unless selected.
+
+           2     Capture identity        Record HEAD, branch/detached state, remotes as redacted fingerprints and worktree path.
+
+           3     Inventory state         Capture staged, unstaged, untracked and ignored-state metadata without ingesting secret contents.
+
+           4     Preserve user work      Create a FuseCap-owned recovery object/worktree strategy that does not overwrite index or working tree.
+
+           5     Validate restore        Perform a dry comparison and ensure recovery references are readable before launching.
+
+           6     Begin watcher           Attribute subsequent changes using event time plus Git reconciliation; label uncertain attribution.
+
+
+
+ Recovery rules
+ • Never run a broad destructive Git reset.
+
+ • Never silently stash or commit user work.
+
+ • Never delete untracked files without an itemized preview and confirmation.
+
+ • Never claim perfect attribution when external editors or processes changed the repository concurrently.
+
+ • Prefer an isolated worktree for unattended high-risk runs when technically compatible.
+
+ • Recovery must create its own receipt and be undoable when practical.
+
+ • If repository state changes outside the observed session, disable one-click restore and guide manual review.
+
+ Definition of safe restore
+            A restore is safe only when preexisting staged, unstaged and untracked user work
+            remains byte-for-byte available; the user previews affected paths; the operation is
+            scoped to selected agent-attributed changes; and the result is verified after
+            application.
+
+            Color(.988235,.913725,.921569,1)
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                      14
+ CHAPTER 13
+
+ System architecture
+ Keep enforcement local; make optional cloud features metadata-minimal.
+
+
+           COMPONENT                     RESPONSIBILITY
+
+           CLI and installer             Setup, policy commands, launch, status, receipts, diagnostics, update and uninstall.
+
+           Claude adapter                Installs/validates hooks, maps lifecycle payloads, reports supported coverage and version compatibility.
+
+           Process supervisor            Starts session, maintains PID tree, timers, graceful stop and force termination.
+
+           Policy engine                 Pure deterministic evaluator for pre-action and cumulative limits.
+
+           Behavior engine               Streaming feature extraction, shadow judgments, confidence and detector versioning.
+
+           Repository guard              Git snapshot, mutation reconciliation, diff statistics and recovery plans.
+
+           Event journal                 Append-only local events; sequence IDs, monotonic timestamps and crash recovery.
+
+           Receipt builder               Compiles redacted evidence, integrity digest and local HTML/JSON outputs.
+
+           Local dashboard               Loopback-only UI for active runs, policies, receipts, recovery and history.
+
+           Notification adapters         Desktop first; optional user-configured webhook/Slack later.
+
+           Optional cloud                Account, billing, encrypted metadata sync and team policy distribution; never required for enforcement.
+
+
+
+ Trust boundaries
+ Claude Code → signed/validated hook invocation → local adapter → append-only journal → policy/behavior evaluation → decision
+ returned to hook or supervisor. Repository access remains local. Optional cloud receives only explicitly enabled, schema-validated
+ metadata after local redaction.
+
+
+ Suggested implementation
+ A single cross-platform systems binary (Rust or Go) is the preferred long-term core for process supervision, local storage and
+ distribution. A thin plugin/configuration layer integrates Claude Code. A local web UI can be embedded assets. The 72-hour spike may
+ use the fastest safe language, but production language is selected by an ADR after installer, process-tree and hook latency tests.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                       15
+ CHAPTER 14
+
+ Session and event lifecycle
+ The journal is authoritative; derived views can always be rebuilt.
+
+
+           EVENT                              SEMANTICS
+
+           run.preflight_started              Run accepted; no protection claim yet.
+
+           run.preflight_failed               Reason and degraded/blocked status recorded.
+
+           checkpoint.created                 Recovery reference and starting-state digest persisted.
+
+           run.armed                          Required controls verified; policy digest frozen.
+
+           tool.requested                     Hook-visible proposed tool and normalized feature record.
+
+           policy.evaluated                   Matched rules, decision and evaluator version.
+
+           tool.allowed / blocked             Decision returned before action when supported.
+
+           tool.completed / failed            Result metadata and normalized outcome fingerprint.
+
+           subagent.started / stopped         Observable agent lifecycle and active/total counts.
+
+           repository.changed                 Path hash/category, diff statistics and attribution confidence.
+
+           progress.observed                  New passing test, error change, diff novelty or declared milestone.
+
+           detector.signaled                  Behavioral detector score, evidence window and shadow/enforce mode.
+
+           fuse.tripped                       Threshold, response, pending-action state and notification result.
+
+           run.ended                          Exit reason, final protection health and receipt job requested.
+
+           receipt.sealed                     Receipt digest and local artifact paths.
+
+           recovery.applied                   Selected plan, result, verification and linked receipt.
+
+
+
+ Ordering and durability
+ Assign an increasing local sequence number inside each run. Persist a pending tool decision before returning allow/deny. Use
+ monotonic time for thresholds and wall time for display. Event ingestion must be idempotent using adapter event ID plus payload digest.
+ On restart, mark incomplete actions unknown rather than assuming success.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                          16
+ CHAPTER 15
+
+ Policy engine mechanics
+ Hard stops must be fast, deterministic, testable, and independent of an LLM.
+
+
+ Evaluation order
+           ORD     LAYER                     DECISION
+           ER
+
+           1       System safety             Corrupt policy, unavailable required journal, invalid scope or disabled mandatory protection →
+                                             deny/stop.
+
+           2       Organization minimum      Later signed minimums may only be tightened downstream.
+
+           3       Protected resource        Secret paths, forbidden write roots, command patterns and domain rules.
+
+           4       Cumulative limits         Elapsed time, tool totals, per-tool totals, subagent counts, mutation limits and observable spend.
+
+           5       Exact behavior            Normalized repeated event/action threshold.
+
+           6       Behavioral signals        Shadow/warn/ask unless detector is explicitly promoted.
+
+           7       Default                   Apply policy default; v1 default is ask or native behavior, never silent broad allow.
+
+
+
+ Decision object
+ decision_id; run_id; event_id; policy_digest; evaluator_version; matched_rule_ids; action
+ (allow/warn/ask/deny/graceful_stop/terminate); reason_code; display_reason; evidence_refs; decision_time_ms; expires_at;
+ override_allowed; override_scope; and integrity_digest.
+
+
+ Performance targets
+ • P95 deterministic hook decision under 35 ms on supported local machines.
+
+ • No network dependency in the critical allow/deny path.
+
+ • Journal append completed before returning an irreversible allow.
+
+ • One crashing detector cannot disable deterministic controls.
+
+ • Policy compilation rejects unknown fields unless schema explicitly permits forward compatibility.
+
+ • All thresholds and normalizers covered by table-driven and property-based tests.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                     17
+ CHAPTER 16
+
+ Behavioral detection system
+ Earn trust in shadow mode before behavioral judgment can interrupt work.
+
+
+           DETECTOR               METHOD                                                         INITIAL       V1 ACTION
+                                                                                                 CONFIDENCE
+
+           Exact action repeat    Normalized tool + stable arguments + target;                   High          Eligible for block after tests.
+                                  threshold/window.
+
+           Sequence repeat        Rolling hashes over 2–8 event motifs; tolerate non-semantic    Medium        Shadow then warn.
+                                  noise.
+
+           Failure recurrence     Normalized exit status and error fingerprint repeats without   Medium/high   Warn; block only with
+                                  new outcome.                                                                 explicit user rule.
+
+           File churn             Same regions repeatedly added/removed or high edit             Medium        Warn and show diff
+                                  reversal ratio.                                                              evidence.
+
+           No progress            Time/tools since meaningful signal such as new test pass or    Low/medium    Advisory only in v1.
+                                  novel diff.
+
+           Fan-out                Subagent starts/concurrency growth beyond envelope.            High when     Hard ceiling allowed.
+                                                                                                 observable
+
+           Scope drift            New directories/tools/domains outside early-run pattern or     Medium        Ask or warn.
+                                  declared scope.
+
+
+
+ Progress signals
+ • New passing test or reduced failing-test count.
+
+ • Novel error fingerprint replacing a repeated error.
+
+ • Stable new diff that is not immediately reversed.
+
+ • Completion of an explicit task/milestone event when available.
+
+ • Repository state moving toward user-declared acceptance commands.
+
+ • User-approved continuation after reviewing a warning.
+
+ Promotion gate
+            A behavioral detector may become a default hard stop only after at least 500
+            representative runs, fewer than 2% harmful false positives in its eligible population,
+            reproducible evidence, safe override behavior, and an explicit product decision. Until
+            then it observes, warns, or asks.
+
+            Color(1,.952941,.839216,1)
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                    18
+ CHAPTER 17
+
+ Local data model
+ Store the minimum necessary to reproduce decisions and recover safely.
+
+
+           ENTITY                       KEY FIELDS
+
+           projects                     id, root fingerprint, display alias, policy link, created/last used
+
+           policies                     id, scope, version, schema, document, digest, status, source
+
+           runs                         id, project, adapter, policy digest, state, start/end, protection health
+
+           checkpoints                  run, Git references, starting manifest, strategy, verified, expires
+
+           events                       run, sequence, type, monotonic/wall time, redacted payload, digest
+
+           decisions                    event, matched rules, action, reason, latency, override metadata
+
+           detector_signals             run, detector/version, window, features, confidence, mode
+
+           file_observations            run, path hash/optional local path, category, stats, attribution
+
+           usage_observations           provider/model, counts, cost value, currency, source, confidence
+
+           receipts                     run, schema, outcome, trigger, digest, local artifacts, shared export
+
+           recovery_plans               receipt, selected changes, preview digest, status, verification
+
+           install_state                adapter/config versions, changed files, backup refs, health
+
+           entitlements                 local license cache, tier, expiry, signature, last verified
+
+
+
+ Storage rules
+ • SQLite WAL mode or equivalent durable local store with migrations and backups.
+
+ • Raw hook payload discarded after validated redaction unless debug capture is explicitly enabled for synthetic tests.
+
+ • Sensitive local display fields encrypted at rest when practical; no custom cryptography.
+
+ • Retention defaults: events 7 days free, 90 days paid; checkpoints shorter and space-bounded.
+
+ • Deletion is immediate locally; optional cloud deletion is auditable and bounded by documented backup retention.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                             19
+ CHAPTER 18
+
+ Local API and IPC contracts
+ Expose a narrow authenticated loopback surface; keep internal events versioned.
+
+
+           ENDPOINT                                   CONTRACT
+
+           POST /v1/runs                              Create preflight request; return run ID and required user actions.
+
+           POST /v1/runs/{id}/arm                     Freeze policy/checkpoint and arm protection.
+
+           GET /v1/runs/{id}                          Return state, health, counts, warnings and redacted live timeline.
+
+           POST /v1/runs/{id}/decision                Adapter submits a proposed event; returns action and reason.
+
+           POST /v1/runs/{id}/observe                 Submit completion/failure or repository observation idempotently.
+
+           POST /v1/runs/{id}/stop                    Request graceful or force stop with actor and reason.
+
+           POST /v1/runs/{id}/override                One-time or scoped override; require confirmation and audit.
+
+           GET /v1/runs/{id}/receipt                  Return authorized local receipt representation.
+
+           POST /v1/receipts/{id}/export              Create redacted share artifact after preview.
+
+           POST /v1/receipts/{id}/recovery-plan       Generate non-mutating recovery preview.
+
+           POST /v1/recovery-plans/{id}/apply         Apply confirmed selection with preview digest/idempotency key.
+
+           GET /v1/policies                           List effective local policies and precedence.
+
+           POST /v1/policies/validate                 Compile and explain policy without activating.
+
+           GET /v1/health                             Daemon, journal, adapter, Git and update health.
+
+
+
+ IPC security
+ • Bind to loopback or local domain socket only; reject non-local origins.
+
+ • Generate per-install secret with restrictive file permissions; rotate on reinstall and suspected exposure.
+
+ • Use origin checks and anti-CSRF tokens for local dashboard mutations.
+
+ • Never accept arbitrary filesystem paths from the browser without canonical scope validation.
+
+ • Every mutating request uses an idempotency key and actor identity.
+
+ • Recovery application additionally binds to the exact preview digest to prevent time-of-check/time-of-use drift.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                              20
+ CHAPTER 19
+
+ Claude Code adapter and CLI specification
+ Build on documented hooks and native sandboxing; detect version drift explicitly.
+
+
+           HOOK                          USE
+
+           SessionStart                  Associate/resume run, verify policy health and surface degraded coverage.
+
+           PreToolUse                    Evaluate tool, command, path and cumulative limits before execution; allow/ask/deny.
+
+           PostToolUse                   Record completion metadata and trigger repository/progress reconciliation.
+
+           PostToolUseFailure            Fingerprint failure and update repetition/no-progress detectors.
+
+           PostToolBatch                 Finalize batch features before the next model turn when supported.
+
+           SubagentStart/Stop            Track observable total/concurrent subagents and enforce ceiling.
+
+           FileChanged                   Reconcile mutation observations when supported by installed version.
+
+           Stop/SessionEnd               Finalize normal outcome; do not mistake hook feedback for guaranteed process control.
+
+
+
+ CLI
+           COMMAND                             BEHAVIOR
+
+           fusecap init                        Inspect environment; preview changes; install local daemon/adapter; create default shadow policy.
+
+           fusecap protect [preset]            Validate and activate repository policy.
+
+           fusecap run [-- claude ...]         Preflight, checkpoint and supervise a session.
+
+           fusecap status                      Show daemon, adapter, active run and protection health.
+
+           fusecap doctor                      Exercise hook round-trip, storage, Git, sandbox posture and process termination.
+
+           fusecap receipt [run]               Open local receipt or emit redacted JSON.
+
+           fusecap restore [run]               Create preview; require confirmation; apply selected recovery plan.
+
+           fusecap policy explain              Show effective rules, precedence, limitations and unsupported controls.
+
+           fusecap replay                      Read-only historical analysis when compatible; label inference and limitations.
+
+           fusecap uninstall                   Remove only owned configuration and restore verified backups.
+
+
+
+            Adapter limitation
+
+            Claude Code PreToolUse hooks can block tool calls. They do not prove visibility into every internal subscription
+            inference. Dollar enforcement remains disabled unless a separately supported observable request boundary is
+            active.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                      21
+ CHAPTER 20
+
+ Security and threat model
+ FuseCap occupies a privileged local position; compromise must not amplify the agent's power.
+
+
+           THREAT                    FAILURE                                        MITIGATION
+
+           Malicious tool input      Agent crafts shell/path arguments to bypass    Structured parsing, canonical paths, native sandbox, deny by
+                                     pattern rules.                                 capability—not string alone.
+
+           Prompt injection          Repository content directs agent to weaken     Policy outside model context; protected configuration; deny
+                                     controls.                                      changes during armed run.
+
+           Hook bypass               Agent invokes unobserved path or disables      Supervisor health checks, config protection, degraded state,
+                                     hook.                                          OS boundary where available.
+
+           Daemon spoofing           Local process impersonates client or submits   Local credential, restrictive permissions, peer/process checks
+                                     events.                                        where portable.
+
+           Dashboard attack          Malicious page targets loopback API.           Origin validation, CSRF protection, no wildcard CORS,
+                                                                                    authentication, content security policy.
+
+           Symlink/path traversal    Write appears in scope but resolves outside    Canonicalization at decision time; reject races; OS sandbox
+                                     repository.                                    defense.
+
+           Recovery destroys work    Attribution error removes human/external       Preview digest, concurrency detection, selective restore, no
+                                     changes.                                       automatic reset.
+
+           Secret leakage            Receipt captures tokens, prompts, paths or     Allowlist schema, redaction tests, secret canaries, local-only
+                                     command arguments.                             raw data.
+
+           Supply-chain compromise   Installer/update/plugin is replaced.           Signed artifacts, checksums, pinned release channel, rollback
+                                                                                    and provenance.
+
+           Policy downgrade          User/repository rule weakens team minimum.     Signed precedence, immutable effective digest, visible
+                                                                                    override audit.
+
+           Denial of service         Hook latency or crash prevents work.           Bounded decisions, watchdog, explicit fail-open/fail-closed
+                                                                                    per control; no silent state.
+
+
+
+ Security boundary
+ FuseCap is a defense-in-depth controller, not a complete host sandbox. Native Claude Code sandboxing uses OS-level filesystem and
+ network boundaries and should be enabled where compatible. FuseCap validates and augments that posture but must not claim
+ equivalent isolation. [1][2]
+
+ Security release blocker
+            Do not ship if the installer broadens file permissions, local API accepts remote origins,
+            a receipt contains test secrets, a protected config can be modified during an armed
+            run, or recovery can erase a dirty starting tree.
+
+            Color(.988235,.913725,.921569,1)
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                        22
+ CHAPTER 21
+
+ Privacy and data governance
+ Default to useful metadata without collecting the user's intellectual property.
+
+
+           DATA                           RULE
+
+           Prompt/completion text         Process only if adapter necessarily exposes it; do not persist or sync by default.
+
+           Tool arguments/results         Use transiently for decisions; persist normalized category/hash and minimum evidence.
+
+           Source and diffs               Remain local; receipt stores statistics and optional local references, not cloud content.
+
+           Paths                          Local receipt may show them; cloud/share exports use categories or salted hashes by default.
+
+           Environment variables          Never persist; redact known token patterns; test with canary secrets.
+
+           Provider credentials           Never request for subscription protection. BYOK pathway uses user-configured provider mechanism.
+
+           Usage metadata                 Persist locally; optional sync includes provider/model only with explicit setting.
+
+           Diagnostics                    Opt-in bundle with preview, field inventory and user-controlled exclusion.
+
+
+
+ Privacy UX requirements
+ • Before install: disclose configuration changes and local data locations.
+
+ • Before cloud sync: show exact schema and a sample payload.
+
+ • Before receipt sharing: generate a separate preview artifact; never share the private receipt by reference.
+
+ • Provide one-command export and deletion.
+
+ • Do not require an account for deterministic local protection.
+
+ • Telemetry default is off in the technical spike; later analytics require granular consent and content-free events.
+
+ Cloud principle
+            The paid cloud stores coordination value—policy versions, counts, statuses, redacted
+            receipts and team membership—not the code or conversation that made local
+            enforcement possible.
+
+            Color(.917647,.941176,.988235,1)
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                23
+ CHAPTER 22
+
+ Failure modes and degraded operation
+ Users must know what remains protected when a component fails.
+
+
+           FAILURE                             REQUIRED BEHAVIOR
+
+           Daemon unavailable before run       Block protected launch; offer unprotected launch only through explicit confirmation.
+
+           Daemon fails mid-run                Supervisor tries safe stop; receipt marks unknown interval; deterministic hook failure follows
+                                               declared policy.
+
+           Journal full/corrupt                Fail closed for irreversible protected actions; stop run; preserve diagnostic copy.
+
+           Hook timeout                        Return configured fail-closed for destructive controls; otherwise surface degraded status and
+                                               warning.
+
+           Claude version unsupported          Refuse guaranteed claims; offer shadow diagnostics or unprotected mode.
+
+           Git checkpoint unavailable          Disable recovery claims; overnight preset refuses to start.
+
+           Repository changes externally       Invalidate automatic attribution; require manual recovery review.
+
+           Sandbox unavailable                 If policy requires sandbox, abort. Otherwise mark degraded before session begins.
+
+           Notification fails                  Enforcement continues; receipt records delivery failure.
+
+           Price table stale                   Disable actual-dollar wording; use dated estimate or count limits.
+
+           Cloud offline                       Local protection continues from cached signed entitlement/policy for grace period.
+
+           License expired                     Never disable active safety mid-run; finish with existing policy, then apply entitlement change.
+
+
+
+ Fail-open versus fail-closed
+ Each rule declares behavior. Catastrophic command, protected-path, mandatory sandbox and recovery-integrity controls fail closed.
+ Advisory behavioral analytics fail open with visible degradation. Product access/licensing never causes an unsafe mid-run transition.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                     24
+ CHAPTER 23
+
+ Test strategy
+ Test the control system adversarially, including its tendency to interrupt healthy work.
+
+
+           LAYER                        SCOPE
+
+           Unit                         Policy parsing, precedence, normalizers, threshold math, redaction, price math, digests.
+
+           Property/fuzz                Command/path parsing, symlinks, quoting, Unicode, malformed hook payloads, event ordering.
+
+           Contract                     Recorded official hook payload fixtures across supported Claude Code versions.
+
+           Integration                  Real local daemon + adapter + synthetic repository + process tree + Git state.
+
+           Adversarial                  Attempts to disable hooks, alter policy, escape paths, leak canary secrets or race recovery.
+
+           Behavioral benchmark         Labeled healthy and unhealthy trajectories; precision/recall by detector and population.
+
+           Recovery matrix              Clean, dirty, staged, unstaged, untracked, detached HEAD, worktree, external edit and crash.
+
+           Installer/update             Fresh install, upgrade, downgrade, interruption and complete uninstall on each OS.
+
+           Performance                  Hook decision latency, journal throughput, large repository reconciliation and receipt build.
+
+           End-to-end                   Deliberate loops, failing-test cycles, destructive commands, timeout and safe resumption.
+
+
+
+ Required synthetic scenarios
+ • Exact npm-test/read/edit cycle that never changes outcome.
+
+ • Productive TDD loop whose failing-test count steadily decreases.
+
+ • Large formatter-generated diff excluded from churn rules.
+
+ • Command obfuscation and shell-composition attempts.
+
+ • Write through symlink outside repository.
+
+ • Agent edits FuseCap policy during run.
+
+ • User edits same file concurrently.
+
+ • Daemon crash immediately before and after allow decision.
+
+ • Receipt containing seeded API-key-like canaries.
+
+ • Recovery after staged and untracked starting work.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                           25
+ CHAPTER 24
+
+ Quality gates and definition of done
+ A safety feature is not done when the happy path works.
+
+
+           GATE                             RELEASE STANDARD
+
+           Deterministic enforcement        100% pass on supported contract suite; no known bypass in scoped synthetic scenarios.
+
+           Decision latency                 P95 under 35 ms, P99 under 100 ms for deterministic hook decisions.
+
+           Run reliability                  >95% of supported protected runs finish with a sealed receipt or explicit failure receipt.
+
+           Recovery                         Zero loss of preexisting work across required matrix; recovery preview matches applied selection.
+
+           Secret handling                  Zero seeded canaries in persistent database, private receipt export and cloud/share payload.
+
+           Behavior detectors               Report precision/recall; no default hard block until promotion gate is met.
+
+           Installer                        Reversible and idempotent; configuration permissions preserved; doctor confirms exact state.
+
+           Compatibility                    Pinned support matrix and automated smoke run for every supported Claude Code release.
+
+           Documentation                    Limitations, data handling, disable/uninstall and recovery clearly documented.
+
+
+
+ Story-level done
+ • Acceptance criteria have automated tests.
+
+ • Failure and cancellation behavior are specified.
+
+ • Telemetry and privacy fields are reviewed.
+
+ • User-visible copy uses the claims contract.
+
+ • Support/diagnostic output identifies the relevant version and policy digest.
+
+ • Security-sensitive changes receive adversarial review.
+
+ • Any product-brain divergence has an approved ADR.
+
+
+            No silent protection gaps
+
+            A green/protected indicator may appear only after live verification of every mandatory component. Installed is not
+            the same as armed; armed is not the same as fully covered.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                   26
+ CHAPTER 25
+
+ Delivery roadmap
+ Sequence engineering around proof, trust, and payment rather than feature count.
+
+
+           TIME            MILESTONE              SCOPE                                                                EXIT GATE
+
+           0–72 hours      Enforceability spike   Launch supervised Claude session; time fuse; hook block; exact       Five synthetic trips and two
+                                                  loop; dangerous command; Git checkpoint; terminate; raw              healthy sessions pass.
+                                                  receipt.
+
+           Days 4–7        Private alpha          Reversible installer, doctor, shadow mode, five external installs,   Five installs, three real runs,
+                                                  read-only historical analysis.                                       one legitimate signal.
+
+           Days 8–14       Paid beta              Local receipt UI, safe recovery preview, Founding Pro checkout,      Three paying strangers and no
+                                                  support channel.                                                     lost work.
+
+           Weeks 3–4       Reliability            Crash recovery, compatibility fixtures, mutation reconciliation,     >90% receipt completion and
+                                                  signed releases, analytics consent.                                  repeat use.
+
+           Weeks 5–6       Behavior               Sequence/failure/churn detectors in shadow mode, benchmark           Useful precision and
+                                                  corpus, incident review tools.                                       reproducible explanations.
+
+           Weeks 7–8       Pro                    History, notifications, presets, entitlements and privacy-safe       Ten paid users; five retained at
+                                                  optional account.                                                    day 30.
+
+           Weeks 9–10      Power                  Concurrent sessions, CI mode, machine-readable receipts and          Three power users use feature
+                                                  advanced policies.                                                   weekly.
+
+           Weeks 11–12     Team pilot             Signed minimum policy, metadata sync, admin view and                 Two paying team pilots.
+                                                  five-seat pilot.
+
+
+
+ Stop rules
+ • If the 72-hour spike cannot reliably stop the five defined cases, stop marketing the hard-control promise.
+
+ • If users will install only a free scanner and will not pay, do not build cloud history by assumption.
+
+ • If recovery cannot preserve dirty work, remove recovery from beta until redesigned.
+
+ • If existing products win all preference tests, reposition around a narrower outcome or park the project.
+
+ • Cursor work begins only after an adapter spike proves enforceable events and coverage.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                             27
+ CHAPTER 26
+
+ Prioritized engineering backlog
+ Build P0 trust paths before behavioral breadth or cloud convenience.
+
+
+           EPIC     PRI      NAME                    DELIVERABLE
+
+           E1       P0       Adapter spike           Capture official lifecycle payloads; block tool; confirm version/latency.
+
+           E2       P0       Supervisor              PID tree, timers, signals, graceful/force termination, exit reasons.
+
+           E3       P0       Journal                 Append-only events, idempotency, crash reopening, migrations.
+
+           E4       P0       Policy core             Schema, compiler, precedence, pure evaluator, explanation.
+
+           E5       P0       Exact loop              Normalizer, windows, threshold, evidence and tests.
+
+           E6       P0       Command guard           Structured high-confidence patterns, native sandbox posture and bypass tests.
+
+           E7       P0       Git safety              Starting manifest, checkpoint strategy, reconciliation, recovery preview.
+
+           E8       P0       Receipt                 Private JSON/HTML, limitations, integrity digest, event timeline.
+
+           E9       P0       Installer/doctor        Preview, backups, permissions, health exercise and uninstall.
+
+           E10      P1       Local UI                Runs, policy, live status, receipt, recovery review.
+
+           E11      P1       Shadow detectors        Sequence, failure recurrence, churn and no-progress features.
+
+           E12      P1       Notifications           Desktop and privacy-minimal webhook.
+
+           E13      P1       Entitlements            Signed offline-capable tier cache; never unsafe mid-run downgrade.
+
+           E14      P1       Historical replay       Read-only compatibility adapters and inference labels.
+
+           E15      P2       Observable spend        API/SDK boundary, reservation, rates and confidence.
+
+           E16      P2       Cloud/team              Account, metadata sync, signed team policy, admin and billing.
+
+           E17      Deferr   Cursor                  Only after separate coverage/enforcement proof and product approval.
+                    ed
+
+
+
+ Backlog discipline
+ Each epic must define user outcome, threat implications, privacy fields, observable events, acceptance tests, rollout flag and rollback.
+ No P1 epic begins if E1–E9 have an open release-blocking defect.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                               28
+ CHAPTER 27
+
+ Analytics and experiment design
+ Measure protected behavior and payment without collecting sensitive content.
+
+
+           EVENT                               DEFINITION
+
+           Qualified visit                     Visitor from relevant developer content or direct outreach.
+
+           Audit initiated                     User intentionally begins local historical or doctor flow.
+
+           Audit completed                     A result is shown with coverage and limitations.
+
+           Credible incident found             User confirms at least one result reflects real waste/risk.
+
+           Protection installed                Adapter and daemon pass doctor.
+
+           First protected run                 Run seals a clean/warn/trip receipt.
+
+           Repeat protected run                Second and fifth run milestones.
+
+           Paid                                Successful individual or team subscription.
+
+           Retained                            Paid user active at day 30; team has second active developer.
+
+
+
+ Core metrics
+           METRIC                    FORMULA                                                                   TARGET
+
+           Activation                First protected run / successful installations                            ≥60% beta target
+
+           Repeat                    Users with 5 runs in 14d / activated                                      ≥40% early signal
+
+           Incident utility          Confirmed useful signals / reviewed signals                               ≥70% before scaling
+
+           False stop                Harmful incorrect stops / enforced stops                                  <2% behavioral promotion gate
+
+           Paid conversion           Paid / activated qualified users                                          Observe by segment; no invented
+                                                                                                               benchmark
+
+           Retention                 Paid active at day 30 / paid cohort                                       ≥50% validation gate
+
+           Receipt reliability       Sealed explicit outcome / supported runs                                  >95% quality target
+
+
+
+ Counter-metrics
+ • Lost or corrupted preexisting work.
+
+ • Users disabling protection due to friction.
+
+ • Healthy runs incorrectly stopped.
+
+ • Runs marked protected while required components were degraded.
+
+ • Sensitive fields detected in telemetry/export.
+
+ • Support burden per active user and compatibility break rate.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                    29
+ CHAPTER 28
+
+ Paid validation and waitlist design
+ Use the waitlist to route qualified testers; use payment and repeated runs to validate demand.
+
+
+ Landing-page CTAs
+           PHASE                CTA                                              PURPOSE
+
+           Before prototype     Apply for private protected beta                 Collect agent, billing mode, unattended frequency, prior incident, team
+                                                                                 size and install willingness.
+
+           After replay tool    Run your free local agent-history audit          Deliver personalized evidence; ask user to confirm or reject each
+                                                                                 detected incident.
+
+           After live beta      Install free deterministic protection            Measure activation and repeat runs.
+
+           Paid                 Founding Pro — $15/month                         Charge now with explicit beta terms and automatic refund if promised
+                                                                                 delivery fails.
+
+           Team                 Request $99/month pilot                          Manual onboarding is acceptable; require actual payment or signed
+                                                                                 pilot commitment.
+
+
+
+ Fourteen-day thresholds
+           GATE                THRESHOLD                                             INTERPRETATION
+
+           Traffic             100 qualified landing visits                          Enough denominator to interpret conversion.
+
+           Audit               20 installations; 8 credible incidents                Problem becomes personal rather than hypothetical.
+
+           Protection          5 live installs; 3 real runs; 1 legitimate trip       Core behavior exists outside the founder's machine.
+
+           Payment             3 paying strangers                                    Enough to continue; not proof of a company.
+
+           Safety              Zero lost work; zero critical secret leaks            Non-negotiable.
+
+           Repeat              At least 2 users run protection more than once        Early retention behavior.
+
+
+
+ Strong GO by day 45
+            Ten paying individuals with at least half still active at day 30, or two paying team
+            customers; at least 30% of activated users complete five protected runs; one annual
+            payment; and users state they would be uncomfortable returning to unprotected
+            unattended runs.
+
+            Color(.901961,.972549,.945098,1)
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                              30
+ CHAPTER 29
+
+ Build-in-public distribution system
+ Post while building, but make every artifact drive an audit, installation, run or payment.
+
+
+           CHANNEL          ROLE                 FORMAT                                                              CADENCE HYPOTHESIS
+
+           X                Primary              Developer density, replies, technical threads, screen recordings    One strong original post/day plus
+                                                 and buyer interviews.                                               high-quality replies.
+
+           TikTok           Demonstration        Visually dramatic loop → trip → receipt → recovery narrative.       Four to six vertical posts/week
+                                                                                                                     from real build events.
+
+           Instagram        Credibility/reuse    Reels plus educational carousels and product history.               Clean reposts and two
+                                                                                                                     carousels/week.
+
+
+
+ Content pillars
+           PILLAR                         PAYOFF
+
+           Incident demo                  Deliberately create a safe loop and show the fuse.
+
+           Build truth                    Share what could not be enforced and how the claim changed.
+
+           Forensics                      Explain a redacted receipt or historical pattern.
+
+           Recovery                       Show dirty work preserved and only agent changes restored.
+
+           Education                      Monitoring vs enforcement; native sandbox vs behavioral circuit breaker.
+
+           Customer proof                 Permissioned result, confirmed incident and repeat-use story.
+
+
+
+ Reusable structure
+ Hook in first seconds → show the agent behavior → show FuseCap decision → show repository/receipt outcome → one CTA. TikTok's
+ official guidance recommends stating the proposition early, using a clear hook, demonstrating the benefit and ending with a direct call to
+ action. [9]
+
+ Content safety
+ • Use purpose-built repositories or explicit user permission.
+
+ • Redact paths, commands, source, prompts, tokens and identities.
+
+ • Never invent savings; state actual, dated estimate, or unavailable.
+
+ • Do not publicly shame a platform or user based on one ambiguous detector.
+
+ • Keep the working codename internal until clearance.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                            31
+ CHAPTER 30
+
+ Pricing, entitlements and $50K MRR model
+ Charge for intelligence, durable coordination and policy—not emergency recovery.
+
+
+           PLAN            PRICE              VALUE
+
+           Free            $0                 Deterministic fuses, local receipts, checkpoint and manual recovery review, short local history.
+
+           Pro             $19/mo             Behavioral detectors, 90-day history, notifications and advanced presets.
+
+           Power           $39/mo             Concurrent sessions, CI mode, advanced policies and machine-readable exports.
+
+           Team            $99/mo             Five users, shared minimum policies, Slack and centralized redacted receipts.
+
+           Company         $299+/mo           More users, audit history, mandatory enforcement controls and priority support.
+
+
+
+ Illustrative $50K MRR mix—not a forecast
+           ACCOUNTS                   PLAN                               ARPA                          MRR
+
+           700                        Pro                                $19                           $13,300
+
+           300                        Power                              $39                           $11,700
+
+           150                        Team                               $99                           $14,850
+
+           35                         Company                            $299                          $10,465
+
+           1,185                      Total                              —                             $50,315
+
+
+
+ Economic rules
+ • Local enforcement should have near-zero marginal compute cost.
+
+ • Behavioral models, if any, must be optional, bounded and gross-margin visible.
+
+ • Cloud sync stores metadata, not high-volume traces by default.
+
+ • Free protection is a distribution surface; paid conversion depends on repeat value, not artificial safety withholding.
+
+ • Grandfather founding pricing only with explicit limits; avoid lifetime deals that destroy recurring-demand evidence.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                    32
+ CHAPTER 31
+
+ Operations, support and compatibility
+ A local developer tool succeeds or fails on trust, installation and version drift.
+
+
+           AREA                        RUNBOOK REQUIREMENT
+
+           Compatibility               Maintain Claude Code version matrix, automated canary sessions and rapid adapter disable flag.
+
+           Release                     Signed binaries, checksums, SBOM, release notes, staged channel and rollback instructions.
+
+           Diagnostics                 Doctor command, redacted bundle preview, run/policy/version IDs and deterministic reproduction fixtures.
+
+           Support                     Security issue path, lost-work emergency path, compatibility issue template and paid response targets.
+
+           Incident response           Revoke update/signing keys, disable faulty detector remotely only for opted-in cloud; publish scope and
+                                       remedy.
+
+           Backups                     Local database/checkpoint retention with disk caps, integrity checks and user-controlled cleanup.
+
+           Entitlement outage          Signed cache and grace window; active run never loses protection due to billing service.
+
+           Platform change             Detect unsupported version before arming; never silently continue with stale hooks.
+
+
+
+ Service objectives after paid beta
+ • >99.5% availability for optional account/billing APIs; local protection does not depend on this target.
+
+ • >95% supported runs produce explicit sealed outcomes.
+
+ • P95 local policy decision under 35 ms.
+
+ • Critical lost-work/security report acknowledged within four business hours during beta.
+
+ • Compatibility break assessed within one business day of a supported platform release.
+
+ • No hidden auto-update that changes active policy semantics mid-run.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                     33
+ CHAPTER 32
+
+ Risk register and kill criteria
+ The highest risks are commoditization, platform absorption, false stops and misplaced trust.
+
+
+           RISK                              IMPACT     LIKELIHOOD   RESPONSE
+
+           Near-direct competitors           High       High         Preference test; differentiate on Git-aware recovery/progress; stop if no
+                                                                     wedge.
+
+           Native platform absorbs           High       High         Remain cross-run/cross-tool and recovery-focused; avoid basic-toggle
+           controls                                                  dependency.
+
+           No recurring willingness to pay   High       High         Charge within 14 days; track repeat protected runs and 30-day retention.
+
+           False positive interrupts         High       High         Shadow behavioral rules; explain evidence; strict promotion gate.
+           valuable work
+
+           Recovery loses user work          Critical   Medium       Matrix tests, external-change detection, preview digest, no automatic
+                                                                     reset.
+
+           Hook or version bypass            High       High         Live doctor, support matrix, fail visibly, adapter canary.
+
+           Security tool becomes attack      Critical   Medium       Local auth, signed updates, minimal persistence, adversarial review.
+           surface
+
+           Installation trust/friction       High       High         Open design, reversible installer, local-only free mode,
+                                                                     checksum/provenance.
+
+           Content goes viral but wrong      Medium     High         Optimize for audits, installs, paid and repeats—not views/waitlist.
+           audience
+
+           Working name unavailable          Medium     High         Use codename internally; complete trademark/domain/package/handle
+                                                                     clearance.
+
+
+
+ Kill or reposition when
+ • Technical spike cannot reliably stop scoped actions.
+
+ • Fewer than three paying strangers after qualified 14-day validation effort.
+
+ • Users repeatedly install but do not protect a second run.
+
+ • False stops remain unacceptable after scoped deterministic tuning.
+
+ • Existing free products satisfy users and recovery/progress differentiation does not change preference.
+
+ • Platform terms or technical changes prevent a trustworthy supported integration.
+
+ • The product requires collecting raw private content to deliver its core value.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                    34
+ CHAPTER 33
+
+ Architecture decisions and open questions
+ Freeze foundational choices; explicitly investigate decisions that remain uncertain.
+
+
+           ID            STATUS         DECISION
+
+           ADR-001       Accepted       Local-first enforcement; cloud is optional and never in critical decision path.
+
+           ADR-002       Accepted       Claude Code first; Cursor deferred to separate feasibility gate.
+
+           ADR-003       Accepted       Deterministic hard stops; behavioral detectors shadow/warn initially.
+
+           ADR-004       Accepted       No actual-dollar claim for opaque subscription inference.
+
+           ADR-005       Accepted       Manual, previewed, selective recovery; no automatic broad rollback.
+
+           ADR-006       Proposed       Systems-language single binary for production core after spike benchmark.
+
+           ADR-007       Proposed       SQLite append-only journal with rebuildable derived views.
+
+           ADR-008       Open           Checkpoint implementation: recovery objects versus isolated worktree by mode.
+
+           ADR-009       Open           Whether historical Claude session parsing is stable, permissible and privacy-safe.
+
+           ADR-010       Open           Cloud account timing and the minimum paid entitlement architecture.
+
+
+
+ Open questions for spike/interviews
+ • Which real user workflows use supported hook events, and which effects remain invisible?
+
+ • Can process termination preserve a resumable session reliably?
+
+ • Which checkpoint method works across dirty repositories, nested repos and worktrees?
+
+ • What exact behavior do users interpret as progress?
+
+ • Will users trust a local closed binary, require source availability, or accept signed artifacts and audits?
+
+ • Does the strongest willingness to pay come from cost, lost-work prevention, unattended confidence or team governance?
+
+ • What is the smallest feature unavailable in NeatProxy/AgentGuard that changes a purchasing decision?
+
+ • What platform terms and authentication mechanisms constrain request-path observation?
+
+ ADR template
+ Context: [why now] | Decision: [what changes] | Alternatives: [rejected options] | Consequences: [product/security/cost/ops] |
+ Evidence: [test/user/source] | Revisit trigger: [new fact]
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                     35
+ CHAPTER 34
+
+ Master context for Claude and Codex
+ Attach this PDF to build sessions and state the current milestone and backlog item.
+
+
+ You are helping build FuseCap, a working-codename local runtime safety layer for coding agents. The present product phase is paid validation, not broad platform
+ construction. Claude Code is the only initial adapter. The core loop is policy → preflight → safe Git checkpoint → observe hook/process events → deterministic
+ allow/warn/ask/deny/stop → local receipt → explicit selective recovery → deliberate resume. Non-negotiable constraints: never claim visibility into opaque subscription
+ inference; actual dollar enforcement only at a supported observable API/SDK boundary; behavioral detectors begin in shadow or warning mode; raw prompts,
+ completions, source, diffs, secrets and tool payloads are not persisted or synced by default; no automatic broad rollback; preserve preexisting staged, unstaged and
+ untracked work; native platform permissions and sandboxing are defense in depth and must not be weakened; local protection must not depend on cloud availability;
+ every decision is evidence-linked, versioned and auditable; degraded protection is shown before and during the run; a safety feature is incomplete without failure,
+ adversarial, privacy and recovery tests. Before implementing: identify the current roadmap phase and requirement ID; restate user outcome; list applicable invariants;
+ inspect existing code and tests; propose the smallest vertical slice; define schemas/interfaces and deterministic acceptance tests; identify threat/privacy implications;
+ state any divergence from this brain as an ADR; and do not add deferred features. Optimize for a trustworthy protected run and paid learning, not feature breadth or a
+ flashy demo.
+
+
+ Build-session request template
+ Phase: [spike/alpha/paid beta/reliability/behavior/pro/power/team] | Requirement/Epic: [FR/E] | User outcome: [...] | Existing state:
+ [...] | Requested change: [...] | Invariants: [...] | Acceptance evidence: [...] | Repository/files: [...] | Open decision: [...]
+
+
+ Decision hierarchy
+             ORDE      AUTHORITY                                          RULE
+             R
+
+             1         Safety and data invariants                         Never trade away to hit schedule.
+
+             2         Truthful claims contract                           Capability language follows measured enforcement.
+
+             3         Current phase exit gate                            Paid and retained learning before expansion.
+
+             4         PRD acceptance criteria                            Implement the smallest compliant slice.
+
+             5         Architecture decisions                             Follow accepted ADRs; propose change explicitly.
+
+             6         Convenience and polish                             Important only after correctness and trust.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                                                36
+ CHAPTER 35
+
+ Reference policy document
+ A concrete configuration sketch for implementation discussion; the final schema must be versioned and validated.
+
+ schema_version: "1.0"
+ policy_id: "project-default"
+ version: 1
+ mode: shadow
+ scope: { repository: "." }
+ runtime: { max_elapsed_seconds: 5400, graceful_stop_seconds: 10 }
+ tools: { max_total: 150, deny: ["dangerous-command"] }
+ agents: { max_started: 8, max_concurrent: 4 }
+ filesystem:
+   protected: [".env*", "~/.ssh/**", "~/.aws/**"]
+   max_files_changed: 40
+ behavior:
+   exact_repeat: { threshold: 5, window: 12, action: block }
+   sequence_repeat: { threshold: 3, window: 30, action: warn }
+   no_progress: { tools: 25, seconds: 900, action: warn }
+ sandbox:
+   required: true
+   allowed_domains: ["github.com", "registry.npmjs.org"]
+ receipt: { retention_days: 7, persist_raw_payloads: false }
+
+
+ Compiler requirements
+ • Resolve paths relative to explicit policy scope; never interpolate shell expressions.
+
+ • Reject duplicate IDs, negative limits, invalid actions and unsupported fields.
+
+ • Compile matchers into typed structures; do not evaluate policy text through a shell.
+
+ • Emit effective policy, precedence sources, unsupported controls and immutable digest.
+
+ • Changing an armed policy creates a new version and applies only through an audited override or new run.
+
+ • The example is illustrative, not a backwards-compatibility promise.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                       37
+ CHAPTER 36
+
+ Reference event and decision contracts
+ These examples define information flow, not the final wire encoding.
+
+
+ Proposed tool event
+ {
+     "schema_version": "1.0", "event_id": "evt_01...",
+     "run_id": "run_01...", "sequence": 42,
+     "type": "tool.requested", "monotonic_ms": 182031,
+     "adapter": {"name":"claude-code","version":"0.1.0"},
+     "tool": {"category":"shell","name":"Bash"},
+     "features": {
+       "command_class":"test",
+       "normalized_signature":"sha256:...",
+       "target_scope":"repository"
+     }, "raw_persisted": false
+ }
+
+
+ Policy decision
+ {
+     "decision_id": "dec_01...", "event_id": "evt_01...",
+     "policy_digest": "sha256:...", "action": "block",
+     "reason_code": "EXACT_REPEAT_LIMIT",
+     "display_reason": "This normalized action repeated 5 times in 12 events.",
+     "evidence_refs": ["evt_31", "evt_34", "evt_37", "evt_40", "evt_42"],
+     "override_allowed": true, "decision_time_ms": 7
+ }
+
+
+ Contract rules
+ • Adapters submit typed, schema-validated features; the policy engine does not trust display strings.
+
+ • Unknown event versions are quarantined, not treated as allowed actions.
+
+ • Raw input may be used transiently by the local adapter but is excluded from the durable contract by default.
+
+ • Decision display text is derived from stable reason codes and measured values.
+
+ • Every event and decision references the effective policy digest and software version needed for reproduction.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                      38
+ CHAPTER 37
+
+ Acceptance scenario matrix
+ Use these cases as the minimum vertical end-to-end suite for the protected-run milestone.
+
+
+           ID         CASE                    SETUP                                         EXPECTED
+
+           AC-01      Healthy short run       Clean repo; varied tools; test passes.        Completes; clean receipt; no warning.
+
+           AC-02      Time limit              Run exceeds configured 60 seconds.            Bounded stop; receipt names threshold.
+
+           AC-03      Exact loop              Same normalized test repeats five times.      Boundary blocks; evidence links repeats.
+
+           AC-04      Productive repetition   Test repeats while failures decrease.         No behavioral hard stop; progress shown.
+
+           AC-05      Destructive command     Proposed command matches protected pattern.   Blocked before execution.
+
+           AC-06      Obfuscated command      Equivalent intent uses quoting/composition.   Scoped cases blocked or limitation named.
+
+           AC-07      Subagent ceiling        Observable start exceeds total.               New start denied/stopped per hook capability.
+
+           AC-08      Dirty start             Staged, unstaged and untracked files exist.   Original bytes remain recoverable.
+
+           AC-09      Concurrent edit         Agent and user alter files during run.        Unsafe auto-selection disabled; preview.
+
+           AC-10      Daemon crash            Crash occurs around proposed decision.        Declared fail mode; unknown state explicit.
+
+           AC-11      Secret canary           Seeded token appears in input/error.          No persistent/exported canary.
+
+           AC-12      Unsupported version     Hook payload/schema changes.                  Preflight refuses full-protection claim.
+
+
+
+ Release evidence bundle
+ For every scenario retain test version, synthetic repository fixture, policy digest, redacted events, resulting decision, receipt digest and
+ pass/fail output. Security fixtures never contain real secrets.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                   39
+ CHAPTER 38
+
+ Milestone handoff checklists
+ A concise gate for moving from experiment to increasingly durable product stages.
+
+
+           MILESTONE              MUST BE TRUE BEFORE EXIT
+
+           72-hour spike          Five deterministic trips pass; two healthy sessions complete; no lost work; capability matrix updated; demo
+                                  recorded.
+
+           Private alpha          Reversible installer; doctor passes externally; five installs; three real runs; one legitimate signal.
+
+           Paid beta              Receipt/recovery preview; three paying strangers; beta/refund terms; privacy disclosure; signed build.
+
+           Reliability            Crash recovery, migrations, compatibility canary, redaction suite and receipt SLO measured.
+
+           Behavior               Labeled corpus, shadow metrics, false-positive review and detector versioning.
+
+           Pro                    Safe entitlements, notifications and 90-day history; ten paid and day-30 cohort measured.
+
+           Power                  Concurrent accounting correct; CI behavior deterministic; receipt schema versioned.
+
+           Team pilot             Signed minimum policy, offline enforcement, redacted sync, two paid pilots and offboarding.
+
+
+
+ Handoff rule
+            Milestone exit condition
+
+            No milestone exits on code completion alone. It exits on verified behavior, safe failure handling, truthful copy,
+            external use, and the stated customer/payment evidence.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                                   40
+ CHAPTER 39
+
+ Sources and evidence notes
+ Technical feasibility is grounded in primary documentation; demand and revenue remain hypotheses.
+
+
+ [1] Claude Code sandboxing
+ Official OS-level filesystem/network boundary behavior and limitations.
+ https://code.claude.com/docs/en/sandboxing
+
+
+ [2] Claude Code settings
+ Official permissions, sandbox configuration, allowed/denied domains and managed controls.
+ https://code.claude.com/docs/en/settings
+
+
+ [3] Claude Code hooks guide
+ Official lifecycle events, PreToolUse blocking, inputs, outputs and failure behavior.
+ https://code.claude.com/docs/en/hooks-guide
+
+
+ [4] Claude Code plugin reference
+ Official plugin component and hook packaging surface.
+ https://code.claude.com/docs/en/plugins-reference
+
+
+ [5] Claude Agent SDK features
+ Official programmatic hook behavior and structured blocking decisions.
+ https://code.claude.com/docs/en/agent-sdk/claude-code-features
+
+
+ [6] Cursor CLI output format
+ Official structured output surface; not evidence of complete inference interception.
+ https://docs.cursor.com/en/cli/reference/output-format
+
+
+ [7] Cursor pricing and limits
+ Official usage bands and native team/background-agent spending-control context.
+ https://docs.cursor.com/account/pricing
+
+
+ [8] Git documentation
+ Authoritative reference for repository objects, worktrees, status and recovery primitives.
+ https://git-scm.com/docs
+
+
+ [9] TikTok creative best practices
+ Official hook/value/CTA and native-content guidance used for the build-in-public plan.
+ https://ads.tiktok.com/help/article/creative-best-practices
+
+
+ [10] AgentBudget
+ Competitive evidence for API/SDK budget enforcement; public claims do not establish paid traction.
+ https://agentbudget.dev/
+
+
+ [11] AgentGuard
+ Near-category competitor with local controls and receipts; public claims require independent validation.
+ https://agentguard.run/
+
+
+ [12] NeatProxy Guardrail
+ Near-direct competitor with local proxy, policies and published pricing; public availability does not prove revenue.
+ https://www.neatproxy.com/guardrail
+
+
+ [13] NeatProxy pricing
+ Published $0, $15 and team pricing used only as competitive context.
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                           41
+ https://www.neatproxy.com/pricing
+
+
+
+ Evidence discipline
+ Official documentation supports integration possibilities and limitations at the time researched. It does not guarantee future
+ compatibility. Competitor pages support that products and pricing are publicly presented; they do not establish adoption, revenue,
+ retention or truth of unverified performance claims. Social complaints prove attention and pain, not payment. All conversion, pricing,
+ retention and MRR figures in this document are explicit hypotheses.
+
+ Final build rule
+      Build the smallest trustworthy control that protects one real run,
+      preserves one real repository, explains one real decision, and earns one
+      real payment. Everything beyond that is conditional.
+
+
+
+
+FUSECAP • MASTER PRODUCT + ENGINEERING BRAIN • SEPTEMBER 2026                                                                             42
+
