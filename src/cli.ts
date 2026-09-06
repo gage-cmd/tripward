@@ -5,6 +5,8 @@ import { resolve } from "node:path";
 import { parseHookInput } from "./adapter/hooks.js";
 import { fixtureCatalog } from "./adapter/payloads.js";
 import { adapterCoverage } from "./adapter/versions.js";
+import { bool, flag, parseArgs, parseMode, passthroughOf } from "./commands/args.js";
+import { DEMO_TRIP_BANNER, DEMO_TRIP_KINDS, runDemoTrip, type DemoTripKind } from "./commands/demo-trip.js";
 import { runSupervised } from "./commands/run.js";
 import { readCheckpoint } from "./git/checkpoint.js";
 import { applyRecovery, buildRecoveryPreview } from "./git/recovery.js";
@@ -19,65 +21,6 @@ import { formatReplayReport, replayHistory } from "./replay/replay.js";
 import { redactReceipt } from "./receipt/redact.js";
 import { FUSECAP_VERSION } from "./version.js";
 import type { ReceiptDocument } from "./types.js";
-
-interface Args {
-  command: string;
-  rest: string[];
-  flags: Record<string, string | boolean>;
-}
-
-function parseArgs(argv: string[]): Args {
-  const [, , command = "help", ...raw] = argv;
-  const flags: Record<string, string | boolean> = {};
-  const rest: string[] = [];
-  let passthrough = false;
-  const passthroughArgs: string[] = [];
-  for (let i = 0; i < raw.length; i += 1) {
-    const token = raw[i];
-    if (passthrough) {
-      passthroughArgs.push(token);
-      continue;
-    }
-    if (token === "--") {
-      passthrough = true;
-      continue;
-    }
-    if (token.startsWith("--")) {
-      const [key, value] = token.slice(2).split("=");
-      if (value !== undefined) {
-        flags[key] = value;
-      } else if (raw[i + 1] && !raw[i + 1].startsWith("-")) {
-        flags[key] = raw[i + 1];
-        i += 1;
-      } else {
-        flags[key] = true;
-      }
-      continue;
-    }
-    rest.push(token);
-  }
-  if (passthroughArgs.length) flags._passthrough = passthroughArgs.join("\u0000");
-  return { command, rest, flags };
-}
-
-function flag(flags: Record<string, string | boolean>, name: string): string | undefined {
-  const value = flags[name];
-  if (typeof value === "string") return value;
-  return undefined;
-}
-
-function bool(flags: Record<string, string | boolean>, name: string): boolean {
-  return flags[name] === true || flags[name] === "true";
-}
-
-function parseMode(flags: Record<string, string | boolean>): "shadow" | "enforce" | undefined {
-  const value = flag(flags, "mode");
-  if (!value) return undefined;
-  if (value !== "shadow" && value !== "enforce") {
-    throw new Error("mode must be shadow or enforce");
-  }
-  return value;
-}
 
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
@@ -94,6 +37,7 @@ Usage:
   fusecap init [--preview] [--cwd DIR] [--home DIR] [--preset NAME] [--mode shadow|enforce]
   fusecap protect [preset] [--mode shadow|enforce]
   fusecap run [--preset NAME] [--policy FILE] [--mode shadow|enforce] [--stub] [--scenario NAME] [--] [claude args]
+  fusecap demo-trip [--kind dangerous|exact-loop|hook-block] [--preset spike]
   fusecap hook                 # Claude Code hook entry (stdin JSON)
   fusecap doctor [--json]
   fusecap status
@@ -107,6 +51,8 @@ Usage:
 
 Alpha default: new policies are shadow (detectors/policy signal without interrupting).
 Flip enforce:  fusecap protect --mode enforce   or   fusecap run --preset spike
+After --, pass Claude flags only (`-p …`). A leading `claude` is stripped (compat).
+demo-trip injects PreToolUse locally — not a live Claude signal, not stub CI.
 Hard stops (dangerous command, missing journal/hooks/checkpoint) still fire in shadow.
 Uninstall restores verified backups only and never broadens permissions.
 
@@ -173,10 +119,29 @@ async function main(): Promise<void> {
       console.log(explainPolicy(compilePolicy(raw).policy));
       return;
     }
+    case "demo-trip": {
+      const kind = (flag(args.flags, "kind") ?? args.rest[0] ?? "dangerous") as DemoTripKind;
+      if (!DEMO_TRIP_KINDS.includes(kind)) {
+        throw new Error(`usage: fusecap demo-trip [--kind ${DEMO_TRIP_KINDS.join("|")}]`);
+      }
+      console.error(DEMO_TRIP_BANNER);
+      const result = await runDemoTrip({
+        cwd,
+        home,
+        kind,
+        preset: flag(args.flags, "preset") ?? "spike",
+        mode: parseMode(args.flags),
+      });
+      console.log(`run ${result.run_id}`);
+      console.log(`exit ${result.exit_reason}`);
+      console.log(`health ${result.health}`);
+      console.log(`signal_class ${result.signal_class}`);
+      console.log(`receipt ${result.receipt_json}`);
+      console.error(DEMO_TRIP_BANNER);
+      return;
+    }
     case "run": {
-      const passthrough = typeof args.flags._passthrough === "string"
-        ? String(args.flags._passthrough).split("\u0000").filter(Boolean)
-        : [];
+      const passthrough = passthroughOf(args.flags);
       const result = await runSupervised({
         cwd,
         home,

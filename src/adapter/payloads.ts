@@ -49,6 +49,15 @@ export const preToolUseDangerousRmFixture = {
   tool_use_id: "toolu_01DANGEROUSRM",
 };
 
+export const preToolUseGitResetHardFixture = {
+  ...preToolUseBashFixture,
+  tool_input: {
+    command: "git reset --hard HEAD",
+    description: "synthetic dangerous git reset",
+  },
+  tool_use_id: "toolu_01GITRESETHARD",
+};
+
 export const preToolUseExactLoopFixture = {
   ...preToolUseBashFixture,
   tool_input: {
@@ -88,6 +97,7 @@ export const ALL_FIXTURES = {
   pre_tool_use_bash: preToolUseBashFixture,
   pre_tool_use_denied_tool: preToolUseDeniedToolFixture,
   pre_tool_use_dangerous_rm: preToolUseDangerousRmFixture,
+  pre_tool_use_git_reset_hard: preToolUseGitResetHardFixture,
   pre_tool_use_exact_loop: preToolUseExactLoopFixture,
   post_tool_use: postToolUseFixture,
   session_end: sessionEndFixture,

@@ -1,8 +1,9 @@
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, type ChildProcess, type StdioOptions } from "node:child_process";
 import { createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Clock } from "../clock.js";
 import { systemClock } from "../clock.js";
+import type { LaunchStdioMode } from "../commands/launch.js";
 import type { ExitReason } from "../types.js";
 import { pidAlive, terminateTree } from "./process-tree.js";
 
@@ -17,6 +18,7 @@ export interface SupervisorOptions {
   forceKill: boolean;
   hookHandshakeMs: number;
   requireHooks: boolean;
+  stdioMode?: LaunchStdioMode;
   clock?: Clock;
   onEvent?: (type: string, payload: Record<string, unknown>) => void;
 }
@@ -70,16 +72,32 @@ export async function supervise(options: SupervisorOptions): Promise<SupervisorR
   const started = clock.nowMs();
   mkdirSync(join(options.runDir, "control"), { recursive: true });
 
+  const stdioMode: LaunchStdioMode = options.stdioMode ?? "capture";
+  // Interactive Claude needs a controlling TTY. `detached: true` calls setsid()
+  // and drops the terminal, which makes the trust-folder prompt unusable.
+  const detached = stdioMode !== "interactive";
+  const stdio: StdioOptions =
+    stdioMode === "interactive"
+      ? "inherit"
+      : stdioMode === "print"
+        ? ["inherit", "pipe", "pipe"]
+        : ["ignore", "pipe", "pipe"];
   const child: ChildProcess = spawn(options.command, options.args, {
     cwd: options.cwd,
     env: options.env,
-    detached: true,
-    stdio: ["ignore", "pipe", "pipe"],
+    detached,
+    stdio,
   });
   const stderrLog = createWriteStream(join(options.runDir, "child.stderr.log"));
   const stdoutLog = createWriteStream(join(options.runDir, "child.stdout.log"));
-  child.stderr?.pipe(stderrLog);
-  child.stdout?.pipe(stdoutLog);
+  if (child.stderr) {
+    child.stderr.pipe(stderrLog);
+    if (stdioMode === "print") child.stderr.pipe(process.stderr);
+  }
+  if (child.stdout) {
+    child.stdout.pipe(stdoutLog);
+    if (stdioMode === "print") child.stdout.pipe(process.stdout);
+  }
   const pid = child.pid;
   if (!pid) {
     return {

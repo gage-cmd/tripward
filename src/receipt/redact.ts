@@ -24,6 +24,10 @@ export function redactReceipt(receipt: ReceiptDocument): Record<string, unknown>
       os: receipt.environment.os,
       protection_health: receipt.environment.protection_health,
       health_reasons: receipt.environment.health_reasons,
+      signal_class: receipt.environment.signal_class ?? null,
+      launched_binary: receipt.environment.launched_binary
+        ? (receipt.environment.launched_binary.split(/[/\\]/).pop() ?? "redacted")
+        : null,
     },
     policy: {
       policy_id: receipt.policy.policy_id,

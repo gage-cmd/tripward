@@ -14,7 +14,8 @@ import { supervise } from "../supervisor/supervisor.js";
 import { ensureHome, runDir } from "../paths.js";
 import { writeActive, writePolicy, writeRun } from "../session.js";
 import { newRunId } from "../ids.js";
-import type { EffectivePolicy, ExitReason, PolicyDocument, ProtectionHealth, RunRecord } from "../types.js";
+import { buildClaudeLaunchSpec, type LaunchStdioMode } from "./launch.js";
+import type { EffectivePolicy, ExitReason, PolicyDocument, ProtectionHealth, RunRecord, SignalClass } from "../types.js";
 import { FUSECAP_VERSION } from "../version.js";
 
 export interface RunOptions {
@@ -142,34 +143,61 @@ export async function runSupervised(options: RunOptions): Promise<{
   const useStub = options.stub || !claude;
   let command: string;
   let args: string[];
+  let stdioMode: LaunchStdioMode = "capture";
+  let strippedLeadingClaude: string[] = [];
+  let signalClass: SignalClass = "live-claude";
   if (useStub) {
     const launched = stubLaunch(stubPath());
     command = launched.command;
     args = launched.args;
+    signalClass = "stub-ci";
     health_reasons.push(useStub && !options.stub ? "auto-selected stub because claude is absent" : "explicit --stub");
   } else {
-    command = claude as string;
-    args = options.claudeArgs?.length ? options.claudeArgs : [];
+    const launched = buildClaudeLaunchSpec({
+      claudeBin: claude as string,
+      passthrough: options.claudeArgs ?? [],
+    });
+    command = launched.command;
+    args = launched.args;
+    stdioMode = launched.stdio_mode;
+    strippedLeadingClaude = launched.stripped_leading_claude;
   }
 
   record.launched_command = [command, ...args];
+  record.stripped_leading_claude = strippedLeadingClaude;
+  record.signal_class = signalClass;
   record.state = "PROTECTED";
   writeRun(dir, record);
-  journal.append({ run_id: runId, type: "run.armed", payload: { command, args, health } });
+  journal.append({
+    run_id: runId,
+    type: "run.armed",
+    payload: {
+      command,
+      args,
+      health,
+      signal_class: signalClass,
+      stripped_leading_claude: strippedLeadingClaude,
+    },
+  });
+
+  const childEnv: NodeJS.ProcessEnv = {
+    ...process.env,
+    FUSECAP_HOME: home,
+    FUSECAP_RUN_DIR: dir,
+    FUSECAP_RUN_ID: runId,
+  };
+  if (useStub) {
+    childEnv.FUSECAP_STUB = "1";
+    childEnv.FUSECAP_STUB_SCENARIO = options.stubScenario ?? "healthy";
+  }
 
   const result = await supervise({
     command,
     args,
     cwd: options.cwd,
-    env: {
-      ...process.env,
-      FUSECAP_HOME: home,
-      FUSECAP_RUN_DIR: dir,
-      FUSECAP_RUN_ID: runId,
-      FUSECAP_STUB_SCENARIO: options.stubScenario ?? "healthy",
-      FUSECAP_STUB: "1",
-    },
+    env: childEnv,
     runDir: dir,
+    stdioMode,
     maxElapsedMs: policy.runtime.max_elapsed_seconds * 1000,
     gracefulStopMs: policy.runtime.graceful_stop_seconds * 1000,
     forceKill: policy.runtime.force_kill,
@@ -218,6 +246,8 @@ export async function runSupervised(options: RunOptions): Promise<{
     health_reasons,
     checkpoint,
     claude_version: claudeVersion,
+    signal_class: signalClass,
+    launched_binary: command,
   });
   const artifacts = writeReceipt(dir, receipt);
   journal.append({
