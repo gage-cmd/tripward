@@ -6,6 +6,9 @@ export const FOUNDING_PRO_INTERVAL = "month";
 export const FOUNDING_PRO_PRICE_LINE = "Founding Pro — $15/month";
 export const FOUNDING_PRO_CTA_LABEL = "Get Founding Pro";
 export const CHECKOUT_NOT_CONFIGURED = "Checkout not configured";
+/** Buyer landing page after Stripe Payment Link checkout. No license key. */
+export const FOUNDING_PRO_THANKS_URL = "https://tripward.dev/thanks.html";
+export const FOUNDING_PRO_SETUP_DOC = "docs/SETUP.md";
 
 export const BETA_STATUS =
   "Tripward is in paid beta. What you are buying is the protection this repository actually ships for Claude Code — not a future roadmap, Cursor adapter, or cloud/team product.";

@@ -6,6 +6,8 @@ import {
   BETA_WHAT_IS_NOT_PROMISED,
   BETA_WHAT_IS_PROMISED,
   FOUNDING_PRO_PRICE_LINE,
+  FOUNDING_PRO_SETUP_DOC,
+  FOUNDING_PRO_THANKS_URL,
   PRIVACY_COLLECT,
   PRIVACY_DO_NOT_COLLECT,
   PRIVACY_LOCAL_FIRST,
@@ -33,6 +35,8 @@ export interface FoundingProStatus {
     privacy: string;
     lander: string;
     support: string;
+    setup: string;
+    thanks: string;
   };
 }
 
@@ -59,6 +63,8 @@ export function foundingProStatus(options: CheckoutLoadOptions = {}): FoundingPr
       privacy: "docs/PRIVACY.md",
       lander: "docs/lander/README.md",
       support: "SUPPORT.md",
+      setup: FOUNDING_PRO_SETUP_DOC,
+      thanks: FOUNDING_PRO_THANKS_URL,
     },
   };
 }
@@ -79,6 +85,9 @@ export function formatFoundingProStatus(status: FoundingProStatus): string {
     "",
     status.privacy.local_first,
     status.privacy.receipts,
+    "",
+    `After payment: ${status.docs.thanks}`,
+    `Buyer setup: ${status.docs.setup}`,
     "",
     `See ${status.docs.founding_pro}, ${status.docs.privacy}, and ${status.docs.support}.`,
   ];

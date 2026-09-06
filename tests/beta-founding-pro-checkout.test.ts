@@ -103,8 +103,12 @@ describe("PR3 Founding Pro checkout stub", () => {
     expect(text).toContain("$15/month");
     expect(text).toContain("docs/FOUNDING_PRO.md");
     expect(text).toContain("SUPPORT.md");
+    expect(text).toContain("https://tripward.dev/thanks.html");
+    expect(text).toContain("docs/SETUP.md");
     expect(text).toContain("will not invent USD");
     expect(status.docs.support).toBe("SUPPORT.md");
+    expect(status.docs.setup).toBe("docs/SETUP.md");
+    expect(status.docs.thanks).toBe("https://tripward.dev/thanks.html");
     expect(status.beta.promised.some((line) => line.includes("SUPPORT.md"))).toBe(true);
     expect(status.beta.not_promised.join(" ")).not.toMatch(/support channel \(later slices\)/i);
     expect(text.toLowerCase()).not.toContain("three paying");
