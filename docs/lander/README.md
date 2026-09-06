@@ -23,7 +23,7 @@ GH Pages cannot read a server env var at request time. The snippet’s JS consta
 
 ## Do not
 
-- Commit Stripe secret keys or a real Payment Link into `fusecap`.
+- Commit Stripe secret keys or a real Payment Link into this repository.
 - Point `#founding` at a guessed `buy.stripe.com` id.
 - Claim three paying strangers or paid-beta exit on the lander.
 - Put fake `$` amounts on receipts or in waitlist copy.

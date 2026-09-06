@@ -34,8 +34,8 @@
   <p class="lede">Stripe collected payment. Protection is local. Clone, init into a throwaway repo, then doctor and run. Same steps: <a href="https://github.com/gage-cmd/fusecap/blob/main/docs/SETUP.md">docs/SETUP.md</a>.</p>
 
   <h2>1. Clone</h2>
-  <pre>git clone https://github.com/gage-cmd/fusecap.git
-cd fusecap
+  <pre>git clone https://github.com/gage-cmd/fusecap.git tripward
+cd tripward
 git checkout main
 npm install</pre>
 
@@ -43,22 +43,22 @@ npm install</pre>
   <p>Not the only copy of work you care about. The path after <code>npx tsx</code> is this clone.</p>
   <pre>cd /path/to/your-throwaway-repo
 
-npx tsx /path/to/fusecap/src/cli.ts init --preview
-npx tsx /path/to/fusecap/src/cli.ts init</pre>
+npx tsx /path/to/tripward/src/cli.ts init --preview
+npx tsx /path/to/tripward/src/cli.ts init</pre>
 
   <h2>3. Doctor</h2>
-  <pre>npx tsx /path/to/fusecap/src/cli.ts doctor</pre>
+  <pre>npx tsx /path/to/tripward/src/cli.ts doctor</pre>
   <p>Read <code>OVERALL</code> and every <code>FAIL</code> row. Claude Code missing is an honest degrade — not a license problem.</p>
 
   <h2>4. Run (Claude Code required for a real session)</h2>
   <pre>claude --version
-npx tsx /path/to/fusecap/src/cli.ts run
+npx tsx /path/to/tripward/src/cli.ts run
 # small real task, then quit normally</pre>
   <p>Without <code>claude</code> on <code>PATH</code>, the CLI uses the documented stub and the receipt says so.</p>
 
   <h2>5. Receipt and restore preview</h2>
-  <pre>npx tsx /path/to/fusecap/src/cli.ts receipt --html
-npx tsx /path/to/fusecap/src/cli.ts restore --preview --html</pre>
+  <pre>npx tsx /path/to/tripward/src/cli.ts receipt --html
+npx tsx /path/to/tripward/src/cli.ts restore --preview --html</pre>
   <p>Open the printed HTML. The recovery page does <strong>not</strong> apply. Never <code>git reset --hard</code>.</p>
 
   <nav>

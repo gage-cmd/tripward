@@ -8,13 +8,13 @@ There is **no license key**. Stripe does not unlock the CLI. Protection is local
 
 You need: **Node 20+**, **git**, and this repo. **Claude Code CLI** (`claude` on `PATH`) is required for a real protected session. Without it, `tripward run` uses the documented stub and the receipt will say so.
 
-`fusecap` is a bin alias of the same CLI. Commands below use `tripward` via `npx tsx`.
+Commands below use `npx tsx` against the clone. After `npm run build`, the CLI is `tripward`.
 
 ## 1. Clone
 
 ```bash
-git clone https://github.com/gage-cmd/fusecap.git
-cd fusecap
+git clone https://github.com/gage-cmd/fusecap.git tripward
+cd tripward
 git checkout main
 npm install
 # optional: npm test
@@ -28,18 +28,16 @@ Do **not** point Tripward at the only copy of work you care about on the first s
 cd /path/to/your-throwaway-repo
 # must already be a git repo
 
-npx tsx /path/to/fusecap/src/cli.ts init --preview
-npx tsx /path/to/fusecap/src/cli.ts init
+npx tsx /path/to/tripward/src/cli.ts init --preview
+npx tsx /path/to/tripward/src/cli.ts init
 ```
 
 `init` writes a **shadow** policy. Behavioral detectors log and warn; they do not interrupt. Dangerous commands, a missing journal, a required-hook failure, and a missing required checkpoint still hard-stop.
 
-After `npm run build` in the clone, the same CLI is on `tripward` and `fusecap`.
-
 ## 3. Doctor
 
 ```bash
-npx tsx /path/to/fusecap/src/cli.ts doctor
+npx tsx /path/to/tripward/src/cli.ts doctor
 ```
 
 Read the `OVERALL` line and every `FAIL` row. Fix those before a real session. Claude Code absent is an honest degrade — not a license problem.
@@ -50,7 +48,7 @@ Trust the throwaway folder in Claude Code once if it asks, then:
 
 ```bash
 claude --version
-npx tsx /path/to/fusecap/src/cli.ts run
+npx tsx /path/to/tripward/src/cli.ts run
 # Tokens after -- are Claude args. A leading `claude` is stripped.
 # Do a small real task. Quit normally.
 ```
@@ -62,10 +60,10 @@ Shadow is the default. Flip later with `tripward protect --mode enforce` or `tri
 ## 5. Receipt and restore preview
 
 ```bash
-npx tsx /path/to/fusecap/src/cli.ts receipt --html
+npx tsx /path/to/tripward/src/cli.ts receipt --html
 # open the printed receipt.html — private, local, no fake $
 
-npx tsx /path/to/fusecap/src/cli.ts restore --preview --html
+npx tsx /path/to/tripward/src/cli.ts restore --preview --html
 # open the printed recovery.html — the page does not restore
 ```
 
