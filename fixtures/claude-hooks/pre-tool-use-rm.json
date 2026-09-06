@@ -1,0 +1,13 @@
+{
+  "session_id": "sess_fixture_healthy",
+  "transcript_path": "/tmp/fusecap-fixtures/transcript.jsonl",
+  "cwd": "/tmp/fusecap-fixtures/repo",
+  "permission_mode": "default",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "rm -rf /",
+    "description": "synthetic catastrophic command"
+  },
+  "tool_use_id": "toolu_01DANGEROUSRM"
+}

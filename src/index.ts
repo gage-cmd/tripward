@@ -1,0 +1,15 @@
+export { FUSECAP_VERSION } from "./version.js";
+export { compilePolicy, explainPolicy } from "./policy/compiler.js";
+export { getPreset } from "./policy/presets.js";
+export { evaluateTool } from "./policy/evaluator.js";
+export { inspectCommand } from "./guard/command-guard.js";
+export { normalizeTool } from "./loop/normalizer.js";
+export { detectExactLoop } from "./loop/detector.js";
+export { Journal } from "./journal/journal.js";
+export { handleHook } from "./session.js";
+export { runSupervised } from "./commands/run.js";
+export { createCheckpoint } from "./git/checkpoint.js";
+export { buildRecoveryPreview } from "./git/recovery.js";
+export { buildReceipt } from "./receipt/builder.js";
+export { runDoctor } from "./install/doctor.js";
+export { ALL_FIXTURES } from "./adapter/payloads.js";
