@@ -17,10 +17,11 @@ export const BETA_WHAT_IS_PROMISED = [
   "Local Claude Code protection as documented in docs/SPIKE.md, docs/ALPHA.md, and docs/BETA.md.",
   "Private local receipts that never invent USD on subscription traffic.",
   "Recovery preview before apply (ADR 0005). Tripward will not silently reset a dirty tree.",
+  "A documented support path (SUPPORT.md / SECURITY.md): lost-work emergency, compatibility, and private security disclosure. Response targets, not SLAs.",
 ];
 
 export const BETA_WHAT_IS_NOT_PROMISED = [
-  "Cursor adapter, cloud/team, entitlements mid-run, or a support channel (later slices).",
+  "Cursor adapter, cloud/team, entitlements mid-run, or staffed 24/7 support.",
   "A hard dollar cap on Claude Code or Cursor subscription traffic.",
   "That paid-beta exit (three paying strangers, no lost work) has already happened.",
 ];

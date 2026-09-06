@@ -1,0 +1,111 @@
+name: Lost-work emergency
+description: Preexisting staged, unstaged, or untracked work may be at risk. Stop. Do not git reset --hard.
+title: "[lost-work] "
+labels: ["lost-work", "emergency"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Stop.** Do not start another agent run.
+
+        Do **not** `git reset --hard`. Do **not** `git clean -fd`. Do **not** `git checkout --` on paths you have not inspected.
+
+        Preview only (`SUPPORT.md`, ADR 0005):
+
+        ```bash
+        tripward restore --preview
+        tripward restore --preview --html
+        ```
+
+        Apply stays in the terminal and is refused unless `--digest` matches the current preview digest. The HTML page does not restore.
+
+        Never paste prompts, transcripts, `.env`, secrets, or private `receipt.html` / `recovery.html`. Use `tripward receipt --redact` if you attach a receipt.
+
+        Same fields work in email if `SUPPORT_EMAIL` is set (see `SUPPORT.md`).
+
+  - type: checkboxes
+    id: stop
+    attributes:
+      label: I stopped
+      options:
+        - label: I have not started another agent run on this repo.
+          required: true
+        - label: I have not run `git reset --hard`, `git clean -fd`, or a blind `git checkout --`.
+          required: true
+        - label: I ran `tripward restore --preview` (and/or `--html`) before asking to apply.
+          required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: macOS 15.x / Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: input
+    id: run_id
+    attributes:
+      label: run_id
+      description: From `tripward status` or `.fusecap/runs/<run_id>/`.
+    validations:
+      required: true
+
+  - type: input
+    id: preview_digest
+    attributes:
+      label: preview_digest
+      description: From `tripward restore --preview`. Leave blank only if preview could not run.
+
+  - type: dropdown
+    id: intact
+    attributes:
+      label: preexisting_work_intact
+      options:
+        - "true"
+        - "false"
+        - unknown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: one_click
+    attributes:
+      label: one_click_disabled
+      options:
+        - "true"
+        - "false"
+        - unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor output
+      description: Paste `tripward doctor` text or `--json`. Include the OVERALL line and every FAIL row.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: receipt
+    attributes:
+      label: Redacted receipt (if a run sealed)
+      description: `tripward receipt --redact` JSON only. Not receipt.html.
+      render: json
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: What you think is at risk
+      description: Staged / unstaged / untracked paths. No file contents, no secrets.
+    validations:
+      required: true
+
+  - type: textarea
+    id: preview
+    attributes:
+      label: Restore preview excerpt
+      description: preexisting_work_intact, limitations, and uncertain / manual_review rows only.
+      render: json

@@ -32,6 +32,7 @@ export interface FoundingProStatus {
     founding_pro: string;
     privacy: string;
     lander: string;
+    support: string;
   };
 }
 
@@ -57,6 +58,7 @@ export function foundingProStatus(options: CheckoutLoadOptions = {}): FoundingPr
       founding_pro: "docs/FOUNDING_PRO.md",
       privacy: "docs/PRIVACY.md",
       lander: "docs/lander/README.md",
+      support: "SUPPORT.md",
     },
   };
 }
@@ -78,7 +80,7 @@ export function formatFoundingProStatus(status: FoundingProStatus): string {
     status.privacy.local_first,
     status.privacy.receipts,
     "",
-    `See ${status.docs.founding_pro} and ${status.docs.privacy}.`,
+    `See ${status.docs.founding_pro}, ${status.docs.privacy}, and ${status.docs.support}.`,
   ];
   return lines.join("\n");
 }

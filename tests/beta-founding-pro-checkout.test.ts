@@ -102,7 +102,11 @@ describe("PR3 Founding Pro checkout stub", () => {
     expect(text).toContain(FOUNDING_PRO_PAYMENT_LINK_ENV);
     expect(text).toContain("$15/month");
     expect(text).toContain("docs/FOUNDING_PRO.md");
+    expect(text).toContain("SUPPORT.md");
     expect(text).toContain("will not invent USD");
+    expect(status.docs.support).toBe("SUPPORT.md");
+    expect(status.beta.promised.some((line) => line.includes("SUPPORT.md"))).toBe(true);
+    expect(status.beta.not_promised.join(" ")).not.toMatch(/support channel \(later slices\)/i);
     expect(text.toLowerCase()).not.toContain("three paying");
     expect(status.checkout.configured).toBe(false);
     expect(status.privacy.do_not_collect.some((line) => line.includes("Invented USD"))).toBe(true);

@@ -43,7 +43,7 @@ tripward restore --confirm --digest <preview_digest> --paths a,b <run_id>
 
 The recovery page never applies. Checkboxes only rewrite the displayed command. Uncertain / `!safe` rows are not selectable. `one_click_disabled` defaults to none checked. `!preexisting_work_intact` fail-closes (rose strip, no compose). Digest mismatch still aborts apply.
 
-## This slice (PR3)
+## Landed: PR3
 
 Founding Pro **$15/month** checkout stub. Gage pastes a Stripe Payment Link URL into env/config. Empty → honest **Checkout not configured** (no broken Stripe href).
 
@@ -60,16 +60,32 @@ tripward founding-pro --json
 
 How Gage creates the Payment Link, refund/beta copy, and privacy: `docs/FOUNDING_PRO.md`, `docs/PRIVACY.md`. This pack does **not** call Stripe APIs, store secrets, or claim three paying strangers.
 
+## This slice (PR4)
+
+Support channel docs. Operator paths the ops brain (Ch 31) requires: lost-work emergency, compatibility template, security disclosure, paid response **targets**.
+
+| Doc | Role |
+|-----|------|
+| `SUPPORT.md` | Channels, what to include, severity, lost-work + compatibility paste blocks |
+| `SECURITY.md` | Private disclosure. No public exploit writeups. `SUPPORT_EMAIL` unset until Gage fills it. |
+| `.github/ISSUE_TEMPLATE/` | GitHub forms for lost-work, compatibility, and help. Same fields work in markdown without the UI. |
+
+Lost-work: stop → `tripward restore --preview` / `--html` → ADR 0005 digest gate. Do **not** `git reset --hard`.
+
+Response targets (Ch 31 — **targets, not SLAs**): critical lost-work/security acknowledged within four business hours during beta; compatibility break assessed within one business day of a supported platform release.
+
+This pack does **not** invent a staffed helpdesk, a support mailbox, or three paying strangers.
+
 ## Later slices (not this PR)
 
 | PR | Scope | Status |
 |----|--------|--------|
 | PR1 | Local receipt HTML UI | landed |
 | PR2 | Recovery preview HTML | landed |
-| PR3 | Founding Pro $15/mo checkout | this pack |
-| PR4 | Support channel | not built |
+| PR3 | Founding Pro $15/mo checkout | landed |
+| PR4 | Support channel | this pack |
 
-Do not treat this file as a Stripe API, desktop-app, or support-channel ship.
+Do not treat this file as a Stripe API or desktop-app ship.
 
 ## Paid-beta exit gate (later)
 
@@ -89,3 +105,5 @@ tripward restore --preview --html
 ```
 
 Do not send `.env`, transcripts, prompts, or repo contents. If you share evidence, use `tripward receipt --redact` JSON, not the private local HTML.
+
+Need help, a version break, or a lost-work path? `SUPPORT.md`. Security? `SECURITY.md`.

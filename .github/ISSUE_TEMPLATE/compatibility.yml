@@ -1,0 +1,101 @@
+name: Compatibility (Claude Code version break)
+description: Doctor FAIL, unsupported hooks, or a Claude Code upgrade that refuses a full-protection claim.
+title: "[compat] "
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when `tripward doctor` fails, hooks look stale, or Claude Code moved.
+
+        Documented fixture floor: Claude Code **2.1.210**. Unsupported versions must refuse a full-protection claim (AC-12). Do not silently continue with stale hooks.
+
+        Paste doctor output. Never paste prompts, transcripts, `.env`, secrets, or private HTML.
+
+        Same fields are in `SUPPORT.md` if you are not using this form.
+
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: macOS 15.x / Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: input
+    id: claude_version
+    attributes:
+      label: Claude Code version
+      description: Output of `claude --version`, or `absent`.
+    validations:
+      required: true
+
+  - type: input
+    id: tripward_version
+    attributes:
+      label: Tripward version
+      description: From the `tripward doctor` header line.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: after_upgrade
+    attributes:
+      label: Did this start after a Claude Code upgrade?
+      options:
+        - "yes"
+        - "no"
+        - unknown
+    validations:
+      required: true
+
+  - type: input
+    id: upgrade_from_to
+    attributes:
+      label: Upgrade from → to (if known)
+      placeholder: 2.1.210 → 2.x.x
+
+  - type: input
+    id: run_id
+    attributes:
+      label: run_id (if a session ran)
+
+  - type: input
+    id: overall
+    attributes:
+      label: Doctor OVERALL line
+      placeholder: "OVERALL  FAIL  protection_claim=failed"
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor output
+      description: Full `tripward doctor` text or `--json`. Include every FAIL row (`hook_roundtrip`, `hooks_installed`, …).
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: hooks
+    attributes:
+      label: Hooks — expected vs observed
+      description: "Supported names this adapter knows: SessionStart, PreToolUse, PostToolUse, PostToolUseFailure, SessionEnd. Note HOOK_INPUT_UNSUPPORTED, missing PreToolUse, or disableAllHooks."
+    validations:
+      required: true
+
+  - type: textarea
+    id: broke
+    attributes:
+      label: What broke
+      description: Doctor FAIL, refused protection claim, tool that bypassed PreToolUse, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: receipt
+    attributes:
+      label: Redacted receipt (optional)
+      description: `tripward receipt --redact` JSON only.
+      render: json

@@ -50,13 +50,14 @@ Copy lives in `src/checkout/terms.ts` and is summarized here:
 
 - Paid beta. You are buying the Claude Code protection this repo actually ships, not a roadmap.
 - Promised: local protection, honest receipts (no fake USD), recovery preview before apply.
-- Not promised: Cursor, cloud/team, a support channel, or a dollar cap on subscription traffic.
+- Not promised: Cursor, cloud/team, staffed 24/7 support, or a dollar cap on subscription traffic.
+- Support path (docs, not a helpdesk): `SUPPORT.md` / `SECURITY.md`. Response targets, not SLAs.
 - If we charge and a promised capability is missing or fails, Gage refunds in Stripe. This repo does not call the Refunds API. That is still the deal — we do not make the customer argue.
 
 ## Privacy
 
 See `docs/PRIVACY.md`. Short form: local-first; receipts stay private; share only `--redact` JSON; no invented USD; Stripe sees only what you type on their Payment Link.
 
-## Out of scope (this PR)
+## Out of scope (PR3)
 
-Real Stripe API, webhooks, entitlements enforcement mid-run, PR4 support channel, Apple-bar paywall HTML.
+Real Stripe API, webhooks, entitlements enforcement mid-run, Apple-bar paywall HTML. Support channel is PR4 (`SUPPORT.md`).
