@@ -1,7 +1,12 @@
 import type { RecoveryPreview, RecoveryPreviewPath } from "../types.js";
 
 export function isSelectableRecoveryPath(path: RecoveryPreviewPath): boolean {
-  return path.safe && path.restore_action !== "keep" && path.restore_action !== "manual_review";
+  return (
+    path.safe &&
+    path.kind !== "uncertain" &&
+    path.restore_action !== "keep" &&
+    path.restore_action !== "manual_review"
+  );
 }
 
 export function defaultSelectedRecoveryPaths(preview: RecoveryPreview): string[] {

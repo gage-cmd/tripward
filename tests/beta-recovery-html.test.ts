@@ -128,6 +128,24 @@ describe("PR2 Apple-bar recovery HTML", () => {
         true,
       );
     }
+    expect(
+      isSelectableRecoveryPath({
+        path: "dirty.txt",
+        kind: "uncertain",
+        restore_action: "restore_blob",
+        safe: true,
+        note: "synthetic: uncertain stays unselectable even if marked safe",
+      }),
+    ).toBe(false);
+    expect(
+      isSelectableRecoveryPath({
+        path: "unsafe.ts",
+        kind: "agent_modified",
+        restore_action: "restore_blob",
+        safe: false,
+        note: "synthetic: !safe is never selectable",
+      }),
+    ).toBe(false);
   });
 });
 
