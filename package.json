@@ -1,7 +1,7 @@
 {
   "name": "fusecap",
   "version": "0.1.0-alpha",
-  "description": "Local circuit breaker for Claude Code — Days 4–7 private alpha",
+  "description": "Tripward (CLI: fusecap) — local circuit breaker for Claude Code — Days 4–7 private alpha",
   "type": "module",
   "bin": {
     "fusecap": "./dist/cli.js"

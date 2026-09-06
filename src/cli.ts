@@ -88,7 +88,7 @@ async function readStdin(): Promise<string> {
 }
 
 function usage(): string {
-  return `FuseCap ${FUSECAP_VERSION} — local circuit breaker for Claude Code (private alpha)
+  return `Tripward ${FUSECAP_VERSION} (CLI: fusecap) — local circuit breaker for Claude Code (private alpha)
 
 Usage:
   fusecap init [--preview] [--cwd DIR] [--home DIR] [--preset NAME] [--mode shadow|enforce]
@@ -192,7 +192,7 @@ async function main(): Promise<void> {
       console.log(`health ${result.health}`);
       console.log(`receipt ${result.receipt_json}`);
       if (result.health !== "protected") {
-        console.error("FuseCap: protection is not fully covered. See receipt limitations.");
+        console.error("Tripward: protection is not fully covered. See receipt limitations.");
       }
       return;
     }

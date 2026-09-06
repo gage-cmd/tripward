@@ -1,4 +1,4 @@
-# FuseCap private alpha (Days 4–7)
+# Tripward private alpha (Days 4–7)
 
 **Phase:** Ch 25 private alpha after Gate 0.  
 **Law:** `docs/FUSECAP_OPS_BRAIN.txt`.  
@@ -53,7 +53,7 @@ npx tsx /path/to/fusecap/src/cli.ts uninstall --preview
 npx tsx /path/to/fusecap/src/cli.ts uninstall
 ```
 
-Uninstall restores **verified** pre-install backups only (sha256). A missing or tampered backup is refused; FuseCap hooks are stripped instead. Home stays `0700`. FuseCap never chmods group/other write onto a file.
+Uninstall restores **verified** pre-install backups only (sha256). A missing or tampered backup is refused; Tripward (`fusecap`) hooks are stripped instead. Home stays `0700`. Tripward never chmods group/other write onto a file.
 
 ### Replay (read-only)
 

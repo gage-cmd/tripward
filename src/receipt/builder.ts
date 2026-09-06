@@ -16,7 +16,7 @@ import type {
 import { FUSECAP_VERSION, RECEIPT_SCHEMA_VERSION } from "../version.js";
 
 const USAGE_NOTE =
-  "Usage dollars are unavailable for Claude Code subscription traffic. FuseCap will not invent USD. Tokens appear only when a separately supported observable API/BYOK boundary is active.";
+  "Usage dollars are unavailable for Claude Code subscription traffic. Tripward will not invent USD. Tokens appear only when a separately supported observable API/BYOK boundary is active.";
 
 function outcomeFor(reason: ExitReason, warned: boolean): ReceiptOutcome {
   switch (reason) {
@@ -166,7 +166,7 @@ export function buildReceipt(input: {
       "Tool allow/deny applies only to hook-visible Claude Code tools.",
       "Command guard is high-confidence pattern matching, not a shell-security engine.",
       "Exact-loop detection uses the versioned normalizer; productive-but-identical calls can trip.",
-      "Recovery preview is required; FuseCap will not silently reset a dirty tree.",
+      "Recovery preview is required; Tripward will not silently reset a dirty tree.",
       ...input.policy.unsupported_controls,
     ],
     privacy: {
@@ -219,7 +219,7 @@ export function renderHtml(receipt: ReceiptDocument): string {
     )
     .join("\n");
   return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>FuseCap receipt ${escapeHtml(receipt.run_id)}</title>
+<html lang="en"><head><meta charset="utf-8"><title>Tripward receipt ${escapeHtml(receipt.run_id)}</title>
 <style>
 body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 2rem; color: #111; }
 code, pre { font-family: ui-monospace, SFMono-Regular, monospace; }
@@ -231,7 +231,7 @@ td, th { border-bottom: 1px solid #e5e5e5; text-align: left; padding: 0.4rem 0.5
 .limit { color: #52525b; }
 </style></head>
 <body>
-<h1>FuseCap receipt</h1>
+<h1>Tripward receipt</h1>
 <div class="banner ${receipt.outcome === "completed" ? "" : "bad"}">
   <div><strong>${escapeHtml(receipt.outcome.toUpperCase())}</strong> · ${escapeHtml(receipt.exit_reason)}</div>
   <div>Run <code>${escapeHtml(receipt.run_id)}</code> · policy ${escapeHtml(receipt.policy.policy_id)}@${receipt.policy.version}</div>

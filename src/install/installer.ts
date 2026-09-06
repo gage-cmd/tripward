@@ -297,7 +297,7 @@ export function uninstall(cwd: string, home: string, previewOnly: boolean): Inst
     restorePlan = {
       op: "write",
       path: settingsLocal,
-      detail: "no verified backup — strip FuseCap hooks only; leave other settings",
+      detail: "no verified backup — strip Tripward (fusecap) hooks only; leave other settings",
     };
   } else {
     restorePlan = { op: "skip", path: settingsLocal, detail: "no settings file and no backup" };
@@ -319,7 +319,7 @@ export function uninstall(cwd: string, home: string, previewOnly: boolean): Inst
         actions.push({
           op: "write",
           path: settingsLocal,
-          detail: "stripped FuseCap hooks after refused restore (original backup left untouched)",
+          detail: "stripped Tripward (fusecap) hooks after refused restore (original backup left untouched)",
         });
       }
     } else {
@@ -339,14 +339,14 @@ export function uninstall(cwd: string, home: string, previewOnly: boolean): Inst
         actions[actions.length - 1] = {
           op: "remove",
           path: settingsLocal,
-          detail: "removed FuseCap-only settings (no pre-install backup)",
+          detail: "removed Tripward-only settings (no pre-install backup)",
         };
       } else {
         writeRestrictedFile(settingsLocal, `${JSON.stringify(stripped, null, 2)}\n`, FILE_MODE);
         actions[actions.length - 1] = {
           op: "write",
           path: settingsLocal,
-          detail: "stripped FuseCap hooks; other settings preserved",
+          detail: "stripped Tripward (fusecap) hooks; other settings preserved",
         };
       }
     }

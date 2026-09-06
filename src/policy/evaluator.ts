@@ -245,7 +245,7 @@ export function evaluateTool(
     );
   }
 
-  return decide("allow", "DEFAULT_NATIVE", "No FuseCap rule matched; native Claude Code permission flow applies.", ["default"]);
+  return decide("allow", "DEFAULT_NATIVE", "No Tripward rule matched; native Claude Code permission flow applies.", ["default"]);
 }
 
 export function actionToHookPermission(action: DecisionAction): "allow" | "deny" | "ask" | "defer" | null {

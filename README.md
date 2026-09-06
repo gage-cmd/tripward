@@ -1,4 +1,4 @@
-# FuseCap (working name)
+# Tripward (CLI: fusecap)
 
 Local runtime safety layer for Claude Code: multi-fuse tripwires + forensic receipt + Git checkpoint/rollback.
 

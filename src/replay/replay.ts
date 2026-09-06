@@ -142,7 +142,7 @@ function inferFromReceipt(receipt: ReceiptDocument, journalTypes: Set<string>): 
     findings.push({
       kind: "inferred",
       type: "receipt.usage",
-      summary: "receipt.usage.cost is not null — reject as incompatible with FuseCap claims",
+      summary: "receipt.usage.cost is not null — reject as incompatible with Tripward claims",
       run_id: receipt.run_id,
     });
   }
@@ -247,7 +247,7 @@ export function replayHistory(home: string, runId?: string): ReplayReport {
 
 export function formatReplayReport(report: ReplayReport): string {
   const lines = [
-    `FuseCap replay (read-only)  mutated=${report.mutated}`,
+    `Tripward replay (read-only)  mutated=${report.mutated}`,
     `home ${report.home}  runs ${report.runs_scanned}`,
     "",
   ];

@@ -1,4 +1,4 @@
-# FuseCap 0–72h enforceability spike
+# Tripward 0–72h enforceability spike
 
 **Phase:** Ch 25 enforceability spike (E1–E9 only).  
 **Gate 0: PASS** (2026-09-06) — five synthetic trips green in CI; two healthy live sessions on Gage’s Mac (Claude Code). Merged to `main` as `72d0033`. Days 4–7 private alpha is a separate pack (`docs/ALPHA.md`); it does not re-open Gate 0.  
@@ -121,7 +121,7 @@ npx tsx /path/to/fusecap/src/cli.ts fixtures
 
 | Control | Claim class | Spike enforcement |
 |---------|-------------|-------------------|
-| Wall-clock | Guaranteed when launched by FuseCap | Supervisor timer |
+| Wall-clock | Guaranteed when launched by Tripward (`fusecap`) | Supervisor timer |
 | Tool allow/deny | Guaranteed for hook-visible tools | PreToolUse `permissionDecision` |
 | Exact repetition | Guaranteed for observed normalized events | E5 normalizer + window |
 | Destructive command | Guaranteed for matched high-confidence patterns | E6 structured parser |

@@ -48,7 +48,7 @@ export function resolveRunDir(env = process.env): string {
     const active = readActive(env.FUSECAP_HOME);
     if (active) return active.run_dir;
   }
-  throw new Error("No active FuseCap run (FUSECAP_RUN_DIR unset). Hooks fail visibly.");
+  throw new Error("No active Tripward run (FUSECAP_RUN_DIR unset). Hooks fail visibly.");
 }
 
 function reasonToExit(reason: string): ExitReason {
