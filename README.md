@@ -4,23 +4,28 @@ Local runtime safety layer for Claude Code: multi-fuse tripwires + forensic rece
 
 **Law:** `docs/FUSECAP_OPS_BRAIN.txt` (Master Product + Engineering Brain v1.0, Sept 2026).  
 **Supporting brief:** `docs/ONEPAGER.md`.  
-**Spike report:** `docs/SPIKE.md`.
+**Spike report (Gate 0 PASS):** `docs/SPIKE.md`.  
+**Private alpha (Days 4–7):** `docs/ALPHA.md`.
 
-## Current authorization (0–72h)
+## Current authorization (Days 4–7)
 
-Enforceability spike only (Ch 25 / E1–E9). Prove reliable Claude Code controls.
+Private alpha on top of the merged Gate 0 spike (`72d0033`). Build: reversible installer, doctor, shadow-first defaults, read-only replay, stranger-install docs.
 
-NOT authorized: Cursor, universal LLM proxy, enterprise SSO, remote-control app, autonomous security product, fake `$` on subscription traffic, P1 UI / shadow detectors / cloud.
+NOT authorized: Cursor, universal LLM proxy, enterprise SSO, remote-control app, autonomous security product, fake `$` on subscription traffic, P1 UI / cloud / team.
 
-## Spike exit gate
-
-Five synthetic trips + two healthy sessions: time fuse; hook block; exact loop; dangerous command; Git checkpoint; terminate; raw receipt.
+## Quick start
 
 ```bash
 npm install
-npm test                 # automates the five synthetic trips (no Claude CLI)
+npm test                 # spike trips + alpha installer/doctor/shadow/replay
+npx tsx src/cli.ts init --preview
+npx tsx src/cli.ts init
 npx tsx src/cli.ts doctor
 npx tsx src/cli.ts run --preset spike --stub --scenario healthy
+npx tsx src/cli.ts replay
+npx tsx src/cli.ts uninstall --preview
 ```
 
-Live Claude Code sessions (Gage, macOS) are documented in `docs/SPIKE.md`. Divergences from the brain are recorded under `docs/adr/`.
+New policies default to **shadow**: detectors/policy signal (`detector.signaled` / warn) without interrupting. Flip with `fusecap protect --mode enforce` or `--preset spike`. Dangerous-command and other safety hard stops still fire in shadow.
+
+Alpha exit (five installs / three real Claude Code runs / one legitimate signal) is tracked in `docs/ALPHA.md` and is **not** claimed by this repository. Divergences: `docs/adr/`.

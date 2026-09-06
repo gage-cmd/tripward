@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { detectClaudeVersion } from "../adapter/versions.js";
 import { Journal } from "../journal/journal.js";
@@ -14,6 +14,9 @@ import { writePolicy, writeRun } from "../session.js";
 import { sessionStartFixture, preToolUseBashFixture } from "../adapter/payloads.js";
 import type { ComponentHealth, RunRecord } from "../types.js";
 import { FUSECAP_VERSION } from "../version.js";
+import { listedBackups } from "./installer.js";
+import { loadManifest, verifyBackup } from "./backup.js";
+import { chmodNeverBroader, formatMode, HOME_MODE, modeOf } from "./permissions.js";
 
 export interface DoctorReport {
   ok: boolean;
@@ -25,6 +28,59 @@ function which(bin: string): string | null {
   const result = spawnSync("which", [bin], { encoding: "utf8" });
   if (result.status !== 0) return null;
   return result.stdout.trim() || null;
+}
+
+function readIf(path: string): string {
+  try {
+    return readFileSync(path, "utf8");
+  } catch {
+    return "";
+  }
+}
+
+function inspectSandbox(cwd: string): { ok: boolean; detail: string } {
+  const settingsPaths = [
+    join(cwd, ".claude", "settings.local.json"),
+    join(cwd, ".claude", "settings.json"),
+  ];
+  const found: string[] = [];
+  let enabled: boolean | null = null;
+  for (const path of settingsPaths) {
+    if (!existsSync(path)) continue;
+    const raw = readIf(path);
+    found.push(path);
+    try {
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const sandbox = parsed.sandbox;
+      if (sandbox && typeof sandbox === "object") {
+        const rec = sandbox as Record<string, unknown>;
+        if (rec.enabled === true) enabled = true;
+        if (rec.enabled === false && enabled !== true) enabled = false;
+      }
+      if (parsed.sandbox === true) enabled = true;
+    } catch {
+      // ignore unreadable settings
+    }
+  }
+  if (enabled === true) {
+    return {
+      ok: true,
+      detail: `native Claude sandbox appears enabled (${found.join(", ")}). FuseCap does not independently enforce OS isolation.`,
+    };
+  }
+  if (enabled === false) {
+    return {
+      ok: true,
+      detail: "native Claude sandbox is present and disabled. FuseCap reports posture only — enable it for OS-level isolation.",
+    };
+  }
+  return {
+    ok: true,
+    detail:
+      found.length > 0
+        ? `settings present; native sandbox key not observed. FuseCap is not a host sandbox (Ch 20).`
+        : "no Claude settings yet — sandbox posture unknown. Run fusecap init; enable Claude native sandbox where compatible.",
+  };
 }
 
 export async function runDoctor(cwd: string, home: string): Promise<DoctorReport> {
@@ -52,9 +108,19 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
 
   const paths = ensureHome(home);
   try {
+    chmodNeverBroader(home, HOME_MODE);
+    const mode = formatMode(modeOf(home));
+    add("storage_home", mode === "700", `home mode ${mode} (want 700)`);
+  } catch (error) {
+    add("storage_home", false, (error as Error).message);
+  }
+
+  try {
     const journal = Journal.open(join(paths.runs, "_doctor"));
     journal.append({ run_id: "doctor", type: "doctor.ping", payload: { ok: true } });
-    add("journal", true, journal.filePath);
+    const stat = statSync(journal.filePath);
+    const mode = (stat.mode & 0o777).toString(8).padStart(3, "0");
+    add("journal", true, `${journal.filePath} mode ${mode}; append+reopen ok`);
   } catch (error) {
     add("journal", false, (error as Error).message);
   }
@@ -62,13 +128,19 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
   if (isGitRepo(cwd)) {
     try {
       const ckpt = createCheckpoint(cwd, "doctor");
-      add("checkpoint", ckpt.verified, `${ckpt.files.length} dirty/untracked paths hashed; worktree untouched`);
+      add("git_posture", ckpt.verified, `${ckpt.files.length} dirty/untracked paths hashed; worktree untouched; head ${ckpt.head.slice(0, 8)}`);
+      add("checkpoint", ckpt.verified, `${ckpt.files.length} paths; starting_digest ${ckpt.starting_digest}`);
     } catch (error) {
+      add("git_posture", false, (error as Error).message);
       add("checkpoint", false, (error as Error).message);
     }
   } else {
+    add("git_posture", false, "skipped — no repository");
     add("checkpoint", false, "skipped — no repository");
   }
+
+  const sandbox = inspectSandbox(cwd);
+  add("sandbox_posture", sandbox.ok, sandbox.detail);
 
   try {
     const child = spawn(process.execPath, ["-e", "setTimeout(()=>{}, 20000)"], {
@@ -122,16 +194,54 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
     existsSync(settings) ? settings : "run fusecap init (hooks missing — protection would be degraded)",
   );
 
+  const backups = listedBackups(home);
+  const manifest = loadManifest(paths.backups);
+  if (manifest.entries.length === 0) {
+    add(
+      "backups",
+      true,
+      existsSync(settings) ? "no pre-install settings backup (file was created by FuseCap or absent)" : "no backups yet",
+    );
+  } else {
+    const failed = backups.map(verifyBackup).filter((item) => !item.ok);
+    add(
+      "backups",
+      failed.length === 0,
+      failed.length === 0
+        ? `${backups.length} verified backup(s)`
+        : failed.map((item) => item.detail).join("; "),
+    );
+  }
+
   const failed = components.filter((c) => !c.ok && c.name !== "claude_cli");
   const degraded = !existsSync(settings) || !isGitRepo(cwd) || !claudePath;
   const protection_claim = failed.length ? "failed" : degraded ? "degraded" : "protected";
   return { ok: failed.length === 0, protection_claim, components };
 }
 
-function readIf(path: string): string {
-  try {
-    return readFileSync(path, "utf8");
-  } catch {
-    return "";
+export function formatDoctorReport(report: DoctorReport): string {
+  const width = Math.max(12, ...report.components.map((c) => c.name.length));
+  const lines = [
+    `FuseCap doctor ${FUSECAP_VERSION}`,
+    "",
+    "Check".padEnd(width + 2) + "Result  Detail",
+    "-".repeat(width + 2) + "------  ------",
+  ];
+  for (const component of report.components) {
+    const mark = component.ok ? "PASS" : "FAIL";
+    lines.push(`${component.name.padEnd(width + 2)}${mark}    ${component.detail}`);
   }
+  lines.push("");
+  lines.push(
+    report.ok
+      ? `OVERALL  PASS  protection_claim=${report.protection_claim}`
+      : `OVERALL  FAIL  protection_claim=${report.protection_claim}`,
+  );
+  if (report.protection_claim === "degraded") {
+    lines.push("Note: PASS here means exercised checks succeeded. Protection is still degraded until Claude CLI + git + hooks are all present.");
+  }
+  if (!report.ok) {
+    lines.push("Fix every FAIL before asking a stranger to trust a protected session.");
+  }
+  return lines.join("\n");
 }

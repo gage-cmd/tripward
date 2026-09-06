@@ -174,14 +174,35 @@ export function handleHook(raw: string, runDirectory = resolveRunDir()): {
     adapter_event_id: `${input.tool_use_id}:decision`,
     payload: {
       action: evaluation.decision.action,
+      configured_action: evaluation.configured_action,
       reason_code: evaluation.decision.reason_code,
       display_reason: evaluation.decision.display_reason,
       normalized_signature: evaluation.features.normalized_signature,
       matched_rule_ids: evaluation.decision.matched_rule_ids,
       evidence_refs: evaluation.decision.evidence_refs,
       decision_id: evaluation.decision.decision_id,
+      mode: policy.mode,
+      signaled: evaluation.signaled,
     },
   });
+
+  if (evaluation.signaled) {
+    journal.append({
+      run_id: run.run_id,
+      type: evaluation.detector ? "detector.signaled" : "policy.signaled",
+      adapter_event_id: `${input.tool_use_id}:signal`,
+      payload: {
+        detector: evaluation.detector ?? null,
+        reason_code: evaluation.decision.reason_code,
+        configured_action: evaluation.configured_action,
+        effective_action: evaluation.decision.action,
+        mode: policy.mode,
+        interrupted: evaluation.decision.action === "deny" || evaluation.decision.action === "terminate" || evaluation.decision.action === "graceful_stop",
+        evidence_refs: evaluation.decision.evidence_refs,
+        display_reason: evaluation.decision.display_reason,
+      },
+    });
+  }
 
   if (evaluation.decision.action === "deny") {
     journal.append({

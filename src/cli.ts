@@ -9,13 +9,16 @@ import { runSupervised } from "./commands/run.js";
 import { readCheckpoint } from "./git/checkpoint.js";
 import { applyRecovery, buildRecoveryPreview } from "./git/recovery.js";
 import { Journal } from "./journal/journal.js";
-import { compilePolicy, explainPolicy } from "./policy/compiler.js";
+import { applyPolicyMode, compilePolicy, explainPolicy } from "./policy/compiler.js";
 import { getPreset, PRESETS } from "./policy/presets.js";
 import { applyInstall, uninstall } from "./install/installer.js";
-import { runDoctor } from "./install/doctor.js";
+import { formatDoctorReport, runDoctor } from "./install/doctor.js";
 import { ensureHome, resolveHome, runDir } from "./paths.js";
 import { handleHook, readActive } from "./session.js";
+import { formatReplayReport, replayHistory } from "./replay/replay.js";
+import { redactReceipt } from "./receipt/redact.js";
 import { FUSECAP_VERSION } from "./version.js";
+import type { ReceiptDocument } from "./types.js";
 
 interface Args {
   command: string;
@@ -67,6 +70,15 @@ function bool(flags: Record<string, string | boolean>, name: string): boolean {
   return flags[name] === true || flags[name] === "true";
 }
 
+function parseMode(flags: Record<string, string | boolean>): "shadow" | "enforce" | undefined {
+  const value = flag(flags, "mode");
+  if (!value) return undefined;
+  if (value !== "shadow" && value !== "enforce") {
+    throw new Error("mode must be shadow or enforce");
+  }
+  return value;
+}
+
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
   for await (const chunk of stdin) {
@@ -76,21 +88,27 @@ async function readStdin(): Promise<string> {
 }
 
 function usage(): string {
-  return `FuseCap ${FUSECAP_VERSION} — local circuit breaker for Claude Code (enforceability spike)
+  return `FuseCap ${FUSECAP_VERSION} — local circuit breaker for Claude Code (private alpha)
 
 Usage:
-  fusecap init [--preview] [--cwd DIR] [--home DIR]
-  fusecap protect [preset]
-  fusecap run [--preset NAME] [--policy FILE] [--stub] [--scenario NAME] [--] [claude args]
+  fusecap init [--preview] [--cwd DIR] [--home DIR] [--preset NAME] [--mode shadow|enforce]
+  fusecap protect [preset] [--mode shadow|enforce]
+  fusecap run [--preset NAME] [--policy FILE] [--mode shadow|enforce] [--stub] [--scenario NAME] [--] [claude args]
   fusecap hook                 # Claude Code hook entry (stdin JSON)
-  fusecap doctor
+  fusecap doctor [--json]
   fusecap status
-  fusecap receipt [run_id]
+  fusecap receipt [run_id] [--redact]
+  fusecap replay [run_id] [--json]
   fusecap restore [run_id] --preview
   fusecap restore [run_id] --confirm --digest DIGEST --paths a,b
-  fusecap policy explain [--preset NAME|--policy FILE]
+  fusecap policy explain [--preset NAME|--policy FILE] [--mode shadow|enforce]
   fusecap uninstall [--preview]
   fusecap fixtures
+
+Alpha default: new policies are shadow (detectors/policy signal without interrupting).
+Flip enforce:  fusecap protect --mode enforce   or   fusecap run --preset spike
+Hard stops (dangerous command, missing journal/hooks/checkpoint) still fire in shadow.
+Uninstall restores verified backups only and never broadens permissions.
 
 Authorization: Claude Code adapter only. No Cursor, no fake USD, no cloud.
 `;
@@ -113,16 +131,21 @@ async function main(): Promise<void> {
       return;
     case "init": {
       const preview = bool(args.flags, "preview");
-      const plan = applyInstall(cwd, home, preview);
-      console.log(preview ? "Install preview (no files written):" : "Installed:");
+      const plan = applyInstall(cwd, home, preview, {
+        preset: flag(args.flags, "preset"),
+        mode: parseMode(args.flags),
+      });
+      console.log(preview ? "Install preview (no files written):" : plan.already_installed ? "Init (idempotent):" : "Installed:");
       for (const action of plan.actions) {
         console.log(`  ${action.op} ${action.path} — ${action.detail}`);
       }
       console.log(`hook command: ${plan.hook_command || "(n/a)"}`);
+      console.log(`default mode: ${plan.default_mode}  (flip with fusecap protect --mode enforce)`);
       return;
     }
     case "uninstall": {
       const plan = uninstall(cwd, home, bool(args.flags, "preview"));
+      console.log(bool(args.flags, "preview") ? "Uninstall preview:" : "Uninstall:");
       for (const action of plan.actions) {
         console.log(`  ${action.op} ${action.path} — ${action.detail}`);
       }
@@ -130,20 +153,24 @@ async function main(): Promise<void> {
     }
     case "protect": {
       const name = args.rest[0] ?? "standard";
-      const compiled = compilePolicy(getPreset(name));
+      const mode = parseMode(args.flags);
+      const compiled = compilePolicy(mode ? applyPolicyMode(getPreset(name), mode) : getPreset(name));
       ensureHome(home);
-      writeFileSync(resolve(home, "policy.json"), `${JSON.stringify(compiled.policy, null, 2)}\n`);
+      const { digest: _d, unsupported_controls: _u, ...document } = compiled.policy;
+      writeFileSync(resolve(home, "policy.json"), `${JSON.stringify(document, null, 2)}\n`, { mode: 0o600 });
       console.log(explainPolicy(compiled.policy));
       return;
     }
     case "policy": {
       if (args.rest[0] !== "explain") {
-        throw new Error("usage: fusecap policy explain [--preset NAME|--policy FILE]");
+        throw new Error("usage: fusecap policy explain [--preset NAME|--policy FILE] [--mode shadow|enforce]");
       }
-      const policy = flag(args.flags, "policy")
-        ? compilePolicy(JSON.parse(readFileSync(flag(args.flags, "policy")!, "utf8"))).policy
-        : compilePolicy(getPreset(flag(args.flags, "preset") ?? "standard")).policy;
-      console.log(explainPolicy(policy));
+      const mode = parseMode(args.flags);
+      let raw: unknown = flag(args.flags, "policy")
+        ? JSON.parse(readFileSync(flag(args.flags, "policy")!, "utf8"))
+        : getPreset(flag(args.flags, "preset") ?? "standard");
+      if (mode) raw = applyPolicyMode(raw, mode);
+      console.log(explainPolicy(compilePolicy(raw).policy));
       return;
     }
     case "run": {
@@ -155,6 +182,7 @@ async function main(): Promise<void> {
         home,
         policyPath: flag(args.flags, "policy"),
         preset: flag(args.flags, "preset"),
+        mode: parseMode(args.flags),
         stub: bool(args.flags, "stub"),
         stubScenario: flag(args.flags, "scenario"),
         claudeArgs: passthrough,
@@ -177,7 +205,11 @@ async function main(): Promise<void> {
     }
     case "doctor": {
       const report = await runDoctor(cwd, home);
-      console.log(JSON.stringify(report, null, 2));
+      if (bool(args.flags, "json")) {
+        console.log(JSON.stringify(report, null, 2));
+      } else {
+        console.log(formatDoctorReport(report));
+      }
       if (!report.ok) process.exitCode = 1;
       return;
     }
@@ -191,7 +223,25 @@ async function main(): Promise<void> {
       const runId = args.rest[0] ?? active?.run_id;
       if (!runId) throw new Error("no run id");
       const json = readFileSync(resolve(runDir(home, runId), "receipt.json"), "utf8");
+      if (bool(args.flags, "redact")) {
+        const receipt = JSON.parse(json) as ReceiptDocument;
+        console.log(JSON.stringify(redactReceipt(receipt), null, 2));
+        return;
+      }
       console.log(json);
+      return;
+    }
+    case "replay": {
+      const runId = args.rest[0];
+      const report = replayHistory(home, runId);
+      if (bool(args.flags, "json")) {
+        console.log(JSON.stringify(report, null, 2));
+      } else {
+        console.log(formatReplayReport(report));
+      }
+      if (report.runs.some((run) => !run.compatible) && report.runs.length > 0) {
+        process.exitCode = 1;
+      }
       return;
     }
     case "restore": {

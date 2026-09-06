@@ -1,6 +1,7 @@
 # FuseCap 0–72h enforceability spike
 
 **Phase:** Ch 25 enforceability spike (E1–E9 only).  
+**Gate 0: PASS** (2026-09-06) — five synthetic trips green in CI; two healthy live sessions on Gage’s Mac (Claude Code). Merged to `main` as `72d0033`. Days 4–7 private alpha is a separate pack (`docs/ALPHA.md`); it does not re-open Gate 0.  
 **Authorization:** Claude Code controls. Not built: Cursor adapter, universal LLM proxy, enterprise SSO, remote-control app, autonomous security product, fake `$` on subscription traffic, P1 UI/shadow detectors/cloud.  
 **Law:** `docs/FUSECAP_OPS_BRAIN.txt`. Divergences: `docs/adr/`.
 
@@ -102,13 +103,13 @@ npx tsx /path/to/fusecap/src/cli.ts fixtures
 | T5 terminate | PASS (plus E2 force-kill of SIGTERM-ignoring children) | |
 | Git checkpoint preserves dirty work | PASS (E7) | H2 |
 | Raw receipt + digest + no invented USD | PASS (E8 + exit-gate healthy stub) | H1 + H2 |
-| H1 healthy clean session | n/a (needs Claude Code) | |
-| H2 healthy dirty session | n/a (needs Claude Code) | |
+| H1 healthy clean session | n/a (needs Claude Code) | PASS (Gage, macOS + Claude Code) |
+| H2 healthy dirty session | n/a (needs Claude Code) | PASS (Gage, macOS + Claude Code) |
 | Fail visibly if hooks bypassed | PASS (handshake timeout → `hooks_bypassed` / failed health) | |
 | Capability matrix updated | this file + `fusecap status` | |
 | Demo recorded | not in this environment | |
 
-**Spike exit (Ch 38):** five deterministic trips pass in CI; two healthy sessions complete on Gage’s Mac; no lost work; this checklist filled; demo recorded by Gage.
+**Spike exit (Ch 38):** Gate 0 PASS. Five deterministic trips pass in CI; two healthy sessions complete on Gage’s Mac; no lost work. Demo recording remains Gage’s artifact if not attached here.
 
 ## Invariants honored
 
@@ -142,3 +143,6 @@ The stub (`src/stub/claude-stub.ts`) is the CI stand-in. It invokes the same `ha
 - `docs/adr/0003-file-control-plane.md`
 - `docs/adr/0004-doc-fixtures-not-live-capture.md`
 - `docs/adr/0005-recovery-preview-required.md`
+- `docs/adr/0006-typescript-alpha.md` (Days 4–7)
+- `docs/adr/0007-shadow-default-alpha.md`
+- `docs/adr/0008-replay-readonly-jsonl.md`

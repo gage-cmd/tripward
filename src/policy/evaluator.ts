@@ -25,6 +25,10 @@ export interface EvaluationResult {
   decision: PolicyDecision;
   features: ToolFeatures;
   pending_stop: boolean;
+  /** True when a detector or policy rule wanted to interrupt but shadow remapped to warn. */
+  signaled: boolean;
+  configured_action: DecisionAction;
+  detector?: "exact_repeat";
 }
 
 function buildDecision(
@@ -54,9 +58,20 @@ function buildDecision(
   return { ...draft, integrity_digest: digestObject(draft) };
 }
 
-function maybeShadow(policy: EffectivePolicy, action: DecisionAction, reason_code: string): DecisionAction {
-  const alwaysEnforce = new Set(["SYS_SAFETY", "DANGEROUS_COMMAND", "HOOKS_BYPASSED", "CHECKPOINT_MISSING"]);
-  if (alwaysEnforce.has(reason_code)) {
+/** Deterministic safety stops stay live even when the policy is in shadow. */
+export const ALWAYS_ENFORCE_REASONS = new Set([
+  "SYS_SAFETY",
+  "DANGEROUS_COMMAND",
+  "HOOKS_BYPASSED",
+  "CHECKPOINT_MISSING",
+]);
+
+export const BEHAVIORAL_DETECTORS: Record<string, "exact_repeat"> = {
+  EXACT_REPEAT_LIMIT: "exact_repeat",
+};
+
+export function maybeShadow(policy: EffectivePolicy, action: DecisionAction, reason_code: string): DecisionAction {
+  if (ALWAYS_ENFORCE_REASONS.has(reason_code)) {
     return action;
   }
   if (policy.mode === "shadow") {
@@ -83,6 +98,7 @@ export function evaluateTool(
     rules: string[],
     evidence: string[] = [input.event_id],
     pending_stop = false,
+    configured_action: DecisionAction = action,
   ): EvaluationResult => ({
     decision: buildDecision(input, policy, action, reason, display, rules, evidence, elapsedMs()),
     features: {
@@ -93,7 +109,10 @@ export function evaluateTool(
       command_class: features.command_class,
       command_text: typeof input.tool_input.command === "string" ? input.tool_input.command : undefined,
     },
-    pending_stop,
+    pending_stop: pending_stop && (action === "terminate" || action === "graceful_stop"),
+    signaled: configured_action !== action || Boolean(BEHAVIORAL_DETECTORS[reason]),
+    configured_action,
+    detector: BEHAVIORAL_DETECTORS[reason],
   });
 
   if (!input.journal_available) {
@@ -130,6 +149,9 @@ export function evaluateTool(
         "DANGEROUS_COMMAND",
         guard.match.display_reason,
         [`command.${guard.match.pattern_id}`],
+        [input.event_id],
+        false,
+        "deny",
       );
     }
   }
@@ -141,13 +163,22 @@ export function evaluateTool(
       "TOOL_DENIED",
       `Tool ${input.tool_name} is denied by policy.`,
       [`tools.deny.${input.tool_name}`],
+      [input.event_id],
+      false,
+      "deny",
     );
   }
   const askTools = new Set(policy.tools.ask ?? []);
   if (askTools.has(input.tool_name)) {
-    return decide(maybeShadow(policy, "ask", "TOOL_ASK"), "TOOL_ASK", `Tool ${input.tool_name} requires confirmation.`, [
-      `tools.ask.${input.tool_name}`,
-    ]);
+    return decide(
+      maybeShadow(policy, "ask", "TOOL_ASK"),
+      "TOOL_ASK",
+      `Tool ${input.tool_name} requires confirmation.`,
+      [`tools.ask.${input.tool_name}`],
+      [input.event_id],
+      false,
+      "ask",
+    );
   }
   const warnTools = new Set(policy.tools.warn ?? []);
   if (warnTools.has(input.tool_name)) {
@@ -164,6 +195,7 @@ export function evaluateTool(
       ["runtime.max_elapsed_seconds"],
       [input.event_id],
       true,
+      "graceful_stop",
     );
   }
 
@@ -173,6 +205,9 @@ export function evaluateTool(
       "TOOL_TOTAL_LIMIT",
       `Tool total ${policy.tools.max_total} would be exceeded.`,
       ["tools.max_total"],
+      [input.event_id],
+      false,
+      "deny",
     );
   }
 
@@ -192,7 +227,8 @@ export function evaluateTool(
       `Normalized ${input.tool_name} repeated ${loop.count} times in the last ${loop.window} events (threshold ${loop.threshold}).`,
       ["behavior.exact_repeat"],
       loop.evidence_refs,
-      action === "terminate" || action === "graceful_stop",
+      configured === "terminate",
+      configured,
     );
   }
 
@@ -203,6 +239,9 @@ export function evaluateTool(
       "TOOL_NOT_ALLOWLISTED",
       `Tool ${input.tool_name} is not on the explicit allowlist.`,
       ["tools.allow"],
+      [input.event_id],
+      false,
+      "ask",
     );
   }
 

@@ -47,6 +47,7 @@ export const PRESETS: Record<string, PolicyDocument> = {
     policy_id: "preset-standard",
     name: "Standard",
     preset: "standard",
+    mode: "shadow",
     runtime: {
       max_elapsed_seconds: 5400,
       graceful_stop_seconds: 8,

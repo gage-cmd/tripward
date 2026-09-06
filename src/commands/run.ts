@@ -7,7 +7,7 @@ import { detectClaudeVersion } from "../adapter/versions.js";
 import { createCheckpoint, writeCheckpoint } from "../git/checkpoint.js";
 import { isGitRepo } from "../git/git.js";
 import { Journal } from "../journal/journal.js";
-import { compilePolicy } from "../policy/compiler.js";
+import { applyPolicyMode, compilePolicy } from "../policy/compiler.js";
 import { getPreset } from "../policy/presets.js";
 import { buildReceipt, writeReceipt } from "../receipt/builder.js";
 import { supervise } from "../supervisor/supervisor.js";
@@ -22,6 +22,7 @@ export interface RunOptions {
   home: string;
   policyPath?: string;
   preset?: string;
+  mode?: "shadow" | "enforce";
   stub?: boolean;
   stubScenario?: string;
   extraArgs?: string[];
@@ -29,18 +30,21 @@ export interface RunOptions {
 }
 
 function loadPolicy(options: RunOptions): EffectivePolicy {
+  let raw: unknown;
   if (options.policyPath) {
-    const raw = JSON.parse(readFileSync(options.policyPath, "utf8")) as unknown;
-    return compilePolicy(raw).policy;
+    raw = JSON.parse(readFileSync(options.policyPath, "utf8")) as unknown;
+  } else if (options.preset) {
+    raw = getPreset(options.preset);
+  } else {
+    const defaultPath = resolve(options.home, "policy.json");
+    raw = existsSync(defaultPath)
+      ? (JSON.parse(readFileSync(defaultPath, "utf8")) as unknown)
+      : getPreset("standard");
   }
-  if (options.preset) {
-    return compilePolicy(getPreset(options.preset)).policy;
+  if (options.mode) {
+    raw = applyPolicyMode(raw, options.mode);
   }
-  const defaultPath = resolve(options.home, "policy.json");
-  if (existsSync(defaultPath)) {
-    return compilePolicy(JSON.parse(readFileSync(defaultPath, "utf8"))).policy;
-  }
-  return compilePolicy(getPreset("standard")).policy;
+  return compilePolicy(raw).policy;
 }
 
 function whichClaude(): string | null {
