@@ -1,0 +1,59 @@
+<!--
+  Tripward Founding Pro CTA — drop onto https://tripward.dev (GH Pages).
+  Paste Gage's Stripe Payment Link into TRIPWARD_FOUNDING_PRO_PAYMENT_LINK.
+  Leave it empty until that URL exists. Empty → "Checkout not configured"
+  (no buy.stripe.com navigation). Never paste sk_live_ / whsec_ here.
+
+  Matches the live lander: #founding, .price, .blurb, .btn, .micro
+-->
+
+    <p class="price">Founding Pro $15/mo</p>
+    <p class="blurb">Paid beta. If a promised capability is missing or fails, we refund. Local-first; receipts never invent USD.</p>
+    <a class="btn" id="founding" href="#founding" aria-disabled="true">Checkout not configured</a>
+    <p class="secondary"><a href="#waitlist">Or join the waitlist</a></p>
+    <p class="micro">Local-first. We collect waitlist email if you submit the form; Stripe sees only what you type on their Payment Link. Private receipts stay on your machine. No fake $.</p>
+
+<script>
+  // Same name as the Node env var / checkout.config.json key Gage pastes.
+  const TRIPWARD_FOUNDING_PRO_PAYMENT_LINK = "";
+
+  function tripwardParsePaymentLink(raw) {
+    const value = (raw || "").trim();
+    if (!value || value === "#founding") return null;
+    if (/\b(sk_live_|sk_test_|rk_live_|rk_test_|whsec_|pk_live_|pk_test_)/i.test(value)) return null;
+    let url;
+    try { url = new URL(value); } catch { return null; }
+    if (url.protocol !== "https:" || url.hostname !== "buy.stripe.com") return null;
+    if (url.username || url.password || url.hash) return null;
+    const path = url.pathname.replace(/\/+$/, "");
+    if (!/^\/(?:test_)?[A-Za-z0-9_-]{8,}$/.test(path)) return null;
+    return url.origin + path + url.search;
+  }
+
+  function tripwardWireFoundingProCta() {
+    const founding = document.getElementById("founding");
+    if (!founding) return;
+    const href = tripwardParsePaymentLink(TRIPWARD_FOUNDING_PRO_PAYMENT_LINK);
+    if (href) {
+      founding.setAttribute("href", href);
+      founding.removeAttribute("aria-disabled");
+      founding.textContent = "Get Founding Pro";
+      return;
+    }
+    founding.setAttribute("href", "#founding");
+    founding.setAttribute("aria-disabled", "true");
+    founding.textContent = "Checkout not configured";
+    founding.addEventListener("click", function (e) {
+      if (founding.getAttribute("href") === "#founding") {
+        e.preventDefault();
+        const thanks = document.getElementById("thanks");
+        if (thanks) {
+          thanks.textContent = "Checkout not configured — Founding Pro opens when the Payment Link is pasted.";
+          thanks.classList.add("show");
+        }
+      }
+    });
+  }
+
+  tripwardWireFoundingProCta();
+</script>
