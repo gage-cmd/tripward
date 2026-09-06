@@ -178,7 +178,6 @@ td { border-top: 1px solid #D2D2D7; }
       <pre id="restore-cmd" data-digest="sha256:fixture-all-safe-preview-digest" data-run="run_fixture_all_safe" aria-label="Apply restore command">tripward restore --confirm --digest sha256:fixture-all-safe-preview-digest --paths src/app.ts,agent-new.txt run_fixture_all_safe</pre>
       <button type="button" class="copy-link" id="apply-copy" data-copy="tripward restore --confirm --digest sha256:fixture-all-safe-preview-digest --paths src/app.ts,agent-new.txt run_fixture_all_safe">Copy</button>
     </div>
-    <p id="paths-flag" class="secondary">--paths src/app.ts,agent-new.txt</p>
   </section>
 
   <section id="limitations" class="card">
@@ -220,23 +219,18 @@ td { border-top: 1px solid #D2D2D7; }
     var runId = field.getAttribute("data-run") || "";
     var paths = selectedPaths();
     var next = compose(digest, runId, paths);
-    if (field.tagName === "PRE" || field.tagName === "CODE") field.textContent = next;
-    else field.value = next;
-    var flag = document.getElementById("paths-flag");
+    field.textContent = next;
     if (copy) {
-      if (next && paths.length) {
+      if (next) {
         copy.setAttribute("data-copy", next);
         copy.disabled = false;
-        if (flag) flag.textContent = "--paths " + paths.join(",");
       } else {
         copy.removeAttribute("data-copy");
         copy.disabled = true;
-        if (flag) flag.textContent = "";
       }
     }
     setHidden(empty, Boolean(next));
     setHidden(row, !next);
-    setHidden(flag, !next);
   }
   document.addEventListener("change", function (event) {
     var target = event.target;

@@ -16,7 +16,6 @@ import {
 } from "../src/recovery/html.js";
 import {
   composeRestoreConfirmCommand,
-  composedCommandPathsFlag,
   defaultSelectedRecoveryPaths,
   isSelectableRecoveryPath,
   recoveryPathCounts,
@@ -74,13 +73,9 @@ describe("PR2 Apple-bar recovery HTML", () => {
     expect(html).toContain("(local)");
     expect(html).toContain('href="receipt.html"');
     expect(html).toContain(`tripward restore --confirm --digest ${preview.preview_digest} --paths src/app.ts,agent-new.txt ${preview.run_id}`);
-    expect(html).toContain("<pre id=\"restore-cmd\"");
-    expect(html).toMatch(
-      /<pre id="restore-cmd"[^>]*>tripward restore --confirm --digest \S+ --paths src\/app\.ts,agent-new\.txt run_fixture_all_safe<\/pre>/,
-    );
-    expect(html).toContain("<p id=\"paths-flag\" class=\"secondary\">--paths src/app.ts,agent-new.txt</p>");
-    expect(composedCommandPathsFlag(composeRestoreConfirmCommand(preview))).toBe("src/app.ts,agent-new.txt");
+    expect(html).toContain("white-space: pre-wrap");
     expect(html).not.toContain("--paths=");
+    expect(html).not.toContain("id=\"paths-flag\"");
     expect(html).toMatch(/data-path="src\/app\.ts"[^>]*checked/);
     expect(html).toMatch(/data-path="agent-new\.txt"[^>]*checked/);
     expect(html).toContain("README.md is not selectable");
@@ -184,13 +179,10 @@ describe("PR2 Apple-bar recovery HTML", () => {
     ).toBe(false);
     const uncertain = loadPreview("uncertain-one-click-disabled.json");
     expect(composeRestoreConfirmCommand(uncertain, [])).toBeNull();
-    const selectedUncertain = composeRestoreConfirmCommand(uncertain, ["agent-new.txt"]);
-    expect(selectedUncertain).toBe(
+    expect(composeRestoreConfirmCommand(uncertain, ["agent-new.txt"])).toBe(
       `tripward restore --confirm --digest ${uncertain.preview_digest} --paths agent-new.txt ${uncertain.run_id}`,
     );
-    expect(composedCommandPathsFlag(selectedUncertain)).toBe("agent-new.txt");
     expect(composeRestoreConfirmCommand(loadPreview("all-safe.json"), [])).toBeNull();
-    expect(composedCommandPathsFlag(composeRestoreConfirmCommand(loadPreview("all-safe.json"), []))).toBeNull();
   });
 });
 

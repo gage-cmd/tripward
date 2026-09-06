@@ -4,7 +4,6 @@ import { receiptHtmlPath, escapeHtml, formatLocalTime } from "../receipt/html.js
 import type { RecoveryPreview, RecoveryPreviewPath } from "../types.js";
 import {
   composeRestoreConfirmCommand,
-  composedCommandPathsFlag,
   defaultSelectedRecoveryPaths,
   isSelectableRecoveryPath,
   recoveryPathCounts,
@@ -131,11 +130,6 @@ export function renderRecoveryHtml(
       <pre id="restore-cmd" data-digest="${escapeHtml(preview.preview_digest)}" data-run="${escapeHtml(preview.run_id)}" aria-label="Apply restore command">${escapeHtml(command ?? "")}</pre>
       <button type="button" class="copy-link" id="apply-copy"${command ? ` data-copy="${escapeHtml(command)}"` : " disabled"}>Copy</button>
     </div>
-    <p id="paths-flag" class="secondary"${command ? "" : " hidden"}>${
-      command && composedCommandPathsFlag(command)
-        ? escapeHtml(`--paths ${composedCommandPathsFlag(command)}`)
-        : ""
-    }</p>
   </section>`;
   const composeScript = failClosed
     ? ""
@@ -168,23 +162,18 @@ export function renderRecoveryHtml(
     var runId = field.getAttribute("data-run") || "";
     var paths = selectedPaths();
     var next = compose(digest, runId, paths);
-    if (field.tagName === "PRE" || field.tagName === "CODE") field.textContent = next;
-    else field.value = next;
-    var flag = document.getElementById("paths-flag");
+    field.textContent = next;
     if (copy) {
-      if (next && paths.length) {
+      if (next) {
         copy.setAttribute("data-copy", next);
         copy.disabled = false;
-        if (flag) flag.textContent = "--paths " + paths.join(",");
       } else {
         copy.removeAttribute("data-copy");
         copy.disabled = true;
-        if (flag) flag.textContent = "";
       }
     }
     setHidden(empty, Boolean(next));
     setHidden(row, !next);
-    setHidden(flag, !next);
   }
   document.addEventListener("change", function (event) {
     var target = event.target;
