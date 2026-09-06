@@ -3,8 +3,8 @@
 Local runtime safety layer for Claude Code: multi-fuse tripwires + forensic receipt + Git checkpoint/rollback.
 
 **Canonical URL:** https://tripward.dev  
-**Repo (after Gage rename):** https://github.com/gage-cmd/tripward  
-**Gage checklist:** `GAGE.md` (GitHub rename + lander `thanks.html`).  
+**Repo:** https://github.com/gage-cmd/tripward  
+**Gage checklist:** `GAGE.md` (GitHub Settings rename + lander `thanks.html`).  
 **Law:** `docs/FUSECAP_OPS_BRAIN.txt` (historical working-name law; public product is Tripward).  
 **Supporting brief:** `docs/ONEPAGER.md`.  
 **Spike report (Gate 0 PASS):** `docs/SPIKE.md`.  
@@ -27,6 +27,8 @@ NOT authorized: Cursor, universal LLM proxy, enterprise SSO, remote-control app,
 ## Quick start
 
 ```bash
+git clone https://github.com/gage-cmd/tripward.git
+cd tripward
 npm install
 npm test
 npx tsx src/cli.ts init --preview

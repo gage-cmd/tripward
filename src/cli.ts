@@ -29,6 +29,11 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
+function invokedAsLegacyAlias(): boolean {
+  const base = (process.argv[1] ?? "").split(/[/\\]/).pop() ?? "";
+  return base === "fusecap" || base === "fusecap.js";
+}
+
 function invokedName(): string {
   return CLI_NAME;
 }
@@ -37,6 +42,7 @@ function usage(): string {
   const bin = invokedName();
   return `Tripward ${TRIPWARD_VERSION} — local circuit breaker for Claude Code (paid beta)
 CLI: tripward · https://tripward.dev
+Clone: https://github.com/gage-cmd/tripward.git
 
 Usage:
   ${bin} init [--preview] [--cwd DIR] [--home DIR] [--preset NAME] [--mode shadow|enforce]
@@ -75,6 +81,9 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv);
   const cwd = resolve(flag(args.flags, "cwd") ?? process.cwd());
   const home = resolveHome(flag(args.flags, "home"), cwd);
+  if (invokedAsLegacyAlias() && args.command !== "hook") {
+    console.error("tripward: `fusecap` is a temporary bin alias for existing installs. Use `tripward`. Clone: https://github.com/gage-cmd/tripward.git");
+  }
 
   switch (args.command) {
     case "help":

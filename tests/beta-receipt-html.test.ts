@@ -123,14 +123,14 @@ describe("PR1 Apple-bar receipt HTML", () => {
 });
 
 describe("tripward CLI honesty", () => {
-  it("exposes tripward as the only CLI bin", () => {
+  it("exposes tripward as the public CLI and fusecap only as a leftover-install alias", () => {
     const pkg = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8")) as {
       name: string;
       bin: { tripward: string; fusecap?: string };
     };
     expect(pkg.name).toBe("tripward");
     expect(pkg.bin.tripward).toBe("./dist/cli.js");
-    expect(pkg.bin.fusecap).toBeUndefined();
+    expect(pkg.bin.fusecap).toBe("./dist/cli.js");
   });
 
   it("parses the HTML CTA `tripward restore --preview <run_id>` without swallowing the id", () => {

@@ -13,7 +13,7 @@ Commands below use `npx tsx` against the clone. After `npm run build`, the CLI i
 ## 1. Clone
 
 ```bash
-git clone https://github.com/gage-cmd/tripward.git tripward
+git clone https://github.com/gage-cmd/tripward.git
 cd tripward
 git checkout main
 npm install

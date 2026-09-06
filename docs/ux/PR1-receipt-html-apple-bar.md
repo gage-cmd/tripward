@@ -32,7 +32,7 @@ This is the UX spec for Days 8–14 PR1. Engineering implements this file. Coder
 
 ## CLI honesty
 
-`package.json` `bin` must expose `tripward` as the CLI entry so the HTML command is invocable. User-facing HTML and beta docs brand Tripward only.
+`package.json` `bin` must expose `tripward` as the CLI entry so the HTML command is invocable. A leftover `fusecap` bin may exist for existing installs only. User-facing HTML and buyer docs brand Tripward and clone `gage-cmd/tripward` only.
 
 ## Acceptance checklist
 

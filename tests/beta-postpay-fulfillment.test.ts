@@ -69,8 +69,12 @@ describe("Founding Pro post-pay fulfillment docs", () => {
 
   it("keeps the public product name Tripward in new buyer-facing copy", () => {
     const allowedGithub = /https:\/\/github\.com\/gage-cmd\/tripward(?:\.git)?(?:\/[^\s)"']*)?/g;
-    for (const rel of ["docs/SETUP.md", "docs/lander/thanks.snippet.html", "docs/FOUNDING_PRO.md"]) {
-      const scrubbed = read(rel).replace(allowedGithub, "");
+    for (const rel of ["docs/SETUP.md", "docs/lander/thanks.snippet.html", "docs/FOUNDING_PRO.md", "README.md"]) {
+      const text = read(rel);
+      expect(text, rel).toMatch(/https:\/\/github\.com\/gage-cmd\/tripward(?:\.git)?/);
+      expect(text, rel).not.toMatch(/gage-cmd\/fusecap\.git/);
+      expect(text, rel).not.toMatch(/after Gage rename|after the rename/i);
+      const scrubbed = text.replace(allowedGithub, "");
       expect(scrubbed, rel).not.toMatch(/FuseCap/);
       expect(scrubbed, rel).not.toMatch(/\bfusecap\b/i);
     }

@@ -52,7 +52,7 @@ Shared-box path was `/workspace/tripward-specs/PR2-recovery-preview-apple-bar.md
 
 ## CLI honesty
 
-`package.json` `bin` exposes `tripward`. User-facing HTML and beta docs brand Tripward only.
+`package.json` `bin` exposes `tripward`. A leftover `fusecap` bin may exist for existing installs only. User-facing HTML and buyer docs brand Tripward and clone `gage-cmd/tripward` only.
 
 Receipt HTML may add a **secondary** CTA line for `tripward restore --preview --html <run_id>` without removing the JSON preview CTA.
 

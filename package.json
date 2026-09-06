@@ -4,7 +4,8 @@
   "description": "Tripward — local circuit breaker for Claude Code — Days 8–14 paid beta",
   "type": "module",
   "bin": {
-    "tripward": "./dist/cli.js"
+    "tripward": "./dist/cli.js",
+    "fusecap": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
