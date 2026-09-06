@@ -7,15 +7,17 @@ Local runtime safety layer for Claude Code: multi-fuse tripwires + forensic rece
 **Supporting brief:** `docs/ONEPAGER.md`.  
 **Spike report (Gate 0 PASS):** `docs/SPIKE.md`.  
 **Private alpha (Days 4–7, exited):** `docs/ALPHA.md`.  
-**Paid beta (Days 8–14, open):** `docs/BETA.md`.
+**Paid beta (Days 8–14, open):** `docs/BETA.md`.  
+**Founding Pro ($15/mo stub):** `docs/FOUNDING_PRO.md`.  
+**Privacy:** `docs/PRIVACY.md`.
 
 ## Current authorization (Days 8–14)
 
-Paid beta is **open**. PR1 (receipt HTML) is on main. This slice is PR2 (recovery preview HTML). Alpha exited with measured **1 / 5 installs · 1 / 3 runs · 1 / 1 signal**; remaining installs/runs waived by Gage.
+Paid beta is **open**. PR1 (receipt HTML) and PR2 (recovery preview HTML) are on main. This slice is PR3 (Founding Pro Payment Link stub). Alpha exited with measured **1 / 5 installs · 1 / 3 runs · 1 / 1 signal**; remaining installs/runs waived by Gage.
 
 This repository does **not** claim three paying strangers or paid-beta exit.
 
-NOT authorized: Cursor, universal LLM proxy, enterprise SSO, remote-control app, autonomous security product, fake `$` on subscription traffic, Stripe checkout, support-channel pack, P2 cloud/team.
+NOT authorized: Cursor, universal LLM proxy, enterprise SSO, remote-control app, autonomous security product, fake `$` on subscription traffic, Stripe secret keys / API / webhooks, entitlements enforcement, support-channel pack, P2 cloud/team.
 
 ## Quick start
 
@@ -28,6 +30,7 @@ npx tsx src/cli.ts doctor
 npx tsx src/cli.ts run --preset spike --stub --scenario healthy
 npx tsx src/cli.ts receipt --html
 npx tsx src/cli.ts restore --preview --html
+npx tsx src/cli.ts founding-pro
 npx tsx src/cli.ts replay
 npx tsx src/cli.ts uninstall --preview
 ```

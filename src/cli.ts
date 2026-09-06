@@ -17,6 +17,7 @@ import { ensureHome, resolveHome } from "./paths.js";
 import { handleHook, readActive } from "./session.js";
 import { formatReplayReport, replayHistory } from "./replay/replay.js";
 import { emitReceipt } from "./commands/receipt.js";
+import { formatFoundingProStatus, foundingProStatus } from "./commands/founding-pro.js";
 import { FUSECAP_VERSION } from "./version.js";
 
 async function readStdin(): Promise<string> {
@@ -51,6 +52,7 @@ Usage:
   ${bin} restore --preview --html [--open] [run_id]
   ${bin} restore --confirm --digest DIGEST --paths a,b [run_id]
   ${bin} policy explain [--preset NAME|--policy FILE] [--mode shadow|enforce]
+  ${bin} founding-pro [--json]
   ${bin} uninstall [--preview]
   ${bin} fixtures
 
@@ -63,6 +65,7 @@ receipt --html writes a private local Apple-bar receipt next to receipt.json.
 restore --preview --html writes recovery.html next to that receipt. The page does not apply.
 
 Authorization: Claude Code adapter only. No Cursor, no fake USD, no cloud.
+Founding Pro ($15/mo): set TRIPWARD_FOUNDING_PRO_PAYMENT_LINK or see docs/FOUNDING_PRO.md.
 `;
 }
 
@@ -248,6 +251,18 @@ async function main(): Promise<void> {
         return;
       }
       console.log(JSON.stringify({ applied: result.applied, skipped: result.skipped }, null, 2));
+      return;
+    }
+    case "founding-pro": {
+      const status = foundingProStatus({ cwd });
+      if (bool(args.flags, "json")) {
+        console.log(JSON.stringify(status, null, 2));
+      } else {
+        console.log(formatFoundingProStatus(status));
+      }
+      if (!status.checkout.configured && status.checkout.reason === "invalid") {
+        process.exitCode = 1;
+      }
       return;
     }
     case "fixtures": {

@@ -7,3 +7,6 @@ coverage/
 .DS_Store
 tmp/
 .turbo/
+.env
+.env.local
+checkout.config.json

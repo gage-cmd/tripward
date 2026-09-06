@@ -18,3 +18,11 @@ export { applyInstall, uninstall } from "./install/installer.js";
 export { replayHistory, formatReplayReport } from "./replay/replay.js";
 export { redactReceipt } from "./receipt/redact.js";
 export { ALL_FIXTURES } from "./adapter/payloads.js";
+export {
+  FOUNDING_PRO_PAYMENT_LINK_ENV,
+  loadFoundingProCheckout,
+  parsePaymentLink,
+} from "./checkout/config.js";
+export { resolveFoundingProCta } from "./checkout/cta.js";
+export { CHECKOUT_NOT_CONFIGURED, FOUNDING_PRO_PRICE_LINE } from "./checkout/terms.js";
+export { foundingProStatus, formatFoundingProStatus } from "./commands/founding-pro.js";
