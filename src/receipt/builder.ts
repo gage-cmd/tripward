@@ -190,6 +190,9 @@ function summarize(event: JournalEvent): string {
   if (event.type === "policy.evaluated") {
     return `${p.action} ${p.reason_code ?? ""}`.trim();
   }
+  if (event.type === "detector.signaled" || event.type === "policy.signaled") {
+    return `${event.type === "detector.signaled" ? "detector" : "policy"} signaled ${p.reason_code ?? ""} → ${p.effective_action ?? "warn"} (configured ${p.configured_action ?? "?"})`.trim();
+  }
   if (event.type === "fuse.tripped") {
     return `tripped ${p.reason ?? p.reason_code ?? ""}`.trim();
   }
