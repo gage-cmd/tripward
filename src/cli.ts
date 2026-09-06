@@ -51,8 +51,8 @@ Usage:
 
 Alpha default: new policies are shadow (detectors/policy signal without interrupting).
 Flip enforce:  fusecap protect --mode enforce   or   fusecap run --preset spike
-After --, pass Claude flags only (`-p …`). A leading `claude` is stripped (compat).
-demo-trip injects PreToolUse locally — not a live Claude signal, not stub CI.
+After --, pass Claude flags only (-p ...). A leading claude token is stripped (compat).
+demo-trip injects PreToolUse locally - not a live Claude signal, not stub CI.
 Hard stops (dangerous command, missing journal/hooks/checkpoint) still fire in shadow.
 Uninstall restores verified backups only and never broadens permissions.
 
