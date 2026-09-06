@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tripward receipt run_fixture_time_fuse</title>
+<style>
+html, body { margin: 0; padding: 0; background: #F5F5F7; color: #1D1D1F; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.45;
+}
+main {
+  box-sizing: border-box;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 24px;
+}
+#header { padding-top: 24px; padding-bottom: 24px; }
+.brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.titles { display: flex; flex-direction: column; gap: 0; }
+.wordmark { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+.doc-title { margin: 4px 0 0; font-size: 15px; font-weight: 600; color: #6E6E73; }
+.pill {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pill-terminated { background: rgba(255, 59, 48, 0.12); color: #D70015; }
+.pill-warned { background: rgba(255, 149, 0, 0.12); color: #C93400; }
+.pill-completed { background: rgba(52, 199, 89, 0.12); color: #1F7A33; }
+.pill-canceled { background: rgba(142, 142, 147, 0.12); color: #1D1D1F; }
+.secondary { color: #6E6E73; margin: 8px 0 0; font-size: 13px; }
+.repo-strip { color: #6E6E73; margin: 8px 0 0; font-size: 13px; }
+h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #6E6E73; letter-spacing: 0.02em; text-transform: uppercase; }
+.health-value, .usage-value, .headline { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 16px 0 0; padding: 0; }
+.chip { margin: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.chip-ok { background: rgba(52, 199, 89, 0.12); color: #1F7A33; }
+.chip-warn { background: rgba(255, 149, 0, 0.12); color: #C93400; }
+.chip-off { background: rgba(255, 59, 48, 0.12); color: #D70015; }
+.reasons { margin: 8px 0 0; padding-left: 18px; }
+.reasons li { margin: 4px 0; }
+dl { margin: 16px 0 0; }
+dl > div { display: flex; gap: 16px; padding: 8px 0; border-top: 1px solid #D2D2D7; }
+dt { width: 104px; flex: 0 0 104px; color: #6E6E73; font-size: 13px; }
+dd { margin: 0; }
+.cta { margin-top: 16px; padding-top: 16px; border-top: 1px solid #D2D2D7; }
+.cmd-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.cmd-row input {
+  flex: 1;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 12px;
+  background: #F5F5F7;
+  color: #1D1D1F;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  padding: 8px 12px;
+}
+.copy-link {
+  border: 0;
+  background: transparent;
+  color: #0071E3;
+  font: inherit;
+  font-size: 15px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.copy-link:focus-visible {
+  outline: 2px solid #0071E3;
+  outline-offset: 2px;
+}
+table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 8px 8px 0; font-size: 13px; }
+th { color: #6E6E73; font-weight: 600; }
+td { border-top: 1px solid #D2D2D7; }
+#limitations .lead { margin: 0 0 8px; }
+#limitations ul { margin: 8px 0 0; padding-left: 18px; }
+#limitations li { margin: 8px 0; }
+.digest-row { display: flex; gap: 16px; padding: 8px 0; border-top: 1px solid #D2D2D7; }
+.digest-row:first-of-type { border-top: 0; }
+.digest-row span { width: 104px; flex: 0 0 104px; color: #6E6E73; font-size: 13px; }
+.digest-row code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; }
+#footer { background: transparent; padding: 8px 8px 0; color: #6E6E73; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <section id="header" class="card">
+    <div class="brand-row">
+      <div class="titles">
+        <p class="wordmark">Tripward</p>
+        <h1 class="doc-title">Receipt</h1>
+      </div>
+      <p class="pill pill-terminated">Terminated</p>
+    </div>
+    <p class="secondary">Run run_fixture_time_fuse</p>
+    <p class="secondary"><time datetime="2026-09-06T00:00:00.000Z">Sep 6, 2026, 12:00:00 AM (local)</time> → <time datetime="2026-09-06T00:00:02.000Z">Sep 6, 2026, 12:00:02 AM (local)</time> · 2s</p>
+    <p class="secondary">Branch main · Fingerprint redacted</p>
+    <p class="repo-strip">Checkpoint intact · Clean start · 1 file</p>
+  </section>
+
+  <section id="health" class="card">
+    <h2>Protection health</h2>
+    <p class="health-value">Protected</p>
+    <ul class="chips"><li class="chip chip-warn">Adapter</li><li class="chip chip-warn">Hooks</li><li class="chip chip-ok">Checkpoint</li><li class="chip chip-ok">Storage</li><li class="chip chip-ok">Policy locked</li></ul>
+    
+    <p class="secondary">Signal class: stub-ci</p>
+  </section>
+
+  <section id="usage" class="card">
+    <h2>Usage</h2>
+    <p class="usage-value">Unavailable</p>
+    <p class="secondary">Source: unavailable</p>
+  </section>
+
+  <section id="trigger" class="card">
+    <h2>Trigger</h2>
+    <p class="headline">Time limit reached after 2s</p>
+    <dl>
+  <div><dt>Rule</dt><dd>runtime.max_elapsed_seconds</dd></div>
+  <div><dt>Threshold</dt><dd>2</dd></div>
+  <div><dt>Observed</dt><dd>2</dd></div>
+  <div><dt>Confidence</dt><dd>high</dd></div>
+  <div><dt>Action</dt><dd>graceful_stop+force_kill (executed)</dd></div>
+</dl>
+    <div class="cta">
+      <h2>Preview restore</h2>
+      <p class="secondary">This page does not restore. Preview is required (ADR 0005). Apply stays in the CLI and is refused unless --digest matches the current preview digest. Tripward will not silently reset a dirty tree.</p>
+      <div class="cmd-row">
+        <input id="restore-cmd" type="text" readonly value="tripward restore --preview run_fixture_time_fuse" aria-label="Preview restore command">
+        <button type="button" class="copy-link" data-copy="tripward restore --preview run_fixture_time_fuse">Copy</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="timeline" class="card">
+    <h2>Timeline</h2>
+    <table>
+      <thead><tr><th>#</th><th>Time</th><th>Type</th><th>Summary</th></tr></thead>
+      <tbody>
+<tr><td>1</td><td><time datetime="2026-09-06T00:00:00.000Z">Sep 6, 2026, 12:00:00 AM (local)</time></td><td>run.armed</td><td>run armed</td></tr>
+<tr><td>2</td><td><time datetime="2026-09-06T00:00:02.000Z">Sep 6, 2026, 12:00:02 AM (local)</time></td><td>fuse.tripped</td><td>tripped time_fuse</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="limitations" class="card">
+    <h2>Limitations</h2>
+    <p class="lead">What Tripward could not guarantee for this run.</p>
+    <ul><li>Usage dollars are unavailable for Claude Code subscription traffic. Tripward will not invent USD. Tokens appear only when a separately supported observable API/BYOK boundary is active.</li><li>Tool allow/deny applies only to hook-visible Claude Code tools.</li><li>Command guard is high-confidence pattern matching, not a shell-security engine.</li><li>Exact-loop detection uses the versioned normalizer; productive-but-identical calls can trip.</li><li>Recovery preview is required; Tripward will not silently reset a dirty tree.</li><li>Stub/CI trip: Claude Code was not launched. Does not count as a live or alpha legitimate signal.</li></ul>
+  </section>
+
+  <section id="digest" class="card">
+    <h2>Digest</h2>
+    <p class="secondary">Sealed locally. If these digests change, this file was altered.</p>
+    <div class="digest-row"><span>Content</span><code>sha256:integrity-fixture-digest</code></div>
+    <div class="digest-row"><span>Policy</span><code>sha256:policy-fixture-digest</code></div>
+  </section>
+
+  <p id="footer">Private local receipt · tripward.dev</p>
+</main>
+<script>
+(function () {
+  var nodes = document.querySelectorAll("time[datetime]");
+  for (var i = 0; i < nodes.length; i++) {
+    var iso = nodes[i].getAttribute("datetime");
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) continue;
+    nodes[i].textContent = d.toLocaleString(undefined, {
+      year: "numeric", month: "short", day: "numeric",
+      hour: "numeric", minute: "2-digit", second: "2-digit"
+    }) + " (local)";
+  }
+})();
+document.addEventListener("click", function (event) {
+  var target = event.target;
+  if (!target || !target.getAttribute) return;
+  var text = target.getAttribute("data-copy");
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var field = document.getElementById("restore-cmd");
+    if (field) { field.focus(); field.select(); }
+  }
+  target.textContent = "Copied";
+  setTimeout(function () { target.textContent = "Copy"; }, 1500);
+});
+</script>
+</body>
+</html>

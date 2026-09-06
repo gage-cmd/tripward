@@ -1,15 +1,17 @@
 {
   "name": "fusecap",
   "version": "0.1.0-alpha",
-  "description": "Tripward (CLI: fusecap) — local circuit breaker for Claude Code — Days 4–7 private alpha",
+  "description": "Tripward — local circuit breaker for Claude Code — Days 8–14 paid beta",
   "type": "module",
   "bin": {
+    "tripward": "./dist/cli.js",
     "fusecap": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "tripward": "tsx src/cli.ts",
     "fusecap": "tsx src/cli.ts"
   },
   "engines": {

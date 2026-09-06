@@ -15,6 +15,9 @@ import type {
   SignalClass,
 } from "../types.js";
 import { FUSECAP_VERSION, RECEIPT_SCHEMA_VERSION } from "../version.js";
+import { writeReceiptHtml } from "./html.js";
+
+export { renderHtml, writeReceiptHtml } from "./html.js";
 
 const USAGE_NOTE =
   "Usage dollars are unavailable for Claude Code subscription traffic. Tripward will not invent USD. Tokens appear only when a separately supported observable API/BYOK boundary is active.";
@@ -194,7 +197,7 @@ export function buildReceipt(input: {
 function demoLimitations(signalClass?: SignalClass): string[] {
   if (signalClass === "operator-injected-demo") {
     return [
-      "OPERATOR-INJECTED DEMO: PreToolUse was submitted by `fusecap demo-trip`, not by Claude Code. This is not a stub CI trip and does not count as alpha legitimate signal.",
+      "OPERATOR-INJECTED DEMO: PreToolUse was submitted by `tripward demo-trip`, not by Claude Code. This is not a stub CI trip and does not count as alpha legitimate signal.",
     ];
   }
   if (signalClass === "stub-ci") {
@@ -223,56 +226,7 @@ function summarize(event: JournalEvent): string {
 
 export function writeReceipt(runDirectory: string, receipt: ReceiptDocument): { json: string; html: string } {
   const json = join(runDirectory, "receipt.json");
-  const html = join(runDirectory, "receipt.html");
   writeFileSync(json, `${JSON.stringify(receipt, null, 2)}\n`, { mode: 0o600 });
-  writeFileSync(html, renderHtml(receipt), { mode: 0o600 });
+  const html = writeReceiptHtml(runDirectory, receipt);
   return { json, html };
-}
-
-export function renderHtml(receipt: ReceiptDocument): string {
-  const rows = receipt.timeline
-    .map(
-      (item) =>
-        `<tr><td>${item.sequence}</td><td>${escapeHtml(item.wall_time)}</td><td>${escapeHtml(item.type)}</td><td>${escapeHtml(item.summary)}</td></tr>`,
-    )
-    .join("\n");
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Tripward receipt ${escapeHtml(receipt.run_id)}</title>
-<style>
-body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 2rem; color: #111; }
-code, pre { font-family: ui-monospace, SFMono-Regular, monospace; }
-.banner { padding: 1rem 1.2rem; border-radius: 8px; background: #f4f4f5; }
-.warn { background: #fff7ed; }
-.bad { background: #fef2f2; }
-table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
-td, th { border-bottom: 1px solid #e5e5e5; text-align: left; padding: 0.4rem 0.5rem; font-size: 0.9rem; }
-.limit { color: #52525b; }
-</style></head>
-<body>
-<h1>Tripward receipt</h1>
-<div class="banner ${receipt.environment.signal_class === "operator-injected-demo" ? "warn" : receipt.outcome === "completed" ? "" : "bad"}">
-  <div><strong>${escapeHtml(receipt.outcome.toUpperCase())}</strong> · ${escapeHtml(receipt.exit_reason)}</div>
-  <div>Run <code>${escapeHtml(receipt.run_id)}</code> · policy ${escapeHtml(receipt.policy.policy_id)}@${receipt.policy.version}</div>
-  <div>Health: ${escapeHtml(receipt.environment.protection_health)}</div>
-  ${receipt.environment.signal_class ? `<div>Signal class: <code>${escapeHtml(receipt.environment.signal_class)}</code></div>` : ""}
-</div>
-<h2>Trigger</h2>
-<pre>${escapeHtml(JSON.stringify(receipt.trigger, null, 2))}</pre>
-<h2>Usage</h2>
-<p>${escapeHtml(receipt.usage.note)}</p>
-<h2>Limitations</h2>
-<ul class="limit">${receipt.limitations.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-<h2>Timeline</h2>
-<table><thead><tr><th>#</th><th>Time</th><th>Type</th><th>Summary</th></tr></thead><tbody>${rows}</tbody></table>
-<p>Integrity digest: <code>${escapeHtml(receipt.integrity.content_digest)}</code></p>
-</body></html>
-`;
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }

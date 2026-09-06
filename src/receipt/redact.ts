@@ -1,10 +1,53 @@
-import type { ReceiptDocument } from "../types.js";
+import type { ReceiptDocument, ReceiptTrigger } from "../types.js";
+
+export interface RedactedReceipt {
+  schema_version: string;
+  receipt_id: string;
+  run_id: string;
+  sealed_at: string;
+  identity: {
+    repository_fingerprint: "redacted";
+    branch: string | null;
+    host_label: "redacted";
+    started_at: string;
+    ended_at: string;
+  };
+  environment: {
+    fusecap_version: string;
+    adapter_version: string;
+    claude_code_version: string | null;
+    os: string;
+    protection_health: ReceiptDocument["environment"]["protection_health"];
+    health_reasons: string[];
+    signal_class: ReceiptDocument["environment"]["signal_class"] | null;
+    launched_binary: string | null;
+  };
+  policy: ReceiptDocument["policy"];
+  outcome: ReceiptDocument["outcome"];
+  exit_reason: ReceiptDocument["exit_reason"];
+  trigger: ReceiptTrigger | null;
+  timeline: Array<{
+    sequence: number;
+    type: string;
+    wall_time: string;
+    summary: string;
+  }>;
+  repository: ReceiptDocument["repository"];
+  usage: ReceiptDocument["usage"];
+  limitations: string[];
+  integrity: ReceiptDocument["integrity"];
+  privacy: {
+    redaction_level: "external-tester";
+    persist_raw_payloads: false;
+    excluded_fields: string[];
+  };
+}
 
 /**
  * Testers share this — never host paths, fingerprints, or command text.
  * Usage dollars stay null.
  */
-export function redactReceipt(receipt: ReceiptDocument): Record<string, unknown> {
+export function redactReceipt(receipt: ReceiptDocument): RedactedReceipt {
   return {
     schema_version: receipt.schema_version,
     receipt_id: receipt.receipt_id,

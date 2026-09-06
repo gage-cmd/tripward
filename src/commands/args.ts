@@ -4,6 +4,17 @@ export interface Args {
   flags: Record<string, string | boolean>;
 }
 
+/** Flags that must stay boolean so `--preview <run_id>` is a working CTA. */
+export const BOOLEAN_FLAGS = new Set([
+  "preview",
+  "confirm",
+  "redact",
+  "html",
+  "open",
+  "json",
+  "stub",
+]);
+
 export function parseArgs(argv: string[]): Args {
   const [, , command = "help", ...raw] = argv;
   const flags: Record<string, string | boolean> = {};
@@ -23,7 +34,9 @@ export function parseArgs(argv: string[]): Args {
     if (token.startsWith("--")) {
       const [key, value] = token.slice(2).split("=");
       if (value !== undefined) {
-        flags[key] = value;
+        flags[key] = BOOLEAN_FLAGS.has(key) ? value === "true" || value === "1" : value;
+      } else if (BOOLEAN_FLAGS.has(key)) {
+        flags[key] = true;
       } else if (raw[i + 1] && !raw[i + 1].startsWith("-")) {
         flags[key] = raw[i + 1];
         i += 1;
