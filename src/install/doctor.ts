@@ -65,20 +65,20 @@ function inspectSandbox(cwd: string): { ok: boolean; detail: string } {
   if (enabled === true) {
     return {
       ok: true,
-      detail: `native Claude sandbox appears enabled (${found.join(", ")}). FuseCap does not independently enforce OS isolation.`,
+      detail: `native Claude sandbox appears enabled (${found.join(", ")}). Tripward does not independently enforce OS isolation.`,
     };
   }
   if (enabled === false) {
     return {
       ok: true,
-      detail: "native Claude sandbox is present and disabled. FuseCap reports posture only — enable it for OS-level isolation.",
+      detail: "native Claude sandbox is present and disabled. Tripward reports posture only — enable it for OS-level isolation.",
     };
   }
   return {
     ok: true,
     detail:
       found.length > 0
-        ? `settings present; native sandbox key not observed. FuseCap is not a host sandbox (Ch 20).`
+        ? `settings present; native sandbox key not observed. Tripward is not a host sandbox (Ch 20).`
         : "no Claude settings yet — sandbox posture unknown. Run fusecap init; enable Claude native sandbox where compatible.",
   };
 }
@@ -200,7 +200,7 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
     add(
       "backups",
       true,
-      existsSync(settings) ? "no pre-install settings backup (file was created by FuseCap or absent)" : "no backups yet",
+      existsSync(settings) ? "no pre-install settings backup (file was created by Tripward or absent)" : "no backups yet",
     );
   } else {
     const failed = backups.map(verifyBackup).filter((item) => !item.ok);
@@ -222,7 +222,7 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
 export function formatDoctorReport(report: DoctorReport): string {
   const width = Math.max(12, ...report.components.map((c) => c.name.length));
   const lines = [
-    `FuseCap doctor ${FUSECAP_VERSION}`,
+    `Tripward doctor ${FUSECAP_VERSION}`,
     "",
     "Check".padEnd(width + 2) + "Result  Detail",
     "-".repeat(width + 2) + "------  ------",

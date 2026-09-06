@@ -28,6 +28,8 @@ describe("Days 4–7 doctor", () => {
     expect(report.components.find((c) => c.name === "terminate")?.ok).toBe(true);
     expect(report.components.find((c) => c.name === "sandbox_posture")?.ok).toBe(true);
     const text = formatDoctorReport(report);
+    expect(text).toMatch(/^Tripward doctor /);
+    expect(text).not.toMatch(/FuseCap/);
     expect(text).toMatch(/PASS|FAIL/);
     expect(text).toMatch(/OVERALL/);
     expect(text).toMatch(/hook_roundtrip/);
