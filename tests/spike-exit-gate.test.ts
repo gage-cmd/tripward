@@ -32,6 +32,7 @@ async function synthetic(scenario: string, runtime: Record<string, unknown> = {}
     integrity: { content_digest: string };
     trigger: { rule: string } | null;
     timeline: unknown[];
+    environment: { signal_class?: string };
   };
   return { result, receipt };
 }
@@ -80,5 +81,6 @@ describe("72h spike supporting proofs", () => {
     expect(result.exit_reason).toBe("completed");
     expect(receipt.usage.cost).toBeNull();
     expect(JSON.stringify(receipt)).not.toMatch(/"cost":\s*[1-9]/);
+    expect(receipt.environment.signal_class).toBe("stub-ci");
   });
 });

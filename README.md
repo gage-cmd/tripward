@@ -28,4 +28,6 @@ npx tsx src/cli.ts uninstall --preview
 
 New policies default to **shadow**: detectors/policy signal (`detector.signaled` / warn) without interrupting. Flip with `fusecap protect --mode enforce` or `--preset spike`. Dangerous-command and other safety hard stops still fire in shadow.
 
+`fusecap run -- …` passes **Claude args**. A leading `claude` is stripped so `fusecap run -- claude -p "…"` does not double the binary. Live trip copy-paste for Mac: `docs/SPIKE.md` / `docs/ALPHA.md`. `fusecap demo-trip` is an operator-injected harness (`signal_class=operator-injected-demo`) and does **not** count as alpha legitimate signal.
+
 Alpha exit (five installs / three real Claude Code runs / one legitimate signal) is tracked in `docs/ALPHA.md` and is **not** claimed by this repository. Divergences: `docs/adr/`.

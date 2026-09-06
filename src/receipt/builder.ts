@@ -12,6 +12,7 @@ import type {
   ReceiptDocument,
   ReceiptOutcome,
   ReceiptTrigger,
+  SignalClass,
 } from "../types.js";
 import { FUSECAP_VERSION, RECEIPT_SCHEMA_VERSION } from "../version.js";
 
@@ -106,6 +107,8 @@ export function buildReceipt(input: {
   checkpoint?: CheckpointManifest;
   claude_version: string | null;
   host_label?: string;
+  signal_class?: SignalClass;
+  launched_binary?: string | null;
 }): ReceiptDocument {
   const warned = input.events.some((event) => event.type === "policy.evaluated" && event.payload.action === "warn");
   const timeline = input.events.map((event) => ({
@@ -136,6 +139,8 @@ export function buildReceipt(input: {
       os: `${process.platform} ${process.arch}`,
       protection_health: input.health,
       health_reasons: input.health_reasons,
+      signal_class: input.signal_class,
+      launched_binary: input.launched_binary ?? null,
     },
     policy: {
       policy_id: input.policy.policy_id,
@@ -167,6 +172,7 @@ export function buildReceipt(input: {
       "Command guard is high-confidence pattern matching, not a shell-security engine.",
       "Exact-loop detection uses the versioned normalizer; productive-but-identical calls can trip.",
       "Recovery preview is required; Tripward will not silently reset a dirty tree.",
+      ...demoLimitations(input.signal_class),
       ...input.policy.unsupported_controls,
     ],
     privacy: {
@@ -183,6 +189,18 @@ export function buildReceipt(input: {
       content_digest,
     },
   };
+}
+
+function demoLimitations(signalClass?: SignalClass): string[] {
+  if (signalClass === "operator-injected-demo") {
+    return [
+      "OPERATOR-INJECTED DEMO: PreToolUse was submitted by `fusecap demo-trip`, not by Claude Code. This is not a stub CI trip and does not count as alpha legitimate signal.",
+    ];
+  }
+  if (signalClass === "stub-ci") {
+    return ["Stub/CI trip: Claude Code was not launched. Does not count as a live or alpha legitimate signal."];
+  }
+  return [];
 }
 
 function summarize(event: JournalEvent): string {
@@ -232,10 +250,11 @@ td, th { border-bottom: 1px solid #e5e5e5; text-align: left; padding: 0.4rem 0.5
 </style></head>
 <body>
 <h1>Tripward receipt</h1>
-<div class="banner ${receipt.outcome === "completed" ? "" : "bad"}">
+<div class="banner ${receipt.environment.signal_class === "operator-injected-demo" ? "warn" : receipt.outcome === "completed" ? "" : "bad"}">
   <div><strong>${escapeHtml(receipt.outcome.toUpperCase())}</strong> · ${escapeHtml(receipt.exit_reason)}</div>
   <div>Run <code>${escapeHtml(receipt.run_id)}</code> · policy ${escapeHtml(receipt.policy.policy_id)}@${receipt.policy.version}</div>
   <div>Health: ${escapeHtml(receipt.environment.protection_health)}</div>
+  ${receipt.environment.signal_class ? `<div>Signal class: <code>${escapeHtml(receipt.environment.signal_class)}</code></div>` : ""}
 </div>
 <h2>Trigger</h2>
 <pre>${escapeHtml(JSON.stringify(receipt.trigger, null, 2))}</pre>

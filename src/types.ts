@@ -45,6 +45,9 @@ export type ReceiptOutcome =
 
 export type ProtectionHealth = "protected" | "degraded" | "failed" | "unknown";
 
+/** How a sealed receipt was produced. Never treat operator-injected as live Claude. */
+export type SignalClass = "live-claude" | "stub-ci" | "operator-injected-demo";
+
 export interface PolicyDocument {
   schema_version: string;
   policy_id: string;
@@ -108,6 +111,8 @@ export interface RunRecord {
   health_reasons: string[];
   claude_available: boolean;
   launched_command: string[];
+  stripped_leading_claude?: string[];
+  signal_class?: SignalClass;
   child_pid?: number;
 }
 
@@ -227,6 +232,8 @@ export interface ReceiptDocument {
     os: string;
     protection_health: ProtectionHealth;
     health_reasons: string[];
+    signal_class?: SignalClass;
+    launched_binary?: string | null;
   };
   policy: {
     policy_id: string;
