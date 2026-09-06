@@ -11,7 +11,7 @@ Local runtime safety layer for Claude Code: multi-fuse tripwires + forensic rece
 
 ## Current authorization (Days 8–14)
 
-Paid beta is **open**. First slice: private local receipt HTML. Alpha exited with measured **1 / 5 installs · 1 / 3 runs · 1 / 1 signal**; remaining installs/runs waived by Gage.
+Paid beta is **open**. PR1 (receipt HTML) is on main. This slice is PR2 (recovery preview HTML). Alpha exited with measured **1 / 5 installs · 1 / 3 runs · 1 / 1 signal**; remaining installs/runs waived by Gage.
 
 This repository does **not** claim three paying strangers or paid-beta exit.
 
@@ -27,7 +27,7 @@ npx tsx src/cli.ts init
 npx tsx src/cli.ts doctor
 npx tsx src/cli.ts run --preset spike --stub --scenario healthy
 npx tsx src/cli.ts receipt --html
-npx tsx src/cli.ts restore --preview
+npx tsx src/cli.ts restore --preview --html
 npx tsx src/cli.ts replay
 npx tsx src/cli.ts uninstall --preview
 ```

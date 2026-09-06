@@ -11,6 +11,8 @@ export { runSupervised } from "./commands/run.js";
 export { createCheckpoint } from "./git/checkpoint.js";
 export { buildRecoveryPreview } from "./git/recovery.js";
 export { buildReceipt, renderHtml } from "./receipt/builder.js";
+export { renderRecoveryHtml, writeRecoveryHtml } from "./recovery/html.js";
+export { emitRestore } from "./commands/restore.js";
 export { runDoctor, formatDoctorReport } from "./install/doctor.js";
 export { applyInstall, uninstall } from "./install/installer.js";
 export { replayHistory, formatReplayReport } from "./replay/replay.js";

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tripward recovery preview run_fixture_all_safe</title>
+<style>
+html, body { margin: 0; padding: 0; background: #F5F5F7; color: #1D1D1F; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.45;
+}
+main {
+  box-sizing: border-box;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 24px;
+}
+#header { padding-top: 24px; padding-bottom: 24px; }
+.brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.titles { display: flex; flex-direction: column; gap: 0; }
+.wordmark { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+.doc-title { margin: 4px 0 0; font-size: 15px; font-weight: 600; color: #6E6E73; }
+.secondary { color: #6E6E73; margin: 8px 0 0; font-size: 13px; }
+h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #6E6E73; letter-spacing: 0.02em; text-transform: uppercase; }
+.headline { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+.strip {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #D2D2D7;
+}
+.strip-ok { background: rgba(52, 199, 89, 0.12); }
+.strip-amber { background: rgba(255, 149, 0, 0.12); }
+.strip-rose { background: rgba(255, 59, 48, 0.12); }
+.strip-title { margin: 0; font-size: 15px; font-weight: 600; }
+.strip-ok .strip-title { color: #1F7A33; }
+.strip-amber .strip-title { color: #C93400; }
+.strip-rose .strip-title { color: #D70015; }
+.strip p { margin: 8px 0 0; font-size: 13px; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 16px 0 0; padding: 0; }
+.counts li { margin: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #F5F5F7; }
+.digest-row { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #D2D2D7; }
+.digest-row span { width: 104px; flex: 0 0 104px; color: #6E6E73; font-size: 13px; }
+.digest-row code, td code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+.cmd-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; }
+#restore-cmd {
+  flex: 1;
+  margin: 0;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: #F5F5F7;
+  color: #1D1D1F;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  padding: 8px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.copy-link {
+  border: 0;
+  background: transparent;
+  color: #0071E3;
+  font: inherit;
+  font-size: 15px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.copy-link:focus-visible {
+  outline: 2px solid #0071E3;
+  outline-offset: 2px;
+}
+.copy-link:disabled {
+  color: #6E6E73;
+  cursor: default;
+}
+[hidden] { display: none; }
+a { color: #0071E3; text-decoration: none; }
+a:focus-visible { outline: 2px solid #0071E3; outline-offset: 2px; }
+table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 8px 8px 0; font-size: 13px; }
+th { color: #6E6E73; font-weight: 600; }
+td { border-top: 1px solid #D2D2D7; }
+.col-select { width: 32px; }
+#limitations .lead { margin: 0 0 8px; }
+#limitations ul { margin: 8px 0 0; padding-left: 18px; }
+#limitations li { margin: 8px 0; }
+#footer { background: transparent; padding: 8px 8px 0; color: #6E6E73; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <section id="header" class="card">
+    <div class="brand-row">
+      <div class="titles">
+        <p class="wordmark">Tripward</p>
+        <h1 class="doc-title">Recovery preview</h1>
+      </div>
+    </div>
+    <p class="secondary">Run run_fixture_all_safe · Checkpoint ckpt_fixture_all_safe</p>
+    <p class="secondary">Generated <time datetime="2026-09-06T16:00:00.000Z">Sep 6, 2026, 4:00:00 PM (local)</time></p>
+    <p class="secondary"><a href="receipt.html">Receipt</a></p>
+    <div id="strip-intact" class="strip strip-ok">
+      <p class="strip-title">Ready for selective restore</p>
+      <p>Preexisting work is intact. Select safe paths, copy the command, and run it in a terminal. This page never writes the worktree.</p>
+    </div>
+  </section>
+
+  <section id="summary" class="card">
+    <h2>Summary</h2>
+    <p class="headline">2 safe to apply</p>
+    <ul class="counts">
+      <li>3 paths</li>
+      <li>2 selectable</li>
+      <li>0 uncertain</li>
+      <li>1 keep</li>
+    </ul>
+    <p class="secondary">Apply is refused unless `--digest` matches this value. Refresh preview if the worktree changed.</p>
+    <div class="digest-row">
+      <span>Digest</span>
+      <code id="preview-digest">sha256:fixture-all-safe-preview-digest</code>
+      <button type="button" class="copy-link" data-copy="sha256:fixture-all-safe-preview-digest">Copy</button>
+    </div>
+  </section>
+
+  <section id="paths" class="card">
+    <h2>Paths</h2>
+    <table>
+      <thead><tr><th></th><th>Path</th><th>Kind</th><th>Action</th><th>Safety</th><th>Note</th></tr></thead>
+      <tbody>
+<tr class="row-selectable" data-kind="agent_modified" data-safe="true">
+  <td class="col-select"><input type="checkbox" class="path-select" data-path="src/app.ts" checked aria-label="Select src/app.ts"></td>
+  <td><code>src/app.ts</code></td>
+  <td>Agent modified</td>
+  <td>Restore starting bytes</td>
+  <td>Safe</td>
+  <td>Clean-at-start file changed during the run. Restore would write the starting blob.</td>
+</tr>
+<tr class="row-selectable" data-kind="agent_created" data-safe="true">
+  <td class="col-select"><input type="checkbox" class="path-select" data-path="agent-new.txt" checked aria-label="Select agent-new.txt"></td>
+  <td><code>agent-new.txt</code></td>
+  <td>Agent created</td>
+  <td>Remove agent file</td>
+  <td>Safe</td>
+  <td>File did not exist at start. Preview-only delete of agent-created path.</td>
+</tr>
+<tr class="row-locked" data-kind="preexisting" data-safe="true">
+  <td class="col-select"><input type="checkbox" disabled aria-label="README.md is not selectable"></td>
+  <td><code>README.md</code></td>
+  <td>Preexisting</td>
+  <td>Keep</td>
+  <td>Safe</td>
+  <td>Matches starting bytes. Recovery will not touch this path.</td>
+</tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="apply" class="card">
+    <h2>Apply in terminal</h2>
+    <p class="secondary">This page does not restore. Checkboxes only rewrite the command below. Apply stays in the terminal and is refused unless --digest matches the current preview digest.</p>
+    <p id="empty-selection" class="secondary" hidden>Select at least one safe path, or leave recovery unused.</p>
+    <div class="cmd-row" id="cmd-row">
+      <pre id="restore-cmd" data-digest="sha256:fixture-all-safe-preview-digest" data-run="run_fixture_all_safe" aria-label="Apply restore command">tripward restore --confirm --digest sha256:fixture-all-safe-preview-digest --paths src/app.ts,agent-new.txt run_fixture_all_safe</pre>
+      <button type="button" class="copy-link" id="apply-copy" data-copy="tripward restore --confirm --digest sha256:fixture-all-safe-preview-digest --paths src/app.ts,agent-new.txt run_fixture_all_safe">Copy</button>
+    </div>
+  </section>
+
+  <section id="limitations" class="card">
+    <h2>Limitations</h2>
+    <p class="lead">What this preview will not do.</p>
+    <ul><li>Recovery never runs git reset --hard or git clean.</li><li>Preexisting staged/unstaged/untracked bytes are stored as Git objects and remain recoverable even if the worktree changes.</li><li>Concurrent human edits during the run disable one-click restore.</li><li>Apply requires an explicit --confirm and the exact preview digest.</li></ul>
+  </section>
+
+  <p id="footer">Private local recovery preview · tripward.dev</p>
+</main>
+<script>
+(function () {
+
+  var field = document.getElementById("restore-cmd");
+  var copy = document.getElementById("apply-copy");
+  var empty = document.getElementById("empty-selection");
+  var row = document.getElementById("cmd-row");
+  function selectedPaths() {
+    var nodes = document.querySelectorAll("input.path-select:checked");
+    var out = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var path = nodes[i].getAttribute("data-path");
+      if (path) out.push(path);
+    }
+    return out;
+  }
+  function compose(digest, runId, paths) {
+    if (!paths.length) return "";
+    return "tripward restore --confirm --digest " + digest + " --paths " + paths.join(",") + " " + runId;
+  }
+  function setHidden(node, hidden) {
+    if (!node) return;
+    if (hidden) node.setAttribute("hidden", "");
+    else node.removeAttribute("hidden");
+  }
+  function rewrite() {
+    if (!field) return;
+    var digest = field.getAttribute("data-digest") || "";
+    var runId = field.getAttribute("data-run") || "";
+    var paths = selectedPaths();
+    var next = compose(digest, runId, paths);
+    field.textContent = next;
+    if (copy) {
+      if (next) {
+        copy.setAttribute("data-copy", next);
+        copy.disabled = false;
+      } else {
+        copy.removeAttribute("data-copy");
+        copy.disabled = true;
+      }
+    }
+    setHidden(empty, Boolean(next));
+    setHidden(row, !next);
+  }
+  document.addEventListener("change", function (event) {
+    var target = event.target;
+    if (!target || !target.classList || !target.classList.contains("path-select")) return;
+    rewrite();
+  });
+  var nodes = document.querySelectorAll("time[datetime]");
+  for (var i = 0; i < nodes.length; i++) {
+    var iso = nodes[i].getAttribute("datetime");
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) continue;
+    nodes[i].textContent = d.toLocaleString(undefined, {
+      year: "numeric", month: "short", day: "numeric",
+      hour: "numeric", minute: "2-digit", second: "2-digit"
+    }) + " (local)";
+  }
+  document.addEventListener("click", function (event) {
+    var target = event.target;
+    if (!target || !target.getAttribute) return;
+    if (target.disabled) return;
+    var text = target.getAttribute("data-copy");
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+    } else {
+      var cmd = document.getElementById("restore-cmd");
+      if (cmd && window.getSelection && cmd.textContent) {
+        var range = document.createRange();
+        range.selectNodeContents(cmd);
+        var sel = window.getSelection();
+        if (sel) { sel.removeAllRanges(); sel.addRange(range); }
+      }
+    }
+    target.textContent = "Copied";
+    setTimeout(function () { target.textContent = "Copy"; }, 1500);
+  });
+})();
+</script>
+</body>
+</html>

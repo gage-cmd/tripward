@@ -32,6 +32,10 @@ export function restorePreviewCommand(runId: string): string {
   return `tripward restore --preview ${runId}`;
 }
 
+export function restorePreviewHtmlCommand(runId: string): string {
+  return `tripward restore --preview --html ${runId}`;
+}
+
 export function usageKind(usage: {
   cost: unknown;
   source: string;
@@ -184,6 +188,7 @@ function repositoryStrip(receipt: ReceiptHtmlSource): string {
 export function renderHtml(receipt: ReceiptHtmlSource): string {
   const kind = usageKind(receipt.usage);
   const command = restorePreviewCommand(receipt.run_id);
+  const htmlCommand = restorePreviewHtmlCommand(receipt.run_id);
   const health = healthLabel(receipt.environment.protection_health);
   const chips = healthChips(receipt)
     .map((chip) => `<li class="chip chip-${chip.state}">${escapeHtml(chip.name)}</li>`)
@@ -358,6 +363,11 @@ td { border-top: 1px solid #D2D2D7; }
       <div class="cmd-row">
         <input id="restore-cmd" type="text" readonly value="${escapeHtml(command)}" aria-label="Preview restore command">
         <button type="button" class="copy-link" data-copy="${escapeHtml(command)}">Copy</button>
+      </div>
+      <p class="secondary">Same preview as a local HTML page:</p>
+      <div class="cmd-row">
+        <input id="restore-html-cmd" type="text" readonly value="${escapeHtml(htmlCommand)}" aria-label="Preview restore HTML command">
+        <button type="button" class="copy-link" data-copy="${escapeHtml(htmlCommand)}">Copy</button>
       </div>
     </div>
   </section>

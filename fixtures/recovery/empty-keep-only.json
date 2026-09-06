@@ -1,0 +1,24 @@
+{
+  "run_id": "run_fixture_keep_only",
+  "checkpoint_id": "ckpt_fixture_keep_only",
+  "preview_digest": "sha256:fixture-keep-only-preview-digest",
+  "preexisting_work_intact": true,
+  "one_click_disabled": false,
+  "paths": [
+    {
+      "path": "README.md",
+      "kind": "preexisting",
+      "starting_blob": "blob_readme",
+      "current_blob": "blob_readme",
+      "restore_action": "keep",
+      "safe": true,
+      "note": "Matches HEAD. Recovery will not touch this path."
+    }
+  ],
+  "limitations": [
+    "Recovery never runs git reset --hard or git clean.",
+    "Preexisting staged/unstaged/untracked bytes are stored as Git objects and remain recoverable even if the worktree changes.",
+    "Concurrent human edits during the run disable one-click restore.",
+    "Apply requires an explicit --confirm and the exact preview digest."
+  ]
+}

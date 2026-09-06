@@ -8,6 +8,14 @@ import { applyRecovery, buildRecoveryPreview } from "../src/git/recovery.js";
 import { gitInit, tempDir } from "./helpers.js";
 
 describe("E7 git safety", () => {
+  it("parses unstaged porcelain without stripping the leading status space", () => {
+    const repo = gitInit(tempDir("repo-porcelain-"));
+    writeFileSync(join(repo, "README.md"), "hello\nlocal edit\n");
+    const entries = porcelain(repo);
+    expect(entries.some((entry) => entry.path === "README.md" && entry.unstaged)).toBe(true);
+    expect(entries.some((entry) => entry.path === "EADME.md" || entry.path === "racked.txt")).toBe(false);
+  });
+
   it("records a starting manifest without changing a dirty tree", () => {
     const repo = gitInit(tempDir("repo-"));
     writeFileSync(join(repo, "staged.txt"), "staged-v1");

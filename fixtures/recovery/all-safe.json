@@ -1,0 +1,41 @@
+{
+  "run_id": "run_fixture_all_safe",
+  "checkpoint_id": "ckpt_fixture_all_safe",
+  "preview_digest": "sha256:fixture-all-safe-preview-digest",
+  "preexisting_work_intact": true,
+  "one_click_disabled": false,
+  "paths": [
+    {
+      "path": "src/app.ts",
+      "kind": "agent_modified",
+      "starting_blob": "blob_app_start",
+      "current_blob": "blob_app_now",
+      "restore_action": "restore_blob",
+      "safe": true,
+      "note": "Clean-at-start file changed during the run. Restore would write the starting blob."
+    },
+    {
+      "path": "agent-new.txt",
+      "kind": "agent_created",
+      "current_blob": "blob_agent_new",
+      "restore_action": "delete",
+      "safe": true,
+      "note": "File did not exist at start. Preview-only delete of agent-created path."
+    },
+    {
+      "path": "README.md",
+      "kind": "preexisting",
+      "starting_blob": "blob_readme",
+      "current_blob": "blob_readme",
+      "restore_action": "keep",
+      "safe": true,
+      "note": "Matches starting bytes. Recovery will not touch this path."
+    }
+  ],
+  "limitations": [
+    "Recovery never runs git reset --hard or git clean.",
+    "Preexisting staged/unstaged/untracked bytes are stored as Git objects and remain recoverable even if the worktree changes.",
+    "Concurrent human edits during the run disable one-click restore.",
+    "Apply requires an explicit --confirm and the exact preview digest."
+  ]
+}
