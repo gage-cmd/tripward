@@ -7,11 +7,18 @@ import { emitRestore, PREVIEW_DIGEST_MISMATCH, RESTORE_APPLY_HINT } from "../src
 import { createCheckpoint, writeCheckpoint } from "../src/git/checkpoint.js";
 import { applyRecovery, buildRecoveryPreview } from "../src/git/recovery.js";
 import { restorePreviewCommand, restorePreviewHtmlCommand } from "../src/receipt/html.js";
-import { renderRecoveryHtml } from "../src/recovery/html.js";
+import {
+  DIGEST_CAPTION,
+  EMPTY_SELECTION_HINT,
+  FIXTURE_GENERATED_AT,
+  LIMITATIONS_LEAD,
+  renderRecoveryHtml,
+} from "../src/recovery/html.js";
 import {
   composeRestoreConfirmCommand,
   defaultSelectedRecoveryPaths,
   isSelectableRecoveryPath,
+  recoveryPathCounts,
   selectedSubsetOfSafe,
 } from "../src/recovery/selection.js";
 import type { RecoveryPreview } from "../src/types.js";
@@ -51,14 +58,22 @@ function assertAppleBar(html: string) {
 describe("PR2 Apple-bar recovery HTML", () => {
   it("renders the all-safe fixture with IA, tokens, default selection, and golden match", () => {
     const preview = loadPreview("all-safe.json");
-    const html = renderRecoveryHtml(preview, { receiptPresent: true });
+    const html = renderRecoveryHtml(preview, { receiptPresent: true, generatedAt: FIXTURE_GENERATED_AT });
     expect(sectionOrder(html)).toEqual(["header", "summary", "paths", "apply", "limitations"]);
     assertAppleBar(html);
-    expect(html).toContain("Preexisting work intact");
+    expect(html).toContain("Ready for selective restore");
+    expect(html).toContain("Preexisting work is intact");
     expect(html).toContain(preview.preview_digest);
     expect(html).toContain("2 safe to apply");
+    expect(html).toContain("Restore starting bytes");
+    expect(html).toContain("Remove agent file");
+    expect(html).toContain(LIMITATIONS_LEAD);
+    expect(html).toContain(DIGEST_CAPTION);
+    expect(html).toContain(`datetime="${FIXTURE_GENERATED_AT}"`);
+    expect(html).toContain("(local)");
     expect(html).toContain('href="receipt.html"');
     expect(html).toContain(`tripward restore --confirm --digest ${preview.preview_digest} --paths src/app.ts,agent-new.txt ${preview.run_id}`);
+    expect(html).not.toContain("--paths=");
     expect(html).toMatch(/data-path="src\/app\.ts"[^>]*checked/);
     expect(html).toMatch(/data-path="agent-new\.txt"[^>]*checked/);
     expect(html).toContain("README.md is not selectable");
@@ -67,13 +82,18 @@ describe("PR2 Apple-bar recovery HTML", () => {
 
   it("renders uncertain / one_click_disabled with none checked and a manual review strip", () => {
     const preview = loadPreview("uncertain-one-click-disabled.json");
-    const html = renderRecoveryHtml(preview);
+    const html = renderRecoveryHtml(preview, { generatedAt: FIXTURE_GENERATED_AT });
     expect(sectionOrder(html)).toEqual(["header", "summary", "paths", "apply", "limitations"]);
     assertAppleBar(html);
     expect(html).toContain("Manual review");
     expect(html).toContain("strip-amber");
+    expect(html).toContain(LIMITATIONS_LEAD);
     expect(defaultSelectedRecoveryPaths(preview)).toEqual([]);
-    expect(html).toContain(`tripward restore --confirm --digest ${preview.preview_digest} --paths= ${preview.run_id}`);
+    expect(composeRestoreConfirmCommand(preview)).toBeNull();
+    expect(html).toContain(EMPTY_SELECTION_HINT);
+    expect(html).toContain('id="apply-copy" disabled');
+    expect(html).not.toContain("--paths=");
+    expect(html).not.toMatch(/id="restore-cmd"[^>]*value="tripward restore --confirm/);
     expect(html).toContain('data-path="agent-new.txt"');
     expect(html).not.toMatch(/data-path="agent-new\.txt"[^>]*checked/);
     expect(html).toContain("dirty.txt is not selectable");
@@ -83,11 +103,15 @@ describe("PR2 Apple-bar recovery HTML", () => {
 
   it("renders empty / keep-only with no selectable boxes", () => {
     const preview = loadPreview("empty-keep-only.json");
-    const html = renderRecoveryHtml(preview);
+    const html = renderRecoveryHtml(preview, { generatedAt: FIXTURE_GENERATED_AT });
     expect(sectionOrder(html)).toEqual(["header", "summary", "paths", "apply", "limitations"]);
     assertAppleBar(html);
     expect(html).toContain("0 safe to apply");
-    expect(html).toContain("No selectable paths");
+    expect(html).toContain(EMPTY_SELECTION_HINT);
+    expect(html).toContain('id="apply-copy" disabled');
+    expect(html).not.toContain("--paths=");
+    expect(html).not.toMatch(/id="restore-cmd"[^>]*value="tripward restore --confirm/);
+    expect(composeRestoreConfirmCommand(preview)).toBeNull();
     expect(html).toContain("README.md is not selectable");
     expect(html).not.toContain("class=\"path-select\"");
     expect(html).toBe(readFileSync(join(fixtureDir, "empty-keep-only.html"), "utf8"));
@@ -95,14 +119,19 @@ describe("PR2 Apple-bar recovery HTML", () => {
 
   it("fail-closes when preexisting work is not intact — rose strip, no apply compose", () => {
     const preview = loadPreview("fail-closed.json");
-    const html = renderRecoveryHtml(preview);
+    const html = renderRecoveryHtml(preview, { generatedAt: FIXTURE_GENERATED_AT });
     expect(sectionOrder(html)).toEqual(["header", "summary", "paths", "limitations"]);
     assertAppleBar(html);
     expect(html).toContain("Fail closed");
     expect(html).toContain("Apply closed");
     expect(html).toContain("strip-rose");
+    expect(html).toContain(LIMITATIONS_LEAD);
+    expect(recoveryPathCounts(preview).selectable).toBe(0);
+    expect(html).toContain("<li>0 selectable</li>");
+    expect(html).not.toContain("<li>1 selectable</li>");
     expect(html).not.toContain('id="apply"');
     expect(html).not.toContain("tripward restore --confirm");
+    expect(html).not.toContain("--paths=");
     expect(composeRestoreConfirmCommand(preview)).toBeNull();
     expect(html).toBe(readFileSync(join(fixtureDir, "fail-closed.html"), "utf8"));
   });
@@ -146,6 +175,12 @@ describe("PR2 Apple-bar recovery HTML", () => {
         note: "synthetic: !safe is never selectable",
       }),
     ).toBe(false);
+    const uncertain = loadPreview("uncertain-one-click-disabled.json");
+    expect(composeRestoreConfirmCommand(uncertain, [])).toBeNull();
+    expect(composeRestoreConfirmCommand(uncertain, ["agent-new.txt"])).toBe(
+      `tripward restore --confirm --digest ${uncertain.preview_digest} --paths agent-new.txt ${uncertain.run_id}`,
+    );
+    expect(composeRestoreConfirmCommand(loadPreview("all-safe.json"), [])).toBeNull();
   });
 });
 

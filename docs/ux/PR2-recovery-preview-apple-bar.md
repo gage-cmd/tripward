@@ -28,12 +28,12 @@ Shared-box path was `/workspace/tripward-specs/PR2-recovery-preview-apple-bar.md
    - Checkbox only when `safe && restore_action` is not `keep` / `manual_review`
    - `uncertain` or `!safe` is not selectable
    - If `one_click_disabled`: default none checked + Manual review strip
-   - If `!preexisting_work_intact`: fail closed — rose strip, no apply compose
+   - If `!preexisting_work_intact`: fail closed — rose strip, no apply compose, selectable count **0**
 6. Composed command shape (when compose is allowed):
 
    `tripward restore --confirm --digest <preview_digest> --paths a,b <run_id>`
 
-   Empty selection uses `--paths=` so the run id is not swallowed.
+   Empty selection does **not** emit `--paths=` or a copyable `--confirm` command. Show “Select at least one safe path, or leave recovery unused.” and disable Copy.
 7. CLI digest gate is **unchanged**. A digest mismatch still aborts apply.
 8. Visual tokens (do not substitute; reuse PR1):
    - Canvas `#F5F5F7`

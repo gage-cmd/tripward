@@ -29,9 +29,7 @@ export function composeRestoreConfirmCommand(
 ): string | null {
   if (!preview.preexisting_work_intact) return null;
   const paths = selectedSubsetOfSafe(preview, selected);
-  if (paths.length === 0) {
-    return `tripward restore --confirm --digest ${preview.preview_digest} --paths= ${preview.run_id}`;
-  }
+  if (paths.length === 0) return null;
   return `tripward restore --confirm --digest ${preview.preview_digest} --paths ${paths.join(",")} ${preview.run_id}`;
 }
 
@@ -42,9 +40,12 @@ export function recoveryPathCounts(preview: RecoveryPreview): {
   keep: number;
   review: number;
 } {
+  const selectable = preview.preexisting_work_intact
+    ? preview.paths.filter(isSelectableRecoveryPath).length
+    : 0;
   return {
     total: preview.paths.length,
-    selectable: preview.paths.filter(isSelectableRecoveryPath).length,
+    selectable,
     uncertain: preview.paths.filter((item) => item.kind === "uncertain" || !item.safe).length,
     keep: preview.paths.filter((item) => item.restore_action === "keep").length,
     review: preview.paths.filter((item) => item.restore_action === "manual_review" || !item.safe).length,
