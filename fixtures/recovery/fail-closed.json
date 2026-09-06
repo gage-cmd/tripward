@@ -1,0 +1,23 @@
+{
+  "run_id": "run_fixture_fail_closed",
+  "checkpoint_id": "ckpt_fixture_fail_closed",
+  "preview_digest": "sha256:fixture-fail-closed-preview-digest",
+  "preexisting_work_intact": false,
+  "one_click_disabled": false,
+  "paths": [
+    {
+      "path": "notes.txt",
+      "kind": "preexisting",
+      "starting_blob": "blob_notes_start",
+      "restore_action": "restore_blob",
+      "safe": true,
+      "note": "Starting dirty/untracked file is missing from the worktree. Restore would write the saved blob."
+    }
+  ],
+  "limitations": [
+    "Recovery never runs git reset --hard or git clean.",
+    "Preexisting staged/unstaged/untracked bytes are stored as Git objects and remain recoverable even if the worktree changes.",
+    "Concurrent human edits during the run disable one-click restore.",
+    "Apply requires an explicit --confirm and the exact preview digest."
+  ]
+}

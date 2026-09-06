@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseArgs, bool } from "../src/commands/args.js";
 import { emitReceipt } from "../src/commands/receipt.js";
-import { browserOpenCommand, renderHtml, restorePreviewCommand, usageKind } from "../src/receipt/html.js";
+import { browserOpenCommand, renderHtml, restorePreviewCommand, restorePreviewHtmlCommand, usageKind } from "../src/receipt/html.js";
 import { redactReceipt } from "../src/receipt/redact.js";
 import type { ReceiptDocument } from "../src/types.js";
 
@@ -47,6 +47,7 @@ describe("PR1 Apple-bar receipt HTML", () => {
     expect(html).toContain("Unavailable");
     expect(html).toContain("Source: unavailable");
     expect(html).toContain(restorePreviewCommand(receipt.run_id));
+    expect(html).toContain(restorePreviewHtmlCommand(receipt.run_id));
     expect(html).toContain("This page does not restore");
     expect(html).toContain("data-copy=");
     expect(html).toContain("sha256:integrity-fixture-digest");

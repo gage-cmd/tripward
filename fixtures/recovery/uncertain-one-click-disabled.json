@@ -1,0 +1,32 @@
+{
+  "run_id": "run_fixture_uncertain",
+  "checkpoint_id": "ckpt_fixture_uncertain",
+  "preview_digest": "sha256:fixture-uncertain-preview-digest",
+  "preexisting_work_intact": true,
+  "one_click_disabled": true,
+  "paths": [
+    {
+      "path": "dirty.txt",
+      "kind": "uncertain",
+      "starting_blob": "blob_dirty_start",
+      "current_blob": "blob_dirty_now",
+      "restore_action": "manual_review",
+      "safe": false,
+      "note": "File was already dirty at start and changed again. One-click restore is disabled; manual review required so preexisting work is not guessed."
+    },
+    {
+      "path": "agent-new.txt",
+      "kind": "agent_created",
+      "current_blob": "blob_agent_new",
+      "restore_action": "delete",
+      "safe": true,
+      "note": "File did not exist at start. Preview-only delete of agent-created path."
+    }
+  ],
+  "limitations": [
+    "Recovery never runs git reset --hard or git clean.",
+    "Preexisting staged/unstaged/untracked bytes are stored as Git objects and remain recoverable even if the worktree changes.",
+    "Concurrent human edits during the run disable one-click restore.",
+    "Apply requires an explicit --confirm and the exact preview digest."
+  ]
+}

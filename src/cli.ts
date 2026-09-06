@@ -8,14 +8,12 @@ import { adapterCoverage } from "./adapter/versions.js";
 import { bool, flag, parseArgs, parseMode, passthroughOf } from "./commands/args.js";
 import { DEMO_TRIP_BANNER, DEMO_TRIP_KINDS, runDemoTrip, type DemoTripKind } from "./commands/demo-trip.js";
 import { runSupervised } from "./commands/run.js";
-import { readCheckpoint } from "./git/checkpoint.js";
-import { applyRecovery, buildRecoveryPreview } from "./git/recovery.js";
-import { Journal } from "./journal/journal.js";
+import { emitRestore, RESTORE_APPLY_HINT } from "./commands/restore.js";
 import { applyPolicyMode, compilePolicy, explainPolicy } from "./policy/compiler.js";
 import { getPreset, PRESETS } from "./policy/presets.js";
 import { applyInstall, uninstall } from "./install/installer.js";
 import { formatDoctorReport, runDoctor } from "./install/doctor.js";
-import { ensureHome, resolveHome, runDir } from "./paths.js";
+import { ensureHome, resolveHome } from "./paths.js";
 import { handleHook, readActive } from "./session.js";
 import { formatReplayReport, replayHistory } from "./replay/replay.js";
 import { emitReceipt } from "./commands/receipt.js";
@@ -50,6 +48,7 @@ Usage:
   ${bin} receipt [run_id] [--redact] [--html] [--open]
   ${bin} replay [run_id] [--json]
   ${bin} restore --preview [run_id]
+  ${bin} restore --preview --html [--open] [run_id]
   ${bin} restore --confirm --digest DIGEST --paths a,b [run_id]
   ${bin} policy explain [--preset NAME|--policy FILE] [--mode shadow|enforce]
   ${bin} uninstall [--preview]
@@ -61,6 +60,7 @@ demo-trip injects PreToolUse locally - not a live Claude signal, not stub CI.
 Hard stops (dangerous command, missing journal/hooks/checkpoint) still fire in shadow.
 Uninstall restores verified backups only and never broadens permissions.
 receipt --html writes a private local Apple-bar receipt next to receipt.json.
+restore --preview --html writes recovery.html next to that receipt. The page does not apply.
 
 Authorization: Claude Code adapter only. No Cursor, no fake USD, no cloud.
 `;
@@ -226,30 +226,28 @@ async function main(): Promise<void> {
       return;
     }
     case "restore": {
-      const active = readActive(home);
-      const runId = args.rest[0] ?? active?.run_id;
-      if (!runId) throw new Error("no run id");
-      const dir = runDir(home, runId);
-      const manifest = readCheckpoint(dir);
-      const preview = buildRecoveryPreview(manifest);
-      if (bool(args.flags, "preview") || !bool(args.flags, "confirm")) {
-        console.log(JSON.stringify(preview, null, 2));
-        console.log("Recovery apply requires --confirm --digest <preview_digest> --paths p1,p2");
+      const result = emitRestore({
+        home,
+        runId: args.rest[0],
+        preview: bool(args.flags, "preview"),
+        confirm: bool(args.flags, "confirm"),
+        digest: flag(args.flags, "digest"),
+        paths: flag(args.flags, "paths"),
+        html: bool(args.flags, "html"),
+        open: bool(args.flags, "open"),
+      });
+      if (result.kind === "preview") {
+        console.log(JSON.stringify(result.preview, null, 2));
+        console.log(RESTORE_APPLY_HINT);
+        if (result.htmlPath) {
+          console.error(result.htmlPath);
+          if (bool(args.flags, "open") && result.opened === false) {
+            console.error("Tripward: could not open the HTML recovery preview. Open the path above in a browser.");
+          }
+        }
         return;
       }
-      const digest = flag(args.flags, "digest");
-      if (digest !== preview.preview_digest) {
-        throw new Error("Preview digest mismatch; refresh --preview and retry. Apply aborted.");
-      }
-      const paths = (flag(args.flags, "paths") ?? "").split(",").map((p) => p.trim()).filter(Boolean);
-      const result = applyRecovery(manifest, preview, paths);
-      const journal = Journal.open(dir);
-      journal.append({
-        run_id: runId,
-        type: "recovery.applied",
-        payload: { ...result, preview_digest: digest },
-      });
-      console.log(JSON.stringify(result, null, 2));
+      console.log(JSON.stringify({ applied: result.applied, skipped: result.skipped }, null, 2));
       return;
     }
     case "fixtures": {

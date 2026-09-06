@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tripward recovery preview run_fixture_uncertain</title>
+<style>
+html, body { margin: 0; padding: 0; background: #F5F5F7; color: #1D1D1F; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.45;
+}
+main {
+  box-sizing: border-box;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 24px;
+}
+#header { padding-top: 24px; padding-bottom: 24px; }
+.brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.titles { display: flex; flex-direction: column; gap: 0; }
+.wordmark { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+.doc-title { margin: 4px 0 0; font-size: 15px; font-weight: 600; color: #6E6E73; }
+.secondary { color: #6E6E73; margin: 8px 0 0; font-size: 13px; }
+h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #6E6E73; letter-spacing: 0.02em; text-transform: uppercase; }
+.headline { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+.strip {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #D2D2D7;
+}
+.strip-ok { background: rgba(52, 199, 89, 0.12); }
+.strip-amber { background: rgba(255, 149, 0, 0.12); }
+.strip-rose { background: rgba(255, 59, 48, 0.12); }
+.strip-title { margin: 0; font-size: 15px; font-weight: 600; }
+.strip-ok .strip-title { color: #1F7A33; }
+.strip-amber .strip-title { color: #C93400; }
+.strip-rose .strip-title { color: #D70015; }
+.strip p { margin: 8px 0 0; font-size: 13px; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 16px 0 0; padding: 0; }
+.counts li { margin: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #F5F5F7; }
+.digest-row { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #D2D2D7; }
+.digest-row span { width: 104px; flex: 0 0 104px; color: #6E6E73; font-size: 13px; }
+.digest-row code, td code, #restore-cmd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+.cmd-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.cmd-row input {
+  flex: 1;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 12px;
+  background: #F5F5F7;
+  color: #1D1D1F;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  padding: 8px 12px;
+}
+.copy-link {
+  border: 0;
+  background: transparent;
+  color: #0071E3;
+  font: inherit;
+  font-size: 15px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.copy-link:focus-visible {
+  outline: 2px solid #0071E3;
+  outline-offset: 2px;
+}
+a { color: #0071E3; text-decoration: none; }
+a:focus-visible { outline: 2px solid #0071E3; outline-offset: 2px; }
+table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 8px 8px 0; font-size: 13px; }
+th { color: #6E6E73; font-weight: 600; }
+td { border-top: 1px solid #D2D2D7; }
+.col-select { width: 32px; }
+#limitations ul { margin: 8px 0 0; padding-left: 18px; }
+#limitations li { margin: 8px 0; }
+#footer { background: transparent; padding: 8px 8px 0; color: #6E6E73; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <section id="header" class="card">
+    <div class="brand-row">
+      <div class="titles">
+        <p class="wordmark">Tripward</p>
+        <h1 class="doc-title">Recovery preview</h1>
+      </div>
+    </div>
+    <p class="secondary">Run run_fixture_uncertain · Checkpoint ckpt_fixture_uncertain</p>
+    
+    <div id="strip-manual-review" class="strip strip-amber">
+      <p class="strip-title">Manual review</p>
+      <p>Manual review required. One-click restore is disabled. Select only paths you have inspected; uncertain rows stay unselected.</p>
+    </div>
+  </section>
+
+  <section id="summary" class="card">
+    <h2>Summary</h2>
+    <p class="headline">1 safe to apply</p>
+    <ul class="counts">
+      <li>2 paths</li>
+      <li>1 selectable</li>
+      <li>1 uncertain</li>
+      <li>0 keep</li>
+    </ul>
+    <div class="digest-row">
+      <span>Digest</span>
+      <code id="preview-digest">sha256:fixture-uncertain-preview-digest</code>
+      <button type="button" class="copy-link" data-copy="sha256:fixture-uncertain-preview-digest">Copy</button>
+    </div>
+  </section>
+
+  <section id="paths" class="card">
+    <h2>Paths</h2>
+    <table>
+      <thead><tr><th></th><th>Path</th><th>Kind</th><th>Action</th><th>Safety</th><th>Note</th></tr></thead>
+      <tbody>
+<tr class="row-locked" data-kind="uncertain" data-safe="false">
+  <td class="col-select"><input type="checkbox" disabled aria-label="dirty.txt is not selectable"></td>
+  <td><code>dirty.txt</code></td>
+  <td>Uncertain</td>
+  <td>Manual review</td>
+  <td>Not safe</td>
+  <td>File was already dirty at start and changed again. One-click restore is disabled; manual review required so preexisting work is not guessed.</td>
+</tr>
+<tr class="row-selectable" data-kind="agent_created" data-safe="true">
+  <td class="col-select"><input type="checkbox" class="path-select" data-path="agent-new.txt" aria-label="Select agent-new.txt"></td>
+  <td><code>agent-new.txt</code></td>
+  <td>Agent created</td>
+  <td>Delete agent file</td>
+  <td>Safe</td>
+  <td>File did not exist at start. Preview-only delete of agent-created path.</td>
+</tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="apply" class="card">
+    <h2>Apply in terminal</h2>
+    <p class="secondary">This page does not restore. Checkboxes only rewrite the command below. Apply stays in the terminal and is refused unless --digest matches the current preview digest.</p>
+    
+    <div class="cmd-row">
+      <input id="restore-cmd" type="text" readonly value="tripward restore --confirm --digest sha256:fixture-uncertain-preview-digest --paths= run_fixture_uncertain" data-digest="sha256:fixture-uncertain-preview-digest" data-run="run_fixture_uncertain" aria-label="Apply restore command">
+      <button type="button" class="copy-link" data-copy="tripward restore --confirm --digest sha256:fixture-uncertain-preview-digest --paths= run_fixture_uncertain">Copy</button>
+    </div>
+  </section>
+
+  <section id="limitations" class="card">
+    <h2>Limitations</h2>
+    <ul><li>Recovery never runs git reset --hard or git clean.</li><li>Preexisting staged/unstaged/untracked bytes are stored as Git objects and remain recoverable even if the worktree changes.</li><li>Concurrent human edits during the run disable one-click restore.</li><li>Apply requires an explicit --confirm and the exact preview digest.</li></ul>
+  </section>
+
+  <p id="footer">Private local recovery preview · tripward.dev</p>
+</main>
+<script>
+(function () {
+  var field = document.getElementById("restore-cmd");
+  function selectedPaths() {
+    var nodes = document.querySelectorAll("input.path-select:checked");
+    var out = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var path = nodes[i].getAttribute("data-path");
+      if (path) out.push(path);
+    }
+    return out;
+  }
+  function compose(digest, runId, paths) {
+    if (!paths.length) {
+      return "tripward restore --confirm --digest " + digest + " --paths= " + runId;
+    }
+    return "tripward restore --confirm --digest " + digest + " --paths " + paths.join(",") + " " + runId;
+  }
+  function rewrite() {
+    if (!field) return;
+    var digest = field.getAttribute("data-digest") || "";
+    var runId = field.getAttribute("data-run") || "";
+    var next = compose(digest, runId, selectedPaths());
+    field.value = next;
+    var copy = field.parentNode && field.parentNode.querySelector("[data-copy]");
+    if (copy) copy.setAttribute("data-copy", next);
+  }
+  document.addEventListener("change", function (event) {
+    var target = event.target;
+    if (!target || !target.classList || !target.classList.contains("path-select")) return;
+    rewrite();
+  });
+  document.addEventListener("click", function (event) {
+    var target = event.target;
+    if (!target || !target.getAttribute) return;
+    var text = target.getAttribute("data-copy");
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+    } else if (field) {
+      field.focus();
+      field.select();
+    }
+    target.textContent = "Copied";
+    setTimeout(function () { target.textContent = "Copy"; }, 1500);
+  });
+})();
+</script>
+</body>
+</html>

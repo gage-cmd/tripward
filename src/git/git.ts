@@ -8,7 +8,7 @@ export function git(repo: string, args: string[], allowFail = false): string {
       cwd: repo,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
-    }).trim();
+    }).replace(/[\r\n]+$/, "");
   } catch (error) {
     if (allowFail) return "";
     const err = error as { stderr?: string; message?: string };
