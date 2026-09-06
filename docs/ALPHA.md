@@ -142,6 +142,6 @@ This repository does **not** invent per-install rows. Gage / CoS keep the privat
 
 ## Still not built
 
-Full desktop UI, notifications, entitlements, sequence/churn/no-progress detectors (beyond exact-repeat), observable spend, Stripe API/webhooks, support channel, cloud/team, Cursor.
+Full desktop UI, notifications, entitlements, sequence/churn/no-progress detectors (beyond exact-repeat), observable spend, Stripe API/webhooks, cloud/team, Cursor.
 
-Days 8–14 paid beta: receipt HTML (PR1), recovery preview HTML (PR2), Founding Pro Payment Link stub (PR3) — `docs/BETA.md`, `docs/FOUNDING_PRO.md`.
+Days 8–14 paid beta: receipt HTML (PR1), recovery preview HTML (PR2), Founding Pro Payment Link stub (PR3), support channel (PR4) — `docs/BETA.md`, `SUPPORT.md`, `SECURITY.md`.

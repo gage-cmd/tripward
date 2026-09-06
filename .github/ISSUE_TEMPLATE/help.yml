@@ -1,0 +1,61 @@
+name: Help
+description: How-to, false stop, shadow vs enforce, Founding Pro checkout stub. Not lost work or security.
+title: "[help] "
+labels: ["help"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For **lost preexisting work**, use the Lost-work emergency form. For a **security** issue, read `SECURITY.md` — do not describe an exploit here.
+
+        Never paste prompts, transcripts, `.env`, secrets, Stripe `sk_` / `whsec_`, or private HTML. `tripward receipt --redact` is the shareable receipt.
+
+        Same rules live in `SUPPORT.md`.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - How-to / install / doctor
+        - False stop (blocked something I wanted)
+        - Missed stop (did not block something I expected)
+        - Founding Pro / checkout
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: OS
+    validations:
+      required: true
+
+  - type: input
+    id: run_id
+    attributes:
+      label: run_id (if a session ran)
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor output
+      description: `tripward doctor` text or `--json`. OVERALL line plus FAIL rows.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What you expected vs what happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: receipt
+    attributes:
+      label: Redacted receipt (optional)
+      description: `tripward receipt --redact` JSON only.
+      render: json

@@ -9,15 +9,17 @@ Local runtime safety layer for Claude Code: multi-fuse tripwires + forensic rece
 **Private alpha (Days 4–7, exited):** `docs/ALPHA.md`.  
 **Paid beta (Days 8–14, open):** `docs/BETA.md`.  
 **Founding Pro ($15/mo stub):** `docs/FOUNDING_PRO.md`.  
+**Support:** `SUPPORT.md` (lost-work / compatibility / help).  
+**Security disclosure:** `SECURITY.md`.  
 **Privacy:** `docs/PRIVACY.md`.
 
 ## Current authorization (Days 8–14)
 
-Paid beta is **open**. PR1 (receipt HTML) and PR2 (recovery preview HTML) are on main. This slice is PR3 (Founding Pro Payment Link stub). Alpha exited with measured **1 / 5 installs · 1 / 3 runs · 1 / 1 signal**; remaining installs/runs waived by Gage.
+Paid beta is **open**. PR1–PR3 are on main. This slice is PR4 (support channel docs). Alpha exited with measured **1 / 5 installs · 1 / 3 runs · 1 / 1 signal**; remaining installs/runs waived by Gage.
 
 This repository does **not** claim three paying strangers or paid-beta exit.
 
-NOT authorized: Cursor, universal LLM proxy, enterprise SSO, remote-control app, autonomous security product, fake `$` on subscription traffic, Stripe secret keys / API / webhooks, entitlements enforcement, support-channel pack, P2 cloud/team.
+NOT authorized: Cursor, universal LLM proxy, enterprise SSO, remote-control app, autonomous security product, fake `$` on subscription traffic, Stripe secret keys / API / webhooks, entitlements enforcement, P2 cloud/team.
 
 ## Quick start
 
@@ -41,4 +43,4 @@ New policies default to **shadow**. Flip with `tripward protect --mode enforce` 
 
 `tripward run -- …` passes **Claude args**. A leading `claude` is stripped. Live trip copy-paste: `docs/SPIKE.md` / `docs/ALPHA.md`. `tripward demo-trip` is operator-injected (`signal_class=operator-injected-demo`) and does **not** count as live signal.
 
-Paid-beta exit (three paying strangers + no lost work) is tracked in `docs/BETA.md` and is **not** claimed here. Divergences: `docs/adr/`.
+Paid-beta exit (three paying strangers + no lost work) is tracked in `docs/BETA.md` and is **not** claimed here. Help: `SUPPORT.md`. Divergences: `docs/adr/`.
