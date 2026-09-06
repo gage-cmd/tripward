@@ -33,6 +33,10 @@ describe("E8 receipt", () => {
     expect(html).toContain("Unavailable");
     expect(html).toContain("will not invent USD");
     expect(html).toContain("tripward restore --preview");
+    expect(html).toContain("Time limit reached after 2s");
+    expect(html).toContain("What Tripward could not guarantee for this run.");
+    expect(html).toContain("tripward.dev");
+    expect(html).not.toContain("https://tripward.dev");
     expect(html).not.toMatch(/fusecap/i);
     expect(html).not.toMatch(/\$\d/);
     expect(JSON.stringify(receipt)).not.toMatch(/\$\d/);

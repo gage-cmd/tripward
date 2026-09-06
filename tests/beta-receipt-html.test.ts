@@ -14,18 +14,36 @@ function loadFixture(): ReceiptDocument {
 }
 
 function sectionOrder(html: string): string[] {
-  const ids = ["header", "health", "trigger", "timeline", "limitations", "digest"];
-  return [...html.matchAll(/id="(header|health|trigger|timeline|limitations|digest)"/g)].map((m) => m[1]!);
+  return [...html.matchAll(/id="(header|health|usage|trigger|timeline|limitations|digest)"/g)].map((m) => m[1]!);
 }
 
 describe("PR1 Apple-bar receipt HTML", () => {
   it("renders the fixture sealed receipt with the UX IA and tokens", () => {
     const receipt = loadFixture();
     const html = renderHtml(receipt);
-    expect(sectionOrder(html)).toEqual(["header", "health", "trigger", "timeline", "limitations", "digest"]);
+    expect(sectionOrder(html)).toEqual(["header", "health", "usage", "trigger", "timeline", "limitations", "digest"]);
     expect(html).toContain("Tripward");
+    expect(html).toContain("Receipt");
     expect(html).toContain("Terminated");
-    expect(html).toContain("protected");
+    expect(html).toContain("pill-terminated");
+    expect(html).toContain("rgba(255, 59, 48, 0.12)");
+    expect(html).toContain(">Protected<");
+    expect(html).toContain("Adapter");
+    expect(html).toContain("Hooks");
+    expect(html).toContain("Checkpoint");
+    expect(html).toContain("Storage");
+    expect(html).toContain("Policy locked");
+    expect(html).not.toContain("No health reasons recorded");
+    expect(html).toContain("Time limit reached after 2s");
+    expect(html).toContain("runtime.max_elapsed_seconds");
+    expect(html).not.toContain("time fuse · runtime.max_elapsed_seconds");
+    expect(html).toContain("datetime=\"2026-09-06T00:00:02.000Z\"");
+    expect(html).toContain("(local)");
+    expect(html).not.toMatch(/>2026-09-06T00:00:02\.000Z</);
+    expect(html).toContain("What Tripward could not guarantee for this run.");
+    expect(html).toContain("Preview restore");
+    expect(html).toContain("#D2D2D7");
+    expect(html).toContain("gap: 24px");
     expect(html).toContain("Unavailable");
     expect(html).toContain("Source: unavailable");
     expect(html).toContain(restorePreviewCommand(receipt.run_id));
@@ -41,7 +59,10 @@ describe("PR1 Apple-bar receipt HTML", () => {
     expect(html).toContain("max-width: 720px");
     expect(html).toContain("border-radius: 12px");
     expect(html).toContain("-apple-system");
-    expect(html).toContain("https://tripward.dev");
+    expect(html).toContain("tripward.dev");
+    expect(html).not.toContain("https://tripward.dev");
+    expect(html).not.toMatch(/<a\s/i);
+    expect(html).not.toMatch(/href=/i);
     expect(html).not.toMatch(/fusecap/i);
     expect(html).not.toMatch(/\$\d/);
     expect(html).not.toContain("secret-host.internal");
@@ -51,7 +72,7 @@ describe("PR1 Apple-bar receipt HTML", () => {
     expect(html).not.toMatch(/@import/i);
     expect(html).not.toMatch(/<script\s+src=/i);
     expect(html).not.toMatch(/fonts\.googleapis/i);
-    expect(html).not.toMatch(/https?:\/\/(?!tripward\.dev)/);
+    expect(html).not.toMatch(/https?:\/\//);
   });
 
   it("never invents USD and classifies subscription usage as Unavailable", () => {

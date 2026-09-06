@@ -1,17 +1,28 @@
 import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
-import type { ReceiptDocument, ReceiptOutcome } from "../types.js";
+import type { ProtectionHealth, ReceiptDocument, ReceiptOutcome } from "../types.js";
 import type { RedactedReceipt } from "./redact.js";
 
-export const TRIPWARD_URL = "https://tripward.dev";
+export const TRIPWARD_HOST = "tripward.dev";
 
 export const RECOVERY_PREVIEW_HINT =
   "This page does not restore. Preview is required (ADR 0005). Apply stays in the CLI and is refused unless --digest matches the current preview digest. Tripward will not silently reset a dirty tree.";
 
+export const LIMITATIONS_LEAD = "What Tripward could not guarantee for this run.";
+
+export const DIGEST_CAPTION = "Sealed locally. If these digests change, this file was altered.";
+
 export type ReceiptHtmlSource = ReceiptDocument | RedactedReceipt;
 
 export type UsageKind = "Actual" | "Estimate" | "Unavailable";
+
+export type HealthChipState = "ok" | "warn" | "off";
+
+export interface HealthChip {
+  name: string;
+  state: HealthChipState;
+}
 
 export function receiptHtmlPath(runDirectory: string): string {
   return join(runDirectory, "receipt.html");
@@ -36,7 +47,7 @@ export function usageKind(usage: {
   return "Actual";
 }
 
-function outcomeLabel(outcome: ReceiptOutcome | string): string {
+export function outcomeLabel(outcome: ReceiptOutcome | string): string {
   switch (outcome) {
     case "completed":
       return "Completed";
@@ -55,28 +66,136 @@ function outcomeLabel(outcome: ReceiptOutcome | string): string {
   }
 }
 
-function triggerHeadline(view: ReceiptHtmlSource): string {
-  if (!view.trigger) {
-    return `Session ${outcomeLabel(view.outcome).toLowerCase()} (${view.exit_reason.replaceAll("_", " ")}).`;
+export function outcomePillClass(outcome: ReceiptOutcome | string): string {
+  switch (outcome) {
+    case "completed":
+      return "pill-completed";
+    case "warned":
+      return "pill-warned";
+    case "blocked":
+    case "terminated":
+    case "crashed":
+      return "pill-terminated";
+    default:
+      return "pill-canceled";
   }
-  const parts = [view.exit_reason.replaceAll("_", " ")];
-  parts.push(view.trigger.rule);
-  if (view.trigger.observed_value !== undefined) parts.push(`observed ${view.trigger.observed_value}`);
-  if (view.trigger.threshold !== undefined) parts.push(`threshold ${view.trigger.threshold}`);
-  return parts.join(" · ");
+}
+
+export function healthLabel(health: ProtectionHealth | string): "Protected" | "Degraded" | "Unprotected" {
+  if (health === "protected") return "Protected";
+  if (health === "degraded") return "Degraded";
+  return "Unprotected";
+}
+
+export function formatLocalTime(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return `${date.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  })} (local)`;
+}
+
+export function formatDuration(startedAt: string, endedAt: string): string {
+  const ms = Date.parse(endedAt) - Date.parse(startedAt);
+  if (!Number.isFinite(ms) || ms < 0) return "—";
+  if (ms < 1000) return `${ms}ms`;
+  const seconds = Math.round(ms / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const rem = seconds % 60;
+  return rem ? `${minutes}m ${rem}s` : `${minutes}m`;
+}
+
+export function triggerHeadline(view: ReceiptHtmlSource): string {
+  const observed = view.trigger?.observed_value;
+  const threshold = view.trigger?.threshold;
+  switch (view.exit_reason) {
+    case "time_fuse": {
+      const seconds = typeof observed === "number" ? observed : typeof threshold === "number" ? threshold : undefined;
+      return seconds === undefined ? "Time limit reached" : `Time limit reached after ${seconds}s`;
+    }
+    case "hook_block":
+      return "A tool was blocked before it ran";
+    case "exact_loop":
+      return typeof observed === "number"
+        ? `Same action repeated ${observed} times`
+        : "The same action repeated too many times";
+    case "dangerous_command":
+      return "A dangerous command was blocked";
+    case "hooks_bypassed":
+      return "Required hooks were not healthy";
+    case "terminated":
+      return "The session was stopped";
+    case "user_canceled":
+      return "The operator canceled the session";
+    case "preflight_failed":
+      return "The run did not start";
+    case "crashed":
+      return "The session crashed";
+    case "completed":
+      return "Session finished without a trip";
+    default:
+      return view.trigger ? "The session stopped" : "Session ended without a fuse trip";
+  }
+}
+
+export function healthChips(receipt: ReceiptHtmlSource): HealthChip[] {
+  const reasons = receipt.environment.health_reasons.join(" ").toLowerCase();
+  const stub =
+    receipt.environment.signal_class === "stub-ci" ||
+    receipt.environment.signal_class === "operator-injected-demo" ||
+    reasons.includes("stub") ||
+    reasons.includes("claude cli absent");
+  const hooksBad = receipt.exit_reason === "hooks_bypassed" || reasons.includes("hooks");
+  return [
+    { name: "Adapter", state: stub ? "warn" : receipt.environment.adapter_version ? "ok" : "off" },
+    { name: "Hooks", state: hooksBad ? "off" : stub ? "warn" : "ok" },
+    { name: "Checkpoint", state: receipt.repository.checkpoint_intact ? "ok" : "off" },
+    { name: "Storage", state: receipt.integrity.content_digest ? "ok" : "off" },
+    { name: "Policy locked", state: receipt.policy.digest ? "ok" : "off" },
+  ];
+}
+
+function timeEl(iso: string): string {
+  return `<time datetime="${escapeHtml(iso)}">${escapeHtml(formatLocalTime(iso))}</time>`;
+}
+
+function repositoryStrip(receipt: ReceiptHtmlSource): string {
+  const repo = receipt.repository;
+  if (
+    repo.files_in_manifest === 0 &&
+    !repo.checkpoint_intact &&
+    !repo.dirty_at_start &&
+    !repo.final_status
+  ) {
+    return "";
+  }
+  const files = repo.files_in_manifest === 1 ? "1 file" : `${repo.files_in_manifest} files`;
+  return `<p class="repo-strip">${repo.checkpoint_intact ? "Checkpoint intact" : "Checkpoint not intact"} · ${
+    repo.dirty_at_start ? "Dirty at start" : "Clean start"
+  } · ${files}</p>`;
 }
 
 export function renderHtml(receipt: ReceiptHtmlSource): string {
   const kind = usageKind(receipt.usage);
   const command = restorePreviewCommand(receipt.run_id);
+  const health = healthLabel(receipt.environment.protection_health);
+  const chips = healthChips(receipt)
+    .map((chip) => `<li class="chip chip-${chip.state}">${escapeHtml(chip.name)}</li>`)
+    .join("");
   const healthReasons =
     receipt.environment.health_reasons.length > 0
       ? `<ul class="reasons">${receipt.environment.health_reasons.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
-      : `<p class="secondary">No health reasons recorded.</p>`;
+      : "";
   const rows = receipt.timeline
     .map(
       (item) =>
-        `<tr><td>${item.sequence}</td><td>${escapeHtml(item.wall_time)}</td><td>${escapeHtml(item.type)}</td><td>${escapeHtml(item.summary)}</td></tr>`,
+        `<tr><td>${item.sequence}</td><td>${timeEl(item.wall_time)}</td><td>${escapeHtml(item.type)}</td><td>${escapeHtml(item.summary)}</td></tr>`,
     )
     .join("\n");
   const triggerBody = receipt.trigger
@@ -88,6 +207,17 @@ export function renderHtml(receipt: ReceiptHtmlSource): string {
   <div><dt>Action</dt><dd>${escapeHtml(receipt.trigger.action)}${receipt.trigger.action_executed ? " (executed)" : ""}</dd></div>
 </dl>`
     : `<p class="secondary">No fuse trip. The session ended without a trigger.</p>`;
+  const branch = receipt.identity.branch ? escapeHtml(receipt.identity.branch) : "";
+  const fingerprint =
+    receipt.identity.repository_fingerprint && receipt.identity.repository_fingerprint !== "unavailable"
+      ? "redacted"
+      : "";
+  const identityBits = [
+    branch ? `Branch ${branch}` : "",
+    fingerprint ? `Fingerprint ${fingerprint}` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return `<!doctype html>
 <html lang="en">
@@ -108,7 +238,7 @@ main {
   padding: 32px 24px 48px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 .card {
   background: #ffffff;
@@ -116,28 +246,37 @@ main {
   padding: 16px 24px;
 }
 #header { padding-top: 24px; padding-bottom: 24px; }
-.brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.titles { display: flex; flex-direction: column; gap: 0; }
 .wordmark { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+.doc-title { margin: 4px 0 0; font-size: 15px; font-weight: 600; color: #6E6E73; }
 .pill {
   margin: 0;
   padding: 4px 10px;
   border-radius: 999px;
-  background: #F5F5F7;
-  color: #1D1D1F;
   font-size: 13px;
   font-weight: 600;
 }
+.pill-terminated { background: rgba(255, 59, 48, 0.12); color: #D70015; }
+.pill-warned { background: rgba(255, 149, 0, 0.12); color: #C93400; }
+.pill-completed { background: rgba(52, 199, 89, 0.12); color: #1F7A33; }
+.pill-canceled { background: rgba(142, 142, 147, 0.12); color: #1D1D1F; }
 .secondary { color: #6E6E73; margin: 8px 0 0; font-size: 13px; }
+.repo-strip { color: #6E6E73; margin: 8px 0 0; font-size: 13px; }
 h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #6E6E73; letter-spacing: 0.02em; text-transform: uppercase; }
 .health-value, .usage-value, .headline { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
-.usage { margin-top: 16px; padding-top: 16px; border-top: 1px solid #F5F5F7; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 16px 0 0; padding: 0; }
+.chip { margin: 0; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.chip-ok { background: rgba(52, 199, 89, 0.12); color: #1F7A33; }
+.chip-warn { background: rgba(255, 149, 0, 0.12); color: #C93400; }
+.chip-off { background: rgba(255, 59, 48, 0.12); color: #D70015; }
 .reasons { margin: 8px 0 0; padding-left: 18px; }
 .reasons li { margin: 4px 0; }
 dl { margin: 16px 0 0; }
-dl > div { display: flex; gap: 16px; padding: 8px 0; border-top: 1px solid #F5F5F7; }
+dl > div { display: flex; gap: 16px; padding: 8px 0; border-top: 1px solid #D2D2D7; }
 dt { width: 104px; flex: 0 0 104px; color: #6E6E73; font-size: 13px; }
 dd { margin: 0; }
-.cta { margin-top: 16px; padding-top: 16px; border-top: 1px solid #F5F5F7; }
+.cta { margin-top: 16px; padding-top: 16px; border-top: 1px solid #D2D2D7; }
 .cmd-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 .cmd-row input {
   flex: 1;
@@ -159,15 +298,20 @@ dd { margin: 0; }
   font-size: 15px;
   padding: 8px;
   cursor: pointer;
+  border-radius: 8px;
 }
-a { color: #0071E3; text-decoration: none; }
+.copy-link:focus-visible {
+  outline: 2px solid #0071E3;
+  outline-offset: 2px;
+}
 table { width: 100%; border-collapse: collapse; margin-top: 8px; }
 th, td { text-align: left; vertical-align: top; padding: 8px 8px 8px 0; font-size: 13px; }
 th { color: #6E6E73; font-weight: 600; }
-td { border-top: 1px solid #F5F5F7; }
+td { border-top: 1px solid #D2D2D7; }
+#limitations .lead { margin: 0 0 8px; }
 #limitations ul { margin: 8px 0 0; padding-left: 18px; }
 #limitations li { margin: 8px 0; }
-.digest-row { display: flex; gap: 16px; padding: 8px 0; border-top: 1px solid #F5F5F7; }
+.digest-row { display: flex; gap: 16px; padding: 8px 0; border-top: 1px solid #D2D2D7; }
 .digest-row:first-of-type { border-top: 0; }
 .digest-row span { width: 104px; flex: 0 0 104px; color: #6E6E73; font-size: 13px; }
 .digest-row code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; }
@@ -178,22 +322,30 @@ td { border-top: 1px solid #F5F5F7; }
 <main>
   <section id="header" class="card">
     <div class="brand-row">
-      <h1 class="wordmark">Tripward</h1>
-      <p class="pill">${escapeHtml(outcomeLabel(receipt.outcome))}</p>
+      <div class="titles">
+        <p class="wordmark">Tripward</p>
+        <h1 class="doc-title">Receipt</h1>
+      </div>
+      <p class="pill ${outcomePillClass(receipt.outcome)}">${escapeHtml(outcomeLabel(receipt.outcome))}</p>
     </div>
-    <p class="secondary">Run ${escapeHtml(receipt.run_id)} · ${escapeHtml(receipt.sealed_at)}</p>
+    <p class="secondary">Run ${escapeHtml(receipt.run_id)}</p>
+    <p class="secondary">${timeEl(receipt.identity.started_at)} → ${timeEl(receipt.identity.ended_at)} · ${escapeHtml(formatDuration(receipt.identity.started_at, receipt.identity.ended_at))}</p>
+    ${identityBits ? `<p class="secondary">${identityBits}</p>` : ""}
+    ${repositoryStrip(receipt)}
   </section>
 
   <section id="health" class="card">
     <h2>Protection health</h2>
-    <p class="health-value">${escapeHtml(receipt.environment.protection_health)}</p>
+    <p class="health-value">${health}</p>
+    <ul class="chips">${chips}</ul>
     ${healthReasons}
     ${receipt.environment.signal_class ? `<p class="secondary">Signal class: ${escapeHtml(receipt.environment.signal_class)}</p>` : ""}
-    <div class="usage">
-      <h2>Usage</h2>
-      <p class="usage-value">${kind}</p>
-      <p class="secondary">Source: ${escapeHtml(receipt.usage.source)}</p>
-    </div>
+  </section>
+
+  <section id="usage" class="card">
+    <h2>Usage</h2>
+    <p class="usage-value">${kind}</p>
+    <p class="secondary">Source: ${escapeHtml(receipt.usage.source)}</p>
   </section>
 
   <section id="trigger" class="card">
@@ -201,10 +353,10 @@ td { border-top: 1px solid #F5F5F7; }
     <p class="headline">${escapeHtml(triggerHeadline(receipt))}</p>
     ${triggerBody}
     <div class="cta">
-      <h2>Safe recovery</h2>
+      <h2>Preview restore</h2>
       <p class="secondary">${escapeHtml(RECOVERY_PREVIEW_HINT)}</p>
       <div class="cmd-row">
-        <input id="restore-cmd" type="text" readonly value="${escapeHtml(command)}" aria-label="Preview recovery command">
+        <input id="restore-cmd" type="text" readonly value="${escapeHtml(command)}" aria-label="Preview restore command">
         <button type="button" class="copy-link" data-copy="${escapeHtml(command)}">Copy</button>
       </div>
     </div>
@@ -222,18 +374,32 @@ ${rows}
 
   <section id="limitations" class="card">
     <h2>Limitations</h2>
+    <p class="lead">${escapeHtml(LIMITATIONS_LEAD)}</p>
     <ul>${receipt.limitations.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
   </section>
 
   <section id="digest" class="card">
     <h2>Digest</h2>
-    <div class="digest-row"><span>Integrity</span><code>${escapeHtml(receipt.integrity.content_digest)}</code></div>
+    <p class="secondary">${escapeHtml(DIGEST_CAPTION)}</p>
+    <div class="digest-row"><span>Content</span><code>${escapeHtml(receipt.integrity.content_digest)}</code></div>
     <div class="digest-row"><span>Policy</span><code>${escapeHtml(receipt.policy.digest)}</code></div>
   </section>
 
-  <p id="footer">Private local receipt · <a href="https://tripward.dev">tripward.dev</a></p>
+  <p id="footer">Private local receipt · tripward.dev</p>
 </main>
 <script>
+(function () {
+  var nodes = document.querySelectorAll("time[datetime]");
+  for (var i = 0; i < nodes.length; i++) {
+    var iso = nodes[i].getAttribute("datetime");
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) continue;
+    nodes[i].textContent = d.toLocaleString(undefined, {
+      year: "numeric", month: "short", day: "numeric",
+      hour: "numeric", minute: "2-digit", second: "2-digit"
+    }) + " (local)";
+  }
+})();
 document.addEventListener("click", function (event) {
   var target = event.target;
   if (!target || !target.getAttribute) return;
