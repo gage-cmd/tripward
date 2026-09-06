@@ -10,7 +10,7 @@ import type { ReceiptDocument } from "../src/types.js";
 describe("Days 4–7 read-only replay", () => {
   it("parses a sealed run, labels observed vs inferred, and does not mutate", async () => {
     const cwd = gitInit(tempDir("rp-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     const policyPath = writePolicyFile(home, {
       tools: { deny: ["NotebookEdit"], max_total: 40 },
       runtime: {
@@ -54,7 +54,7 @@ describe("Days 4–7 read-only replay", () => {
 
   it("does not create files when the run is missing", () => {
     const cwd = gitInit(tempDir("rp-miss-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     mkdirSync(home, { recursive: true });
     const report = replayHistory(home, "run_does_not_exist");
     expect(report.runs[0].compatible).toBe(false);
@@ -63,7 +63,7 @@ describe("Days 4–7 read-only replay", () => {
 
   it("labels unknown journal types as inferred", () => {
     const cwd = gitInit(tempDir("rp-inf-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     const dir = join(home, "runs", "run_foreign");
     mkdirSync(dir, { recursive: true });
     writeFileSync(

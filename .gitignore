@@ -1,6 +1,8 @@
 node_modules/
 dist/
 coverage/
+.tripward/runs/
+.tripward/active-run.json
 .fusecap/runs/
 .fusecap/active-run.json
 *.log

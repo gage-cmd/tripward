@@ -7,7 +7,7 @@ import { gitInit, tempDir } from "./helpers.js";
 describe("Days 4–7 doctor", () => {
   it("prints a clear PASS/FAIL table and exercises required checks", async () => {
     const cwd = gitInit(tempDir("doc-a-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     applyInstall(cwd, home, false);
     const report = await runDoctor(cwd, home);
     const names = report.components.map((c) => c.name);

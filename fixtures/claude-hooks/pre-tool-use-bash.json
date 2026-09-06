@@ -1,8 +1,8 @@
 {
   "session_id": "sess_fixture_healthy",
   "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
-  "transcript_path": "/tmp/fusecap-fixtures/transcript.jsonl",
-  "cwd": "/tmp/fusecap-fixtures/repo",
+  "transcript_path": "/tmp/tripward-fixtures/transcript.jsonl",
+  "cwd": "/tmp/tripward-fixtures/repo",
   "permission_mode": "default",
   "hook_event_name": "PreToolUse",
   "tool_name": "Bash",

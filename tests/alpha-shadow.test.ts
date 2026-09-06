@@ -35,7 +35,7 @@ describe("Days 4–7 shadow mode", () => {
   it("defaults standard / init policy to shadow", () => {
     expect(getPreset("standard").mode).toBe("shadow");
     const cwd = gitInit(tempDir("sh-init-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     applyInstall(cwd, home, false);
     const written = JSON.parse(readFileSync(join(home, "policy.json"), "utf8")) as { mode: string };
     expect(written.mode).toBe("shadow");
@@ -70,7 +70,7 @@ describe("Days 4–7 shadow mode", () => {
       run_id: "shadow-loop",
       created_at: new Date().toISOString(),
       cwd,
-      home: join(cwd, ".fusecap"),
+      home: join(cwd, ".tripward"),
       policy_digest: shadow.digest,
       policy_id: shadow.policy_id,
       adapter: { name: "claude-code", version: "0.1.0" },

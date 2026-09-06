@@ -13,7 +13,7 @@ export interface RedactedReceipt {
     ended_at: string;
   };
   environment: {
-    fusecap_version: string;
+    tripward_version: string;
     adapter_version: string;
     claude_code_version: string | null;
     os: string;
@@ -61,7 +61,7 @@ export function redactReceipt(receipt: ReceiptDocument): RedactedReceipt {
       ended_at: receipt.identity.ended_at,
     },
     environment: {
-      fusecap_version: receipt.environment.fusecap_version,
+      tripward_version: receipt.environment.tripward_version ?? receipt.environment.fusecap_version ?? "unknown",
       adapter_version: receipt.environment.adapter_version,
       claude_code_version: receipt.environment.claude_code_version,
       os: receipt.environment.os,

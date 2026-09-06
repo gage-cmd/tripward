@@ -6,7 +6,7 @@ import { gitInit, tempDir, writePolicyFile } from "./helpers.js";
 
 async function synthetic(scenario: string, runtime: Record<string, unknown> = {}) {
   const cwd = gitInit(tempDir("gate-"));
-  const home = join(cwd, ".fusecap");
+  const home = join(cwd, ".tripward");
   const policyPath = writePolicyFile(home, {
     tools: { deny: ["NotebookEdit"], max_total: 40 },
     runtime: {

@@ -226,7 +226,9 @@ export interface ReceiptDocument {
     ended_at: string;
   };
   environment: {
-    fusecap_version: string;
+    tripward_version: string;
+    /** Present on receipts sealed before the Tripward hard-cut. Readers accept it. */
+    fusecap_version?: string;
     adapter_version: string;
     claude_code_version: string | null;
     os: string;

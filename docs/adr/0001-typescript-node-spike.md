@@ -2,7 +2,7 @@
 
 Context: Chapter 13 prefers a Rust/Go systems binary for production supervision, storage, and distribution, and says the 72-hour spike may use the fastest safe language. Production language is selected after installer, process-tree, and hook latency tests.
 
-Decision: Implement the enforceability spike as a TypeScript Node 20+ CLI (`fusecap`) with vitest. Production language remains unchosen.
+Decision: Implement the enforceability spike as a TypeScript Node 20+ CLI (`tripward`) with vitest. Production language remains unchosen.
 
 Alternatives: Go or Rust now. Rejected because adapter fixtures, policy tables, and hook JSON are faster to iterate in TypeScript, and the brain explicitly allows this for the spike.
 

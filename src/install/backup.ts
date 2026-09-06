@@ -73,7 +73,7 @@ export function findEntry(manifest: BackupManifest, id: string): BackupEntry | u
 
 /**
  * Snapshot an existing file once. Re-init must not overwrite a verified original
- * with a later FuseCap-modified copy.
+ * with a later Tripward-modified copy.
  */
 export function backupExistingFile(
   backupsDir: string,

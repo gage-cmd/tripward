@@ -1,3 +1,7 @@
+PUBLIC NAME: Tripward. This file is the historical FuseCap working-name law
+document (Sept 2026). Do not send buyers here as a product brochure.
+CLI / package / repo: tripward. Gage GitHub rename: GAGE.md.
+
               MASTER PRD • ARCHITECTURE • SAFETY • BUILD SYSTEM
 
 

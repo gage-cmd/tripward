@@ -8,7 +8,7 @@ export interface NormalizedClaudeArgs {
 }
 
 /**
- * Docs historically showed `fusecap run -- claude …`. The supervisor already
+ * Docs historically showed `tripward run -- claude …` (and `fusecap run` before the rename). The supervisor already
  * execs `which claude`, so a leading `claude` (or path to that binary) must be
  * stripped or Claude Code receives a doubled first argv token.
  */

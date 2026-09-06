@@ -1,9 +1,11 @@
-# Tripward (CLI: tripward / fusecap)
+# Tripward
 
 Local runtime safety layer for Claude Code: multi-fuse tripwires + forensic receipt + Git checkpoint/rollback.
 
 **Canonical URL:** https://tripward.dev  
-**Law:** `docs/FUSECAP_OPS_BRAIN.txt` (Master Product + Engineering Brain v1.0, Sept 2026).  
+**Repo (after Gage rename):** https://github.com/gage-cmd/tripward  
+**Gage checklist:** `GAGE.md` (GitHub rename + lander `thanks.html`).  
+**Law:** `docs/FUSECAP_OPS_BRAIN.txt` (historical working-name law; public product is Tripward).  
 **Supporting brief:** `docs/ONEPAGER.md`.  
 **Spike report (Gate 0 PASS):** `docs/SPIKE.md`.  
 **Private alpha (Days 4–7, exited):** `docs/ALPHA.md`.  
@@ -38,7 +40,7 @@ npx tsx src/cli.ts replay
 npx tsx src/cli.ts uninstall --preview
 ```
 
-After `npm run build`, the same CLI is on `tripward` and `fusecap`.
+After `npm run build`, the CLI is `tripward`.
 
 New policies default to **shadow**. Flip with `tripward protect --mode enforce` or `--preset spike`. Dangerous-command and other safety hard stops still fire in shadow.
 

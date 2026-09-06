@@ -1,4 +1,4 @@
-# Tripward (CLI: fusecap) — revised product one-pager
+# Tripward — revised product one-pager
 Date: 2026-09-05 · Status: Revised per Gage/ChatGPT critique · Not locked until Gage says so  
 Awaiting: PRD only if Gage locks; Claude Code spike = gate 0 before marketing.  
 **Do not invent LaunchScore.**
@@ -22,7 +22,7 @@ Local runtime safety layer for coding agents: multi-fuse tripwires (time, tools,
    - **d4–7:** ≥5 installs, ≥3 real runs, ≥1 real trip.
    - **d8–14:** ≥3 paying strangers.
 7. **Competitor:** AgentBudget (and HN cousins) exist for SDK wrappers — win on **coding-agent UX**, receipts, multi-fuse, Claude Code install path.
-8. **Trademark/name:** Public product name is **Tripward**. CLI, package, and repo alias stay `fusecap` so install paths keep working. FuseCap was a working name only (also used by image-captioning research).
+8. **Trademark/name:** Public product name, CLI, package, and repo are **Tripward** (`tripward`). FuseCap was a working name only (also used by image-captioning research).
 
 ---
 

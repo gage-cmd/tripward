@@ -12,9 +12,20 @@ export function resolveReceiptRunId(home: string, requested?: string): string {
   return runId;
 }
 
+export function normalizeReceipt(receipt: ReceiptDocument): ReceiptDocument {
+  const tripward_version = receipt.environment.tripward_version ?? receipt.environment.fusecap_version ?? "unknown";
+  return {
+    ...receipt,
+    environment: {
+      ...receipt.environment,
+      tripward_version,
+    },
+  };
+}
+
 export function readSealedReceipt(runDirectory: string): { raw: string; receipt: ReceiptDocument } {
   const raw = readFileSync(join(runDirectory, "receipt.json"), "utf8");
-  return { raw, receipt: JSON.parse(raw) as ReceiptDocument };
+  return { raw, receipt: normalizeReceipt(JSON.parse(raw) as ReceiptDocument) };
 }
 
 export interface ReceiptEmitInput {

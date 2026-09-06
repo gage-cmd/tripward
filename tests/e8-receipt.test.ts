@@ -39,6 +39,8 @@ describe("E8 receipt", () => {
     expect(html).not.toContain("https://tripward.dev");
     expect(html).not.toMatch(/fusecap/i);
     expect(html).not.toMatch(/\$\d/);
+    expect(receipt.environment.tripward_version).toBeTruthy();
+    expect(JSON.stringify(receipt)).not.toMatch(/fusecap/i);
     expect(JSON.stringify(receipt)).not.toMatch(/\$\d/);
   });
 });

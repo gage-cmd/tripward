@@ -13,7 +13,8 @@ import { getPreset } from "../policy/presets.js";
 import { writePolicy, writeRun } from "../session.js";
 import { sessionStartFixture, preToolUseBashFixture } from "../adapter/payloads.js";
 import type { ComponentHealth, RunRecord } from "../types.js";
-import { FUSECAP_VERSION } from "../version.js";
+import { isLegacyHomeDir } from "../brand.js";
+import { TRIPWARD_VERSION } from "../version.js";
 import { listedBackups } from "./installer.js";
 import { loadManifest, verifyBackup } from "./backup.js";
 import { chmodNeverBroader, formatMode, HOME_MODE, modeOf } from "./permissions.js";
@@ -79,7 +80,7 @@ function inspectSandbox(cwd: string): { ok: boolean; detail: string } {
     detail:
       found.length > 0
         ? `settings present; native sandbox key not observed. Tripward is not a host sandbox (Ch 20).`
-        : "no Claude settings yet — sandbox posture unknown. Run fusecap init; enable Claude native sandbox where compatible.",
+        : "no Claude settings yet — sandbox posture unknown. Run tripward init; enable Claude native sandbox where compatible.",
   };
 }
 
@@ -88,7 +89,7 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
   const add = (name: string, ok: boolean, detail: string) => components.push({ name, ok, detail });
 
   add("node", true, process.version);
-  add("fusecap", true, FUSECAP_VERSION);
+  add("tripward", true, TRIPWARD_VERSION);
   add("git", Boolean(which("git")), which("git") ?? "git not on PATH");
   add("repository", isGitRepo(cwd), isGitRepo(cwd) ? cwd : "cwd is not a git worktree");
 
@@ -110,7 +111,13 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
   try {
     chmodNeverBroader(home, HOME_MODE);
     const mode = formatMode(modeOf(home));
-    add("storage_home", mode === "700", `home mode ${mode} (want 700)`);
+    add(
+      "storage_home",
+      mode === "700",
+      isLegacyHomeDir(home)
+        ? `home mode ${mode} (want 700); using leftover .fusecap — new installs write .tripward`
+        : `home mode ${mode} (want 700)`,
+    );
   } catch (error) {
     add("storage_home", false, (error as Error).message);
   }
@@ -191,7 +198,7 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
   add(
     "hooks_installed",
     existsSync(settings) && readIf(settings).includes("hook"),
-    existsSync(settings) ? settings : "run fusecap init (hooks missing — protection would be degraded)",
+    existsSync(settings) ? settings : "run tripward init (hooks missing — protection would be degraded)",
   );
 
   const backups = listedBackups(home);
@@ -222,7 +229,7 @@ export async function runDoctor(cwd: string, home: string): Promise<DoctorReport
 export function formatDoctorReport(report: DoctorReport): string {
   const width = Math.max(12, ...report.components.map((c) => c.name.length));
   const lines = [
-    `Tripward doctor ${FUSECAP_VERSION}`,
+    `Tripward doctor ${TRIPWARD_VERSION}`,
     "",
     "Check".padEnd(width + 2) + "Result  Detail",
     "-".repeat(width + 2) + "------  ------",

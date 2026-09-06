@@ -6,14 +6,14 @@ import { compilePolicy } from "../src/policy/compiler.js";
 import { getPreset } from "../src/policy/presets.js";
 import type { EffectivePolicy, PolicyDocument } from "../src/types.js";
 
-export function tempDir(prefix = "fusecap-"): string {
+export function tempDir(prefix = "tripward-"): string {
   return mkdtempSync(join(tmpdir(), prefix));
 }
 
 export function gitInit(dir: string): string {
   execFileSync("git", ["init", "-b", "main"], { cwd: dir });
-  execFileSync("git", ["config", "user.email", "spike@fusecap.test"], { cwd: dir });
-  execFileSync("git", ["config", "user.name", "FuseCap Spike"], { cwd: dir });
+  execFileSync("git", ["config", "user.email", "spike@tripward.test"], { cwd: dir });
+  execFileSync("git", ["config", "user.name", "Tripward Spike"], { cwd: dir });
   writeFileSync(join(dir, "README.md"), "hello\n");
   execFileSync("git", ["add", "README.md"], { cwd: dir });
   execFileSync("git", ["commit", "-m", "init"], { cwd: dir });

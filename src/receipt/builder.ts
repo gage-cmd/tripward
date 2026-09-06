@@ -14,7 +14,7 @@ import type {
   ReceiptTrigger,
   SignalClass,
 } from "../types.js";
-import { FUSECAP_VERSION, RECEIPT_SCHEMA_VERSION } from "../version.js";
+import { TRIPWARD_VERSION, RECEIPT_SCHEMA_VERSION } from "../version.js";
 import { writeReceiptHtml } from "./html.js";
 
 export { renderHtml, writeReceiptHtml } from "./html.js";
@@ -136,7 +136,7 @@ export function buildReceipt(input: {
       ended_at: input.ended_at,
     },
     environment: {
-      fusecap_version: FUSECAP_VERSION,
+      tripward_version: TRIPWARD_VERSION,
       adapter_version: "0.1.0",
       claude_code_version: input.claude_version,
       os: `${process.platform} ${process.arch}`,

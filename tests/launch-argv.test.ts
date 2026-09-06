@@ -72,7 +72,7 @@ describe("normalizeClaudePassthrough", () => {
     expect(result.args).toEqual(["-p", "hello"]);
   });
 
-  it("turns documented `fusecap run -- claude` into an interactive session", () => {
+  it("turns documented `tripward run -- claude` into an interactive session", () => {
     const spec = buildClaudeLaunchSpec({
       claudeBin: "/opt/homebrew/bin/claude",
       passthrough: ["claude"],
@@ -103,7 +103,7 @@ describe("normalizeClaudePassthrough", () => {
 describe("runSupervised launched_command", () => {
   it("records a de-duplicated launched_command when PATH has a fake claude", async () => {
     const cwd = gitInit(tempDir("launch-"));
-    const home = join(cwd, ".fusecap");
+    const home = join(cwd, ".tripward");
     const bin = join(cwd, "bin");
     mkdirSync(bin, { recursive: true });
     const fake = join(bin, "claude");

@@ -103,7 +103,7 @@ https://tripward.dev/thanks.html is the buyer setup page (CoS publishes it on th
 
 The page is clone → init → doctor → run → receipt / restore preview:
 
-1. Clone into a folder named `tripward`: `git clone https://github.com/gage-cmd/fusecap.git tripward`. Then `npm install`.
+1. Clone into a folder named `tripward`: `git clone https://github.com/gage-cmd/tripward.git tripward`. Then `npm install`.
 2. `init` into a **throwaway** git repo first — not the only copy of work they care about.
 3. `doctor` until `OVERALL` is honest.
 4. `run` a real Claude Code session. Claude Code CLI is required for a real protected session; without `claude` on `PATH` the CLI uses the documented stub and the receipt says so.

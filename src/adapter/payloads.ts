@@ -6,8 +6,8 @@ export const DOCUMENTED_CLAUDE_CODE_MIN_VERSION = "2.1.210";
 
 export const sessionStartFixture = {
   session_id: "sess_fixture_healthy",
-  transcript_path: "/tmp/fusecap-fixtures/transcript.jsonl",
-  cwd: "/tmp/fusecap-fixtures/repo",
+  transcript_path: "/tmp/tripward-fixtures/transcript.jsonl",
+  cwd: "/tmp/tripward-fixtures/repo",
   permission_mode: "default",
   hook_event_name: "SessionStart",
   source: "startup",
@@ -16,8 +16,8 @@ export const sessionStartFixture = {
 export const preToolUseBashFixture = {
   session_id: "sess_fixture_healthy",
   prompt_id: "550e8400-e29b-41d4-a716-446655440000",
-  transcript_path: "/tmp/fusecap-fixtures/transcript.jsonl",
-  cwd: "/tmp/fusecap-fixtures/repo",
+  transcript_path: "/tmp/tripward-fixtures/transcript.jsonl",
+  cwd: "/tmp/tripward-fixtures/repo",
   permission_mode: "default",
   hook_event_name: "PreToolUse",
   tool_name: "Bash",
@@ -34,7 +34,7 @@ export const preToolUseDeniedToolFixture = {
   ...preToolUseBashFixture,
   tool_name: "NotebookEdit",
   tool_input: {
-    notebook_path: "/tmp/fusecap-fixtures/repo/notes.ipynb",
+    notebook_path: "/tmp/tripward-fixtures/repo/notes.ipynb",
     new_source: "print(1)",
   },
   tool_use_id: "toolu_01DENIEDNOTEBOOK",
@@ -69,8 +69,8 @@ export const preToolUseExactLoopFixture = {
 
 export const postToolUseFixture = {
   session_id: "sess_fixture_healthy",
-  transcript_path: "/tmp/fusecap-fixtures/transcript.jsonl",
-  cwd: "/tmp/fusecap-fixtures/repo",
+  transcript_path: "/tmp/tripward-fixtures/transcript.jsonl",
+  cwd: "/tmp/tripward-fixtures/repo",
   hook_event_name: "PostToolUse",
   tool_name: "Bash",
   tool_input: {
@@ -86,8 +86,8 @@ export const postToolUseFixture = {
 
 export const sessionEndFixture = {
   session_id: "sess_fixture_healthy",
-  transcript_path: "/tmp/fusecap-fixtures/transcript.jsonl",
-  cwd: "/tmp/fusecap-fixtures/repo",
+  transcript_path: "/tmp/tripward-fixtures/transcript.jsonl",
+  cwd: "/tmp/tripward-fixtures/repo",
   hook_event_name: "SessionEnd",
   reason: "complete",
 };

@@ -42,7 +42,7 @@ describe("Founding Pro post-pay fulfillment docs", () => {
     const thanks = read("docs/lander/thanks.snippet.html");
     const founding = read("docs/FOUNDING_PRO.md");
     for (const text of [setup, thanks]) {
-      expect(text).toContain("git clone https://github.com/gage-cmd/fusecap.git tripward");
+      expect(text).toContain("git clone https://github.com/gage-cmd/tripward.git");
       expect(text).toContain("cd tripward");
       expect(text).toContain("/path/to/tripward/");
       expect(text).not.toMatch(/cd fusecap\b/);
@@ -60,7 +60,7 @@ describe("Founding Pro post-pay fulfillment docs", () => {
       expect(text).not.toMatch(SECRET_RE);
       expect(text).toMatch(/no Cursor|Not in this product: Cursor/i);
     }
-    expect(founding).toContain("git clone https://github.com/gage-cmd/fusecap.git tripward");
+    expect(founding).toContain("git clone https://github.com/gage-cmd/tripward.git");
     expect(setup).toContain(FOUNDING_PRO_THANKS_URL);
     expect(setup).toMatch(/SUPPORT_EMAIL/);
     expect(setup).toMatch(/unset/);
@@ -68,7 +68,7 @@ describe("Founding Pro post-pay fulfillment docs", () => {
   });
 
   it("keeps the public product name Tripward in new buyer-facing copy", () => {
-    const allowedGithub = /https:\/\/github\.com\/gage-cmd\/fusecap(?:\.git)?(?:\/[^\s)"']*)?/g;
+    const allowedGithub = /https:\/\/github\.com\/gage-cmd\/tripward(?:\.git)?(?:\/[^\s)"']*)?/g;
     for (const rel of ["docs/SETUP.md", "docs/lander/thanks.snippet.html", "docs/FOUNDING_PRO.md"]) {
       const scrubbed = read(rel).replace(allowedGithub, "");
       expect(scrubbed, rel).not.toMatch(/FuseCap/);

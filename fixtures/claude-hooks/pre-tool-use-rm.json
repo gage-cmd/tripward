@@ -1,7 +1,7 @@
 {
   "session_id": "sess_fixture_healthy",
-  "transcript_path": "/tmp/fusecap-fixtures/transcript.jsonl",
-  "cwd": "/tmp/fusecap-fixtures/repo",
+  "transcript_path": "/tmp/tripward-fixtures/transcript.jsonl",
+  "cwd": "/tmp/tripward-fixtures/repo",
   "permission_mode": "default",
   "hook_event_name": "PreToolUse",
   "tool_name": "Bash",

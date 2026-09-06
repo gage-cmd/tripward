@@ -52,7 +52,7 @@ Shared-box path was `/workspace/tripward-specs/PR2-recovery-preview-apple-bar.md
 
 ## CLI honesty
 
-`package.json` `bin` already exposes `tripward` and `fusecap`. User-facing HTML and beta docs brand Tripward. Internal package name may stay `fusecap`.
+`package.json` `bin` exposes `tripward`. User-facing HTML and beta docs brand Tripward only.
 
 Receipt HTML may add a **secondary** CTA line for `tripward restore --preview --html <run_id>` without removing the JSON preview CTA.
 
