@@ -1,0 +1,13 @@
+{
+  "session_id": "sess_fixture_healthy",
+  "transcript_path": "/tmp/fusecap-fixtures/transcript.jsonl",
+  "cwd": "/tmp/fusecap-fixtures/repo",
+  "permission_mode": "default",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "NotebookEdit",
+  "tool_input": {
+    "notebook_path": "/tmp/fusecap-fixtures/repo/notes.ipynb",
+    "new_source": "print(1)"
+  },
+  "tool_use_id": "toolu_01DENIEDNOTEBOOK"
+}
