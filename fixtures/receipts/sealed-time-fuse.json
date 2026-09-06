@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "receipt_id": "rcpt_fixture_time_fuse",
+  "run_id": "run_fixture_time_fuse",
+  "sealed_at": "2026-09-06T00:00:02.000Z",
+  "identity": {
+    "repository_fingerprint": "/tmp/secret-repo-path:abc123def",
+    "branch": "main",
+    "host_label": "secret-host.internal",
+    "started_at": "2026-09-06T00:00:00.000Z",
+    "ended_at": "2026-09-06T00:00:02.000Z"
+  },
+  "environment": {
+    "fusecap_version": "0.1.0-alpha",
+    "adapter_version": "0.1.0",
+    "claude_code_version": null,
+    "os": "linux x64",
+    "protection_health": "protected",
+    "health_reasons": [],
+    "signal_class": "stub-ci",
+    "launched_binary": "/Users/secret-user/.local/bin/claude"
+  },
+  "policy": {
+    "policy_id": "spike",
+    "version": 1,
+    "digest": "sha256:policy-fixture-digest",
+    "preset": "spike",
+    "enforcement_mode": "enforce"
+  },
+  "outcome": "terminated",
+  "exit_reason": "time_fuse",
+  "trigger": {
+    "rule": "runtime.max_elapsed_seconds",
+    "threshold": 2,
+    "observed_value": 2,
+    "confidence": "high",
+    "action": "graceful_stop+force_kill",
+    "action_executed": true
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "type": "run.armed",
+      "wall_time": "2026-09-06T00:00:00.000Z",
+      "monotonic_ms": 0,
+      "summary": "run armed"
+    },
+    {
+      "sequence": 2,
+      "type": "fuse.tripped",
+      "wall_time": "2026-09-06T00:00:02.000Z",
+      "monotonic_ms": 2000,
+      "summary": "tripped time_fuse"
+    }
+  ],
+  "repository": {
+    "checkpoint_intact": true,
+    "dirty_at_start": false,
+    "files_in_manifest": 1,
+    "final_status": "time_fuse"
+  },
+  "usage": {
+    "cost": null,
+    "currency": null,
+    "source": "unavailable",
+    "confidence": "unavailable",
+    "note": "Usage dollars are unavailable for Claude Code subscription traffic. Tripward will not invent USD. Tokens appear only when a separately supported observable API/BYOK boundary is active."
+  },
+  "limitations": [
+    "Usage dollars are unavailable for Claude Code subscription traffic. Tripward will not invent USD. Tokens appear only when a separately supported observable API/BYOK boundary is active.",
+    "Tool allow/deny applies only to hook-visible Claude Code tools.",
+    "Command guard is high-confidence pattern matching, not a shell-security engine.",
+    "Exact-loop detection uses the versioned normalizer; productive-but-identical calls can trip.",
+    "Recovery preview is required; Tripward will not silently reset a dirty tree.",
+    "Stub/CI trip: Claude Code was not launched. Does not count as a live or alpha legitimate signal."
+  ],
+  "integrity": {
+    "schema_version": "1.0",
+    "content_digest": "sha256:integrity-fixture-digest"
+  },
+  "privacy": {
+    "redaction_level": "private-local",
+    "persist_raw_payloads": false,
+    "excluded_fields": ["prompts", "completions", "file_contents", "secrets", "usd_cost"]
+  }
+}

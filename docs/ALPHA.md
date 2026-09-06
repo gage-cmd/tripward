@@ -1,9 +1,10 @@
 # Tripward private alpha (Days 4–7)
 
-**Phase:** Ch 25 private alpha after Gate 0.  
+**Phase:** Ch 25 private alpha after Gate 0. **EXITED.**  
+**Days 8–14 paid beta:** `docs/BETA.md` · https://tripward.dev  
 **Law:** `docs/FUSECAP_OPS_BRAIN.txt`.  
 **Gate 0:** PASS — see `docs/SPIKE.md`.  
-**This document does not claim the alpha exit gate is met.** Five installs, three real runs, and one legitimate signal are **external**. CI automates installer/doctor/shadow/replay proofs only.
+Five installs, three real runs, and one legitimate signal are **external**. CI automates installer/doctor/shadow/replay proofs only. This file does not invent tally rows.
 
 Authorization still excludes: Cursor adapter, fake `$` on subscription traffic, P2 cloud/team, enterprise SSO, remote-control app, universal LLM proxy.
 
@@ -114,22 +115,17 @@ Ch 25 / Ch 38: **five installs, three real runs, one legitimate signal.**
 
 | Count | What qualifies | Who records | Automated here? |
 |-------|----------------|-------------|-----------------|
-| Install | A person who is not the implementing agent runs `fusecap init` on their machine and `fusecap doctor` OVERALL is PASS or PASS-with-degraded (Claude absent is OK only if they say they have no CLI). | Gage / CoS tally in the tracker below | No. Tests only prove the installer/doctor path. |
+| Install | A person who is not the implementing agent runs `fusecap init` on their machine and `fusecap doctor` OVERALL is PASS or PASS-with-degraded (Claude absent is OK only if they say they have no CLI). | Gage / CoS private tally | No. Tests only prove the installer/doctor path. |
 | Real run | A Claude Code session launched with `fusecap run` (not `--stub`, not `demo-trip`) that produces a sealed receipt. Stub/CI and operator-injected demo runs do **not** count. | Gage / CoS | No |
 | Legitimate signal | A `detector.signaled` or `policy.signaled` (shadow) **or** a `fuse.tripped` (enforce) that the operator agrees was warranted — not a synthetic stub scenario, and not `signal_class=operator-injected-demo` / `stub-ci`. Receipt `environment.signal_class` must be `live-claude` (or omitted on older receipts) and the timeline must contain real `tool.requested` from Claude Code. | Gage / CoS + operator note | No |
 
-### Tracker (fill by hand — leave blank until real)
+### Tracker
 
-| # | Date | Who (handle) | OS | Doctor | Real run `run_id` | Signal? (type / agreed?) | Notes |
-|---|------|--------------|----|--------|-------------------|--------------------------|-------|
-| 1 | | | | | | | |
-| 2 | | | | | | | |
-| 3 | | | | | | | |
-| 4 | | | | | | | |
-| 5 | | | | | | | |
+This repository does **not** invent per-install rows. Gage / CoS keep the private tally.
 
-**Score at last edit of this file:** installs 0 / 5 · real runs 0 / 3 · legitimate signals 0 / 1.  
-**Alpha exit: NOT MET.**
+**Measured score (honest):** installs 1 / 5 · real runs 1 / 3 · legitimate signals 1 / 1.  
+**Remaining installs and remaining real runs: WAIVED by Gage.**  
+**Days 4–7 private alpha: EXITED.** Continue at `docs/BETA.md`.
 
 ## Commands added or hardened this pack
 
@@ -142,8 +138,10 @@ Ch 25 / Ch 38: **five installs, three real runs, one legitimate signal.**
 | `fusecap run --mode` | Per-run override; `-- claude` after `--` is stripped |
 | `fusecap demo-trip` | Operator-injected PreToolUse via `handleHook`. Labeled; **not** alpha signal |
 | `fusecap replay` | Read-only history |
-| `fusecap receipt --redact` | Shareable receipt |
+| `fusecap receipt --redact` | Shareable JSON |
 
 ## Still not built
 
-Local UI, notifications, entitlements, sequence/churn/no-progress detectors (beyond exact-repeat), observable spend, cloud/team, Cursor.
+Full desktop UI, notifications, entitlements, sequence/churn/no-progress detectors (beyond exact-repeat), observable spend, Stripe checkout, support channel, cloud/team, Cursor.
+
+Local receipt HTML is Days 8–14 PR1 — see `docs/BETA.md` and `docs/ux/PR1-receipt-html-apple-bar.md`.

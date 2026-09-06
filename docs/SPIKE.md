@@ -1,7 +1,7 @@
 # Tripward 0–72h enforceability spike
 
 **Phase:** Ch 25 enforceability spike (E1–E9 only).  
-**Gate 0: PASS** (2026-09-06) — five synthetic trips green in CI; two healthy live sessions on Gage’s Mac (Claude Code). Merged to `main` as `72d0033`. Days 4–7 private alpha is a separate pack (`docs/ALPHA.md`); it does not re-open Gate 0.  
+**Gate 0: PASS** (2026-09-06) — five synthetic trips green in CI; two healthy live sessions on Gage’s Mac (Claude Code). Merged to `main` as `72d0033`. Days 4–7 private alpha (`docs/ALPHA.md`) has exited. Days 8–14 paid beta is `docs/BETA.md` (https://tripward.dev); it does not re-open Gate 0.  
 **Authorization:** Claude Code controls. Not built: Cursor adapter, universal LLM proxy, enterprise SSO, remote-control app, autonomous security product, fake `$` on subscription traffic, P1 UI/shadow detectors/cloud.  
 **Law:** `docs/FUSECAP_OPS_BRAIN.txt`. Divergences: `docs/adr/`.
 

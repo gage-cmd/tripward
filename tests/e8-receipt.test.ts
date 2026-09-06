@@ -29,7 +29,12 @@ describe("E8 receipt", () => {
     expect(receipt.integrity.content_digest.startsWith("sha256:")).toBe(true);
     expect(receipt.timeline.length).toBeGreaterThan(0);
     expect(receipt.limitations.length).toBeGreaterThan(3);
-    expect(renderHtml(receipt)).toContain("Usage dollars are unavailable");
+    const html = renderHtml(receipt);
+    expect(html).toContain("Unavailable");
+    expect(html).toContain("will not invent USD");
+    expect(html).toContain("tripward restore --preview");
+    expect(html).not.toMatch(/fusecap/i);
+    expect(html).not.toMatch(/\$\d/);
     expect(JSON.stringify(receipt)).not.toMatch(/\$\d/);
   });
 });

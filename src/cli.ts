@@ -18,9 +18,8 @@ import { formatDoctorReport, runDoctor } from "./install/doctor.js";
 import { ensureHome, resolveHome, runDir } from "./paths.js";
 import { handleHook, readActive } from "./session.js";
 import { formatReplayReport, replayHistory } from "./replay/replay.js";
-import { redactReceipt } from "./receipt/redact.js";
+import { emitReceipt } from "./commands/receipt.js";
 import { FUSECAP_VERSION } from "./version.js";
-import type { ReceiptDocument } from "./types.js";
 
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
@@ -30,31 +29,38 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
+function invokedName(): string {
+  const base = (process.argv[1] ?? "tripward").split(/[/\\]/).pop() ?? "tripward";
+  return base === "fusecap" || base === "fusecap.js" ? "fusecap" : "tripward";
+}
+
 function usage(): string {
-  return `Tripward ${FUSECAP_VERSION} (CLI: fusecap) — local circuit breaker for Claude Code (private alpha)
+  const bin = invokedName();
+  return `Tripward ${FUSECAP_VERSION} — local circuit breaker for Claude Code (paid beta)
+CLI: tripward (alias: fusecap) · https://tripward.dev
 
 Usage:
-  fusecap init [--preview] [--cwd DIR] [--home DIR] [--preset NAME] [--mode shadow|enforce]
-  fusecap protect [preset] [--mode shadow|enforce]
-  fusecap run [--preset NAME] [--policy FILE] [--mode shadow|enforce] [--stub] [--scenario NAME] [--] [claude args]
-  fusecap demo-trip [--kind dangerous|exact-loop|hook-block] [--preset spike]
-  fusecap hook                 # Claude Code hook entry (stdin JSON)
-  fusecap doctor [--json]
-  fusecap status
-  fusecap receipt [run_id] [--redact]
-  fusecap replay [run_id] [--json]
-  fusecap restore [run_id] --preview
-  fusecap restore [run_id] --confirm --digest DIGEST --paths a,b
-  fusecap policy explain [--preset NAME|--policy FILE] [--mode shadow|enforce]
-  fusecap uninstall [--preview]
-  fusecap fixtures
+  ${bin} init [--preview] [--cwd DIR] [--home DIR] [--preset NAME] [--mode shadow|enforce]
+  ${bin} protect [preset] [--mode shadow|enforce]
+  ${bin} run [--preset NAME] [--policy FILE] [--mode shadow|enforce] [--stub] [--scenario NAME] [--] [claude args]
+  ${bin} demo-trip [--kind dangerous|exact-loop|hook-block] [--preset spike]
+  ${bin} hook                 # Claude Code hook entry (stdin JSON)
+  ${bin} doctor [--json]
+  ${bin} status
+  ${bin} receipt [run_id] [--redact] [--html] [--open]
+  ${bin} replay [run_id] [--json]
+  ${bin} restore --preview [run_id]
+  ${bin} restore --confirm --digest DIGEST --paths a,b [run_id]
+  ${bin} policy explain [--preset NAME|--policy FILE] [--mode shadow|enforce]
+  ${bin} uninstall [--preview]
+  ${bin} fixtures
 
-Alpha default: new policies are shadow (detectors/policy signal without interrupting).
-Flip enforce:  fusecap protect --mode enforce   or   fusecap run --preset spike
+Shadow is the default. Flip enforce: ${bin} protect --mode enforce   or   ${bin} run --preset spike
 After --, pass Claude flags only (-p ...). A leading claude token is stripped (compat).
 demo-trip injects PreToolUse locally - not a live Claude signal, not stub CI.
 Hard stops (dangerous command, missing journal/hooks/checkpoint) still fire in shadow.
 Uninstall restores verified backups only and never broadens permissions.
+receipt --html writes a private local Apple-bar receipt next to receipt.json.
 
 Authorization: Claude Code adapter only. No Cursor, no fake USD, no cloud.
 `;
@@ -184,16 +190,26 @@ async function main(): Promise<void> {
       return;
     }
     case "receipt": {
-      const active = readActive(home);
-      const runId = args.rest[0] ?? active?.run_id;
-      if (!runId) throw new Error("no run id");
-      const json = readFileSync(resolve(runDir(home, runId), "receipt.json"), "utf8");
-      if (bool(args.flags, "redact")) {
-        const receipt = JSON.parse(json) as ReceiptDocument;
-        console.log(JSON.stringify(redactReceipt(receipt), null, 2));
-        return;
+      const result = emitReceipt({
+        home,
+        runId: args.rest[0],
+        redact: bool(args.flags, "redact"),
+        html: bool(args.flags, "html"),
+        open: bool(args.flags, "open"),
+      });
+      if (result.jsonPrinted !== undefined) {
+        process.stdout.write(result.jsonPrinted.endsWith("\n") ? result.jsonPrinted : `${result.jsonPrinted}\n`);
       }
-      console.log(json);
+      if (result.htmlPath) {
+        if (result.jsonPrinted !== undefined) {
+          console.error(result.htmlPath);
+        } else {
+          console.log(result.htmlPath);
+        }
+        if (bool(args.flags, "open") && result.opened === false) {
+          console.error("Tripward: could not open the HTML receipt. Open the path above in a browser.");
+        }
+      }
       return;
     }
     case "replay": {
@@ -248,7 +264,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error(`fusecap: ${(error as Error).message}`);
+  console.error(`${invokedName()}: ${(error as Error).message}`);
   process.exitCode = 1;
 });
 
