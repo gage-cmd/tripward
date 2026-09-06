@@ -40,7 +40,7 @@ Send only what is needed to reproduce a local tool:
 - `.env`, API keys, Claude / Stripe / cloud credentials, or anything that looks like a secret.
 - Private local `receipt.html` / `recovery.html` (they can carry paths).
 - Stripe secret keys (`sk_live_`, `sk_test_`, `whsec_`).
-- A guessed Payment Link. Founding Pro checkout is `docs/FOUNDING_PRO.md`.
+- A guessed Payment Link. Founding Pro checkout and post-pay fulfillment are `docs/FOUNDING_PRO.md`. After you pay, use https://tripward.dev/thanks.html or `docs/SETUP.md`.
 
 If you already pasted a secret, rotate it. Do not assume the issue tracker is private.
 
@@ -51,7 +51,7 @@ If you already pasted a secret, rotate it. Do not assume the issue tracker is pr
 | **Critical — lost work** | Preexisting staged, unstaged, or untracked bytes may be gone or about to be overwritten. | Lost-work path. Stop first. |
 | **Critical — security** | Tripward itself may leak, over-claim protection, or destroy work. | `SECURITY.md` only. No public writeup. |
 | **Compatibility** | Doctor FAIL, hook schema / version break, full-protection claim refused (AC-12). | Compatibility template. |
-| **General** | How-to, false stop, shadow vs enforce, Founding Pro “Checkout not configured”. | Help form. |
+| **General** | How-to, false stop, shadow vs enforce, Founding Pro checkout / thanks.html setup. | Help form. |
 
 If you are unsure and preexisting work is involved, treat it as **lost work**. Preview; do not reset.
 
@@ -201,7 +201,11 @@ If you only need a private channel and have no mailbox yet, open a public issue 
 
 ## Founding Pro / checkout
 
-Checkout questions are **General**, not lost-work. Empty Payment Link → honest **Checkout not configured** (`docs/FOUNDING_PRO.md`). Do not send Stripe secrets.
+Checkout questions are **General**, not lost-work. Empty Payment Link → honest **Checkout not configured**.
+
+After you pay, Stripe should redirect to https://tripward.dev/thanks.html. Those steps also live in `docs/SETUP.md`. How Gage wires **After the payment → redirect** (and the email backup if redirect was off): `docs/FOUNDING_PRO.md` (Post-pay fulfillment).
+
+Do not send Stripe secrets. There is no license key to request.
 
 ## Still out of scope
 

@@ -23,6 +23,6 @@ Journals, sealed receipts, Git checkpoints, and policy under `.fusecap/`. Privat
 
 ## Sharing
 
-If you send evidence, send redacted JSON — not `.env`, transcripts, prompts, or repo contents. Usage dollars stay null unless a separately supported observable API/BYOK boundary is active. How to get help: `SUPPORT.md`. Security: `SECURITY.md`.
+If you send evidence, send redacted JSON — not `.env`, transcripts, prompts, or repo contents. Usage dollars stay null unless a separately supported observable API/BYOK boundary is active. After you pay: https://tripward.dev/thanks.html · `docs/SETUP.md`. How to get help: `SUPPORT.md`. Security: `SECURITY.md`.
 
 Telemetry default is off. No account is required for local protection.

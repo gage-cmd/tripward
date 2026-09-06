@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>You’re in — Tripward Founding Pro</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0 auto;
+      max-width: 40rem;
+      padding: 3rem 1.25rem 4rem;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    h1 { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+    h2 { font-size: 1.05rem; font-weight: 600; margin-top: 2rem; }
+    p, li { color: inherit; }
+    .lede { font-size: 1.05rem; }
+    .micro { font-size: 0.85rem; opacity: 0.75; }
+    pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; }
+    pre {
+      overflow: auto;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      background: color-mix(in srgb, currentColor 6%, transparent);
+    }
+    a { color: inherit; }
+    nav { margin-top: 2.5rem; }
+  </style>
+</head>
+<body>
+  <p class="micro">Tripward · Founding Pro · paid beta</p>
+  <h1>You’re in. There is no license key.</h1>
+  <p class="lede">Stripe collected payment. Protection is local. Clone, init into a throwaway repo, then doctor and run. Same steps: <a href="https://github.com/gage-cmd/fusecap/blob/main/docs/SETUP.md">docs/SETUP.md</a>.</p>
+
+  <h2>1. Clone</h2>
+  <pre>git clone https://github.com/gage-cmd/fusecap.git tripward
+cd tripward
+git checkout main
+npm install</pre>
+
+  <h2>2. Init into a throwaway repo</h2>
+  <p>Not the only copy of work you care about. The path after <code>npx tsx</code> is this clone.</p>
+  <pre>cd /path/to/your-throwaway-repo
+
+npx tsx /path/to/tripward/src/cli.ts init --preview
+npx tsx /path/to/tripward/src/cli.ts init</pre>
+
+  <h2>3. Doctor</h2>
+  <pre>npx tsx /path/to/tripward/src/cli.ts doctor</pre>
+  <p>Read <code>OVERALL</code> and every <code>FAIL</code> row. Claude Code missing is an honest degrade — not a license problem.</p>
+
+  <h2>4. Run (Claude Code required for a real session)</h2>
+  <pre>claude --version
+npx tsx /path/to/tripward/src/cli.ts run
+# small real task, then quit normally</pre>
+  <p>Without <code>claude</code> on <code>PATH</code>, the CLI uses the documented stub and the receipt says so.</p>
+
+  <h2>5. Receipt and restore preview</h2>
+  <pre>npx tsx /path/to/tripward/src/cli.ts receipt --html
+npx tsx /path/to/tripward/src/cli.ts restore --preview --html</pre>
+  <p>Open the printed HTML. The recovery page does <strong>not</strong> apply. Never <code>git reset --hard</code>.</p>
+
+  <nav>
+    <p class="micro">Help: <a href="https://github.com/gage-cmd/fusecap/blob/main/SUPPORT.md">SUPPORT.md</a> (GitHub issues). <code>SUPPORT_EMAIL</code> is unset. Security: <a href="https://github.com/gage-cmd/fusecap/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+    <p class="micro">No Cursor adapter. Receipts never invent USD. Refunds: Gage in Stripe, if a promised capability is missing or fails.</p>
+  </nav>
+</body>
+</html>

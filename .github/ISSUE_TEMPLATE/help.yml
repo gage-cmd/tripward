@@ -10,7 +10,7 @@ body:
 
         Never paste prompts, transcripts, `.env`, secrets, Stripe `sk_` / `whsec_`, or private HTML. `tripward receipt --redact` is the shareable receipt.
 
-        Same rules live in `SUPPORT.md`.
+        Same rules live in `SUPPORT.md`. After Founding Pro payment, start at https://tripward.dev/thanks.html or `docs/SETUP.md` — there is no license key.
 
   - type: dropdown
     id: kind

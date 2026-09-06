@@ -66,6 +66,7 @@ restore --preview --html writes recovery.html next to that receipt. The page doe
 
 Authorization: Claude Code adapter only. No Cursor, no fake USD, no cloud.
 Founding Pro ($15/mo): set TRIPWARD_FOUNDING_PRO_PAYMENT_LINK or see docs/FOUNDING_PRO.md.
+After you pay: https://tripward.dev/thanks.html · docs/SETUP.md
 Support: SUPPORT.md (lost-work / compatibility). Security: SECURITY.md (private).
 `;
 }
